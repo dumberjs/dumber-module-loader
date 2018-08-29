@@ -1,0 +1,49 @@
+{
+  "name": "dumbamd",
+  "version": "1.0.0",
+  "description": "A minimum AMD module loader, designed to work with dumbpack",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "env BABEL_ENV=development rollup -c",
+    "lint": "eslint src",
+    "prepare": "npm run build",
+    "preversion": "npm test",
+    "version": "standard-changelog && git add CHANGELOG.md",
+    "postversion": "git push && git push --tags && npm publish",
+    "pretest": "npm run lint",
+    "test": "env BABEL_ENV=test tape -r babel-register 'test/**/*.spec.js'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/huochunpeng/dumbamd.git"
+  },
+  "keywords": [
+    "amd",
+    "requirejs"
+  ],
+  "author": "Chunpeng Huo",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/huochunpeng/dumbamd/issues"
+  },
+  "homepage": "https://github.com/huochunpeng/dumbamd#readme",
+  "devDependencies": {
+    "babel-eslint": "^8.2.6",
+    "babel-plugin-external-helpers": "^6.22.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-stage-1": "^6.24.1",
+    "babel-register": "^6.26.0",
+    "eslint": "^5.4.0",
+    "rollup": "^0.64.1",
+    "rollup-plugin-babel": "^3.0.7",
+    "rollup-plugin-json": "^3.0.0",
+    "rollup-plugin-terser": "^1.0.1",
+    "standard-changelog": "^2.0.1",
+    "tape": "^4.9.1"
+  },
+  "types": "index.d.ts",
+  "files": [
+    "dist",
+    "index.d.ts"
+  ]
+}
