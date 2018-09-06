@@ -1,5 +1,5 @@
 import { version } from '../package.json';
-import { cleanPath, stripPluginPrefixOrSubfix } from './id-utils';
+import { cleanPath, parse } from './id-utils';
 
 // same as requirejs baseUrl, paths, bundles
 let _baseUrl = './';
@@ -17,7 +17,7 @@ let _registering = null;
 const _defined = {};
 
 function defined(id) {
-  return id && _defined.hasOwnProperty(stripPluginPrefixOrSubfix(id));
+  return id && _defined.hasOwnProperty(parse(id).bareId);
 }
 
 // AMD define

@@ -1,22 +1,130 @@
+const KNOWN_EXTS = ['.js', '.json', '.html', '.htm', '.svg', '.css', '.wasm'];
+const idMatcher = /^(\w+!)?(.+?)\/?$/;
 
 export function cleanPath(path = '') {
-  path = path.trim();
-  const len = path.length;
-  if (len && path[len - 1] === '/') path = path.substr(0, len - 1);
-  return path;
+  let clean = path.trim();
+  if (clean.endsWith('/')) clean = clean.substr(0, clean.length - 1);
+  return clean;
 }
 
-export function stripPluginPrefixOrSubfix(moduleId = '') {
-  moduleId = moduleId.trim();
-  const hasPrefix = moduleId.match(/^\w+\!(.+)$/);
-  if (hasPrefix) {
-    return hasPrefix[1];
+export function ext(id = '') {
+  let clean = cleanPath(id);
+
+  const parts = clean.split('/');
+  const last = parts.pop();
+  const dotPos = last.lastIndexOf('.');
+  if (dotPos !== -1) {
+    const ext = last.substring(dotPos).toLowerCase();
+    if (KNOWN_EXTS.indexOf(ext) !== -1) return ext;
+  }
+  return '';
+}
+
+export function parse(id = '') {
+  let m = id.trim().match(idMatcher);
+  if (!m) throw new Error(`not a vaid module id: "${id}"`);
+  const prefix = m[1] || '';
+  let bareId = m[2];
+
+  const extname = ext(bareId);
+  if (extname === '.js') {
+    bareId = bareId.substr(0, bareId.length - 3);
   }
 
-  const hasSubfix = moduleId.match(/^(.+)\!\w+$/);
-  if (hasSubfix) {
-    return hasSubfix[1];
+  let parts = bareId.split('/').filter(p => p);
+  if (parts[0].startsWith('@') && parts.length > 1) {
+    let scope = parts.shift();
+    parts[0] = scope + '/' + parts[0];
   }
 
-  return moduleId;
+  const partsWithoutInnerDot = [];
+  for (let i = 0, len = parts.length; i < len; i++) {
+    // remove inner '.'
+    if (i == 0 || parts[i] !== '.') {
+      partsWithoutInnerDot.push(parts[i]);
+    }
+  }
+
+  const partsWithMergedDotDot = [];
+  for (let i = 0, len = partsWithoutInnerDot.length; i < len; i++) {
+    let p = partsWithoutInnerDot[i];
+    if (i === 0 || p !== '..') {
+      partsWithMergedDotDot.push(p);
+    } else {
+      // merge verbose '..'
+      const previous = partsWithMergedDotDot.pop();
+      if (previous === '..') {
+        partsWithMergedDotDot.push(previous);
+        partsWithMergedDotDot.push(p);
+      } else if (previous === '.' || previous === undefined) {
+        partsWithMergedDotDot.push(p);
+      }
+      // if (previous !== '.' || previous !== '..')
+      // ignore both previous and current part
+    }
+  }
+
+  parts = partsWithMergedDotDot;
+  bareId = parts.join('/');
+
+  return {
+    prefix: prefix,
+    bareId: bareId,
+    parts: parts,
+    ext: extname !== '.js' ? extname : '',
+    cleanId: prefix + bareId
+  };
+}
+
+export function resolveModuleId(baseId, relativeId) {
+  let parsedBaseId = parse(baseId);
+  let parsed = parse(relativeId);
+  if (parsed.bareId[0] !== '.') return parsed.cleanId;
+
+  let parts = parsedBaseId.parts;
+  parts.pop();
+
+  parsed.parts.forEach(function (p) {
+    if (p === '..') {
+      if (parts.length === 0) {
+        // no where to go but to retain '..'
+        // it could end up like '../package.json'
+        parts.push('..');
+      } else {
+        parts.pop();
+      }
+    } else if (p !== '.') {
+      parts.push(p);
+    }
+  });
+
+  return parsed.prefix + parts.join('/');
+}
+
+export function relativeModuleId(baseId, absoluteId) {
+  const parsedBaseId = parse(baseId);
+  const parsed = parse(absoluteId);
+
+  if (parsed.bareId[0] === '.') return parsed.cleanId;
+
+  const baseParts = parsedBaseId.parts;
+  baseParts.pop();
+
+  const parts = parsed.parts;
+
+  while (parts.length && baseParts.length && baseParts[0] === parts[0]) {
+    baseParts.shift();
+    parts.shift();
+  }
+
+  let left = baseParts.length;
+  if (left === 0) {
+    parts.unshift('.');
+  } else {
+    for (let i = 0; i < left; i ++) {
+      parts.unshift('..');
+    }
+  }
+
+  return parsed.prefix + parts.join('/');
 }
