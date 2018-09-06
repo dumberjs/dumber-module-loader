@@ -1,7 +1,7 @@
 {
-  "name": "dumbamd",
-  "version": "1.0.0",
-  "description": "A minimum AMD module loader, designed to work with dumbpack",
+  "name": "@dumber/loader",
+  "version": "0.1.0",
+  "description": "A minimum AMD module loader, designed to work with dumber bundler",
   "main": "dist/index.js",
   "scripts": {
     "build": "env BABEL_ENV=development rollup -c",
@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/huochunpeng/dumbamd.git"
+    "url": "git+https://github.com/huochunpeng/dumber-loader.git"
   },
   "keywords": [
     "amd",
@@ -24,9 +24,9 @@
   "author": "Chunpeng Huo",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/huochunpeng/dumbamd/issues"
+    "url": "https://github.com/huochunpeng/dumber-loader/issues"
   },
-  "homepage": "https://github.com/huochunpeng/dumbamd#readme",
+  "homepage": "https://github.com/huochunpeng/dumber-loader#readme",
   "devDependencies": {
     "babel-eslint": "^8.2.6",
     "babel-plugin-external-helpers": "^6.22.0",
