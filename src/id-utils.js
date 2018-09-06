@@ -105,7 +105,7 @@ export function relativeModuleId(baseId, absoluteId) {
   const parsedBaseId = parse(baseId);
   const parsed = parse(absoluteId);
 
-  if (parsed.bareId[0] === '.') return parsed.cleanId;
+  if (parsed.bareId[0] === '.' && parsedBaseId.bareId[0] !== '.') return parsed.cleanId;
 
   const baseParts = parsedBaseId.parts;
   baseParts.pop();
