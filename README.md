@@ -1,8 +1,8 @@
-# @dumber/loader
+# dumber-amd-loader
 
-A minimum AMD module loader, designed to work with the [dumber bundler](https://github.com/huochunpeng/dumber-bundler).
+A minimum AMD module loader, designed to work with the [dumber](https://github.com/huochunpeng/dumber).
 
-* Partial AMD implementation, just enough for bundled app to work in browser, bu still can load dynamic module from remote url at runtime.
+* Partial AMD implementation, just enough for bundled app to work in browser, but still can load dynamic module from remote url at runtime.
 * Mimic Node.js module resolving behavior so dumber bundler can do less work.
 
 * [ ] two namespace: '' (default) and 'vendor' (for npm packages).
@@ -11,3 +11,5 @@ A minimum AMD module loader, designed to work with the [dumber bundler](https://
 * [ ] support resolve hook, to transpile, transform raw code
  - by default, dumber-loader ships with no hook
  - dumber-loader-on-steroid bring babel stage-1, write transforms from dumber-bundler
+* support dynamic import https://github.com/tc39/proposal-dynamic-import
+ - the `import()` api is recommended to use over traditional AMD `require()` api.

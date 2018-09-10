@@ -4,41 +4,24 @@ import { cleanPath, parse } from './id-utils';
 // same as requirejs baseUrl, paths, bundles
 let _baseUrl = './';
 const _paths = {};
+
+/*
+bundles: {
+  app-bundle: {
+    user: ['app', 'app.html', 'util', 'common/index'],
+    package: ['lodash', 'lodash/map', 'util']
+  }
+}
+*/
 const _bundles = {};
 
-// all registered modules, but not used yet.
-// once required (used), move to defined.
-const _registry = {};
-
-// temporary hold of of anonymous/named module
-let _registering = null;
-
-// all defined modules
-const _defined = {};
-
 function defined(id) {
-  return id && _defined.hasOwnProperty(parse(id).bareId);
+
 }
 
 // AMD define
-function define(name, deps, callback) {
-  // anonymous module
-  if (typeof name !== 'string') {
-      callback = deps;
-      deps = name;
-      name = null;
-  }
+function define(id, deps, callback) {
 
-  if (!Array.isArray(deps)) {
-      callback = deps;
-      deps = null;
-  }
-
-  // different from requirejs, dumbamd doesn't auto inject commonjs deps
-
-  // named module
-  if (name) _registry[name] = {deps, callback};
-  _registering = {name, deps, callback};
 }
 
 // AMD require
@@ -78,3 +61,16 @@ requirejs.isBrowser = !!(typeof window !== 'undefined' && typeof navigator !== '
 requirejs.version = version;
 
 export default define;
+
+
+// dumber-amd-loader has two fixed module spaces:
+// 1. user space (default), for user source code
+// 2. package space, for all npm pacakges and local packages
+//
+// Module in user space can depend on any module in user or package space.
+// Module in package space can only depend on module in package space.
+//
+// This is a cheap way to avoid module name collision.
+// For instance, if user app has `src/util.js`, user souce code will use
+// the local `util` module. But any npm package code will use npm package `util`.
+

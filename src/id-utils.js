@@ -26,11 +26,7 @@ export function parse(id = '') {
   const prefix = m[1] || '';
   let bareId = m[2];
 
-  const extname = ext(bareId);
-  if (extname === '.js') {
-    bareId = bareId.substr(0, bareId.length - 3);
-  }
-
+  let extname = ext(bareId);
   let parts = bareId.split('/').filter(p => p);
   if (parts[0].startsWith('@') && parts.length > 1) {
     let scope = parts.shift();
@@ -71,7 +67,7 @@ export function parse(id = '') {
     prefix: prefix,
     bareId: bareId,
     parts: parts,
-    ext: extname !== '.js' ? extname : '',
+    ext: extname,
     cleanId: prefix + bareId
   };
 }
@@ -98,7 +94,8 @@ export function resolveModuleId(baseId, relativeId) {
     }
   });
 
-  return parsed.prefix + parts.join('/');
+  const resolved = parsed.prefix + parts.join('/');
+  return parse(resolved).cleanId;
 }
 
 export function relativeModuleId(baseId, absoluteId) {

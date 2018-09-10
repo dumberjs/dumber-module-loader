@@ -1,5 +1,5 @@
 {
-  "name": "@dumber/loader",
+  "name": "dumber-amd-loader",
   "version": "0.1.0",
   "description": "A minimum AMD module loader, designed to work with dumber bundler",
   "main": "dist/index.js",
@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/huochunpeng/dumber-loader.git"
+    "url": "git+https://github.com/huochunpeng/dumber-amd-loader.git"
   },
   "keywords": [
     "amd",
@@ -24,9 +24,9 @@
   "author": "Chunpeng Huo",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/huochunpeng/dumber-loader/issues"
+    "url": "https://github.com/huochunpeng/dumber-amd-loader/issues"
   },
-  "homepage": "https://github.com/huochunpeng/dumber-loader#readme",
+  "homepage": "https://github.com/huochunpeng/dumber-amd-loader#readme",
   "devDependencies": {
     "babel-eslint": "^8.2.6",
     "babel-plugin-external-helpers": "^6.22.0",
