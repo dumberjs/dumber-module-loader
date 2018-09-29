@@ -1,5 +1,5 @@
 import test from 'tape';
-import {cleanPath, resolveModuleId, ext, parse, relativeModuleId} from '../src/id-utils';
+import {cleanPath, resolveModuleId, ext, parse, relativeModuleId, nodejsIds} from '../src/id-utils';
 
 test('cleanPath', t => {
   t.equal(cleanPath('  a/b '), 'a/b', 'trim off spaces');
@@ -259,5 +259,23 @@ test('relativeModuleId returns clean id', t => {
 test('relativeModuleId can work on base with ..', t => {
   t.equal(relativeModuleId('../foo', '../bar'), './bar');
   t.equal(relativeModuleId('../../foo', '../goo/bar'), '../goo/bar');
+  t.end();
+});
+
+// nodejsIds
+
+test('nodejsIds returns possible nodejs ids', t => {
+  t.deepEqual(nodejsIds('foo'), ['foo', 'foo.js', 'foo/index.js', 'foo/index']);
+  t.deepEqual(nodejsIds('foo.js'), ['foo.js', 'foo', 'foo.js/index.js', 'foo.js/index']);
+  t.deepEqual(nodejsIds('foo.json'), ['foo.json', 'foo.json/index.js', 'foo.json/index']);
+  t.deepEqual(nodejsIds('foo.min'), ['foo.min', 'foo.min.js', 'foo.min/index.js', 'foo.min/index']);
+  t.deepEqual(nodejsIds('foo.min.js'), ['foo.min.js', 'foo.min', 'foo.min.js/index.js', 'foo.min.js/index']);
+  t.deepEqual(nodejsIds('foo.html'), ['foo.html', 'foo.html/index.js', 'foo.html/index']);
+  t.deepEqual(nodejsIds('text!foo/bar'), ['text!foo/bar', 'text!foo/bar.js', 'text!foo/bar/index.js', 'text!foo/bar/index']);
+  t.deepEqual(nodejsIds('text!foo/bar.js'), ['text!foo/bar.js', 'text!foo/bar', 'text!foo/bar.js/index.js', 'text!foo/bar.js/index']);
+  t.deepEqual(nodejsIds('text!foo/bar.json'), ['text!foo/bar.json', 'text!foo/bar.json/index.js', 'text!foo/bar.json/index']);
+  t.deepEqual(nodejsIds('text!foo/bar.min'), ['text!foo/bar.min', 'text!foo/bar.min.js', 'text!foo/bar.min/index.js', 'text!foo/bar.min/index']);
+  t.deepEqual(nodejsIds('text!foo/bar.min.js'), ['text!foo/bar.min.js', 'text!foo/bar.min', 'text!foo/bar.min.js/index.js', 'text!foo/bar.min.js/index']);
+  t.deepEqual(nodejsIds('text!foo/bar.html'), ['text!foo/bar.html', 'text!foo/bar.html/index.js', 'text!foo/bar.html/index']);
   t.end();
 });

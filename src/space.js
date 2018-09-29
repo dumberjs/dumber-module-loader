@@ -1,21 +1,4 @@
-import { ext, parse, resolveModuleId, relativeModuleId } from './id-utils';
-
-export function nodejsIds(id) {
-  const parsed = parse(id);
-  const ids = [parsed.cleanId];
-
-  if (parsed.ext === '.js') {
-    const trimed = parsed.cleanId.substr(0, parsed.cleanId.length - 3);
-    ids.push(trimed);
-  } else if (parsed.ext === '') {
-    ids.push(parsed.cleanId + '.js');
-  }
-
-  ids.push(parsed.cleanId + '/index.js');
-  ids.push(parsed.cleanId + '/index');
-
-  return ids;
-}
+import {ext, parse, resolveModuleId, relativeModuleId, nodejsIds} from './id-utils';
 
 export class Space {
   // all registered modules, but not used yet.
