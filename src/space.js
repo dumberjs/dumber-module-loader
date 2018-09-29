@@ -185,4 +185,10 @@ export class Space {
       delete this._registry[registered.id];
     }
   }
+
+  purge() {
+    this._registry = {};
+    this._anonymous = null;
+    this._defined = {};
+  }
 }

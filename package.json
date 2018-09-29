@@ -1,7 +1,7 @@
 {
   "name": "dumber-amd-loader",
   "version": "0.1.0",
-  "description": "A minimum AMD module loader, designed to work with dumber bundler",
+  "description": "A modern AMD module loader, designed to work with dumber, only works in browser",
   "main": "dist/index.js",
   "scripts": {
     "build": "env BABEL_ENV=development rollup -c",

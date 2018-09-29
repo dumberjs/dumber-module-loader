@@ -2,6 +2,22 @@ import babel from 'rollup-plugin-babel';
 // import {terser} from 'rollup-plugin-terser';
 import json from 'rollup-plugin-json';
 
+const banner = `
+if (typeof define === 'function') {
+  throw new Error('An AMD loader is present, dumbamd is not smart enough to deal with it.');
+}
+if (typeof fetch === 'undefined') {
+  throw new Error('fetch API is not available, please prepend a polyfill e.g. whatwg-fetch. https://huochunpeng.github.com/dumber#fetch-polyfill');
+}
+if (typeof Promise === 'undefined') {
+  throw new Error('Promise API is not available, please prepend a polyfill e.g. promise-polyfill. https://huochunpeng.github.com/dumber#promise-polyfill');
+}
+`;
+
+const footer = `
+var require = requirejs;
+`;
+
 export default [
   {
     input: 'src/index.js',
@@ -9,7 +25,7 @@ export default [
       format: 'iife',
       name: 'define',
       file: 'dist/index.js',
-      banner: "if (typeof define === 'function') {throw new Error('An AMD loader is present, dumbamd is not smart enough to deal with it.'); }\n",
+      banner,
       footer: "var requirejs = define.requirejs; var require = requirejs;\n",
     },
     plugins: [

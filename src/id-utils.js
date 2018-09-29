@@ -3,7 +3,9 @@ const idMatcher = /^(\w+!)?(.+?)\/?$/;
 
 export function cleanPath(path = '') {
   let clean = path.trim();
-  if (clean.endsWith('/')) clean = clean.substr(0, clean.length - 1);
+  if (clean.length && clean[clean.length - 1] === '/') {
+    clean = clean.substring(0, clean.length - 1);
+  }
   return clean;
 }
 
@@ -28,7 +30,7 @@ export function parse(id = '') {
 
   let extname = ext(bareId);
   let parts = bareId.split('/').filter(p => p);
-  if (parts[0].startsWith('@') && parts.length > 1) {
+  if (parts.length > 1 && parts[0].length && parts[0][0] === '@') {
     let scope = parts.shift();
     parts[0] = scope + '/' + parts[0];
   }
@@ -131,7 +133,7 @@ export function nodejsIds(id) {
   const ids = [parsed.cleanId];
 
   if (parsed.ext === '.js') {
-    const trimed = parsed.cleanId.substr(0, parsed.cleanId.length - 3);
+    const trimed = parsed.cleanId.substring(0, parsed.cleanId.length - 3);
     ids.push(trimed);
   } else if (parsed.ext === '') {
     ids.push(parsed.cleanId + '.js');

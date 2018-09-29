@@ -424,3 +424,24 @@ test('space.undef removes module, re-eval all modules deps on it', t => {
     }
   ).then(t.end);
 });
+
+
+test('space.purge cleanup everything', t => {
+  const space = new Space(tesseract);
+  space.define('bar', ['foo'], f => f + 3);
+  space.define('foo', ['a'], a => a + 3);
+  space.define('a', [], 2);
+
+  t.ok(space.has('bar'));
+  t.ok(space.has('foo'));
+  t.ok(space.has('a'));
+
+  t.deepEqual(space.ids(), ['a', 'bar', 'foo']);
+
+  space.purge();
+  t.notOk(space.has('bar'));
+  t.notOk(space.has('foo'));
+  t.notOk(space.has('a'));
+  t.equal(space.ids().length, 0);
+  t.end();
+});
