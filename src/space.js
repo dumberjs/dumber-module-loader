@@ -3,7 +3,7 @@ import {ext, parse, resolveModuleId, relativeModuleId, nodejsIds} from './id-uti
 export class Space {
   constructor(tesseract) {
     // tesseract controls spaces
-    // shape: {req(id), global}
+    // shape: {req(id), mappedId(id), global}
     this.tesseract = tesseract;
 
     // all registered modules, but not used yet.
@@ -26,10 +26,12 @@ export class Space {
     return ids.sort();
   }
 
+  // incoming id is a mapped id
   has(id) {
     return this.registered(id) || this.defined(id);
   }
 
+  // incoming id is a mapped id
   registered(id) {
     const ids = nodejsIds(id);
     for (let i = 0, len = ids.length; i < len; i++) {
@@ -39,6 +41,7 @@ export class Space {
     }
   }
 
+  // incoming id is a mapped id
   defined(id) {
     const ids = nodejsIds(id);
     for (let i = 0, len = ids.length; i < len; i++) {
@@ -72,6 +75,7 @@ export class Space {
     else this._anonymous = {deps, callback};
   }
 
+  // incoming id is a mapped id
   nameAnonymousModule(id) {
     if (this._anonymous) {
       const {deps, callback} = this._anonymous;
@@ -82,7 +86,7 @@ export class Space {
 
   // require an AMD module, return a promise
   // use 'req' instead of 'require' to avoid potential parsing problem.
-  // param moduleId must be a clean id
+  // param moduleId must be a clean mapped id
   req(moduleId) {
     if (moduleId === 'require' || moduleId === 'module' || moduleId === 'exports') {
       throw new Error(`cannot require commonjs global "${moduleId}"`);
@@ -122,7 +126,9 @@ export class Space {
             // commonjs exports
             return cjsModule.exports;
           } else {
-            return this.req(resolveModuleId(id, d))
+            const absoluteId = resolveModuleId(id, d);
+            const mId = this.tesseract.mappedId(absoluteId);
+            return this.req(mId)
               .then(got => {
                 localDeps[d] = got;
                 return got;
@@ -152,15 +158,19 @@ export class Space {
       });
     }
 
-    // ask tesseract
+    // ask tesseract, note moduleId is mapped
     return this.tesseract.req(moduleId);
   }
 
-  _demoteDepended(id) {
+  _demoteDepended(did) {
     let depended = [];
     Object.keys(this._defined).forEach(_id => {
-      const {deps} = this._defined[_id];
-      if (deps.indexOf(id) !== -1) {
+      const {id, deps} = this._defined[_id];
+      if (deps.some(d => {
+        const absoluteId = resolveModuleId(id, d);
+        const mId = this.tesseract.mappedId(absoluteId);
+        return mId === did;
+      })) {
         depended.push(_id);
       }
     });

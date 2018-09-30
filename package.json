@@ -11,7 +11,7 @@
     "version": "standard-changelog && git add CHANGELOG.md",
     "postversion": "git push && git push --tags && npm publish",
     "pretest": "npm run lint",
-    "test": "env BABEL_ENV=test tape -r babel-register 'test/**/*.spec.js'",
+    "test": "env BABEL_ENV=test tape -r @babel/register 'test/**/*.spec.js'",
     "browser-test": "env BABEL_ENV=test browserify -t babelify test/define.spec.js test/id-utils.spec.js test/space.spec.js | tape-run"
   },
   "repository": {

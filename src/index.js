@@ -17,6 +17,8 @@ import _global from './_global';
 
 const userSpaceTesseract = {
   global: _global,
+  mappedId,
+  // incoming id is already mapped
   req: function (id) {
     // try additional user module in bundles
     return additionalUserReq(id)
@@ -32,6 +34,8 @@ const userSpace = new Space(userSpaceTesseract);
 
 const packageSpaceTesseract = {
   global: _global,
+  mappedId,
+  // incoming id is already mapped
   req: additionalPackageReq // try additional package module in bundles
 };
 
@@ -52,7 +56,7 @@ function switchToPackageSpace() {
 let _baseUrl = './';
 let _paths = {};
 
-function urlsForId(id) {
+function mappedId(id) {
   const parsed = parse(id);
   let idPath = parsed.bareId;
   const pathKeys = Object.keys(_paths);
@@ -63,8 +67,14 @@ function urlsForId(id) {
       break;
     }
   }
+  return parsed.prefix + idPath;
+}
+
+// incoming id is already mapped
+function urlsForId(id) {
+  const parsed = parse(id);
   const urls = [];
-  let url = _baseUrl + idPath;
+  let url = _baseUrl + parsed.bareId;
   if (!parsed.ext && !(url.length > 3 && url.substring(url.length - 3) === '.js')) {
     urls.push(url + '.js');
   }
@@ -176,6 +186,7 @@ const fetchUrl = url => {
   });
 };
 
+// incoming id is already mapped
 const _fetch = id => {
   const urls = urlsForId(id);
   const len = urls.length;
@@ -191,9 +202,10 @@ const _fetch = id => {
   });
 };
 
+// incoming id is already mapped
 function runtimeReq(id) {
   const parsed = parse(id);
-  return _fetch(id)
+  return _fetch(parsed.cleanId)
   .then(response => {
     // ensure default user space
     define.switchToUserSpace();
@@ -217,6 +229,7 @@ function runtimeReq(id) {
   });
 }
 
+// incoming id is already mapped
 function additionalUserReq(id) {
   const possibleIds = nodejsIds(id);
   const bundleName = Object.keys(_bundles).find(bn =>
@@ -237,6 +250,7 @@ function additionalUserReq(id) {
   return Promise.reject(new Error(`no bundle for module "${id}"`));
 }
 
+// incoming id is already mapped
 function additionalPackageReq(id) {
   const possibleIds = nodejsIds(id);
   const bundleName = Object.keys(_bundles).find(bn =>
@@ -258,7 +272,7 @@ function additionalPackageReq(id) {
 }
 
 function loadBundle(bundleName) {
-  return _fetch(bundleName)
+  return _fetch(mappedId(bundleName))
   .then(response => response.text())
   .then(text => {
     // ensure default user space
@@ -269,7 +283,8 @@ function loadBundle(bundleName) {
 }
 
 function defined(id) {
-  return !!(userSpace.defined(id) || packageSpace.defined(id));
+  const mId = mappedId(id);
+  return !!(userSpace.defined(mId) || packageSpace.defined(mId));
 }
 
 // AMD define
@@ -286,7 +301,7 @@ function requirejs(deps, callback, errback) {
   if (callback && typeof callback !== 'function') throw new Error('callback is not a function');
   if (errback && typeof errback !== 'function') throw new Error('errback is not a function');
 
-  return Promise.all(deps.map(d => userSpace.req(d)))
+  return Promise.all(deps.map(d => userSpace.req(mappedId(d))))
   .then(
     results => {
       if (callback) callback.apply(_global, results);
@@ -299,6 +314,7 @@ function requirejs(deps, callback, errback) {
 
 // AMD requirejs.undef
 // TODO design for HMR (hot-module-reload)
+// incoming id is a mapped id
 function undef(id) {
   userSpace.undef(id);
   // TODO do we need undef for packageSpace
@@ -316,7 +332,7 @@ function reset() {
 
 // https://github.com/tc39/proposal-dynamic-import
 // function _import(id) {
-//   return userSpace.req(id);
+//   return userSpace.req(mappedId(id));
 // }
 
 // minimum support of requirejs config
@@ -350,7 +366,7 @@ function config(opts) {
   }
 }
 
-// TODO set baseUrl to 'scripts' for <script data-main="scripts/main.js" src="scripts/require.js"></script>
+const isBrowser = !!(typeof _global.navigator !== 'undefined' && typeof _global.document !== 'undefined');
 
 define.switchToUserSpace = switchToUserSpace;
 define.switchToPackageSpace = switchToPackageSpace;
@@ -361,12 +377,31 @@ requirejs.config = config;
 // for compatibility with requirejs
 define.amd = {jQuery: true};
 requirejs.defined = defined;
-requirejs.isBrowser = !!(typeof window !== 'undefined' && typeof navigator !== 'undefined' && window.document);
+requirejs.isBrowser = isBrowser;
 requirejs.version = version;
 requirejs.undef = undef;
 
 _global.define = define;
 _global.requirejs = requirejs;
+
+// support data-main <script data-main="app" src="some-bundle"></script>
+// different from requirejs, the data-main string is treated simply as the main module id.
+// we don't set baseUrl based on data-main's dirname.
+if (isBrowser) {
+  const scripts = _global.document.getElementsByTagName('script');
+  const len = scripts.length;
+
+  for (let i = len - 1; i >= 0; i--) {
+    const script = scripts[i];
+    const main = script.getAttribute('data-main');
+
+    if (main) {
+      // start main module
+      setTimeout(() => requirejs([mappedId(main)]));
+      break;
+    }
+  }
+}
 
 export default define;
 

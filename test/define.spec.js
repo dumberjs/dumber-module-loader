@@ -196,7 +196,7 @@ test('gets runtime js user space module, with paths', t => {
         package: ['a']
       },
       'b-bundle': {
-        user: ['foo/bar']
+        user: ['common/foo/bar']
       }
     }
   });
@@ -204,7 +204,7 @@ test('gets runtime js user space module, with paths', t => {
   mockFetchApi({
     'dist/runtime/common/foo/b.js': "define([], () => 2);",
     'dist/runtime/a-bundle.js': "define.switchToPackageSpace(); define('a', 1);",
-    'dist/runtime/bundles/b.js': "define('foo/bar', ['a', './b'], (a, b) => a + b + 3); define('foo/b.js', () => 2);"
+    'dist/runtime/bundles/b.js': "define('common/foo/bar', ['a', './b'], (a, b) => a + b + 3);"
   });
 
   requirejs(['foo/bar'],
@@ -450,4 +450,36 @@ test('supports custom translators', t => {
   );
 });
 
+test('requirejs.undef remove a user space module, demote all module depends on it', t => {
+  define.reset();
+  define.switchToUserSpace();
 
+  define('foo', ['a'], a => a + 1);
+  define('a', 1);
+
+  requirejs(['foo'],
+    result => {
+      t.equal(result, 2);
+      t.ok(requirejs.defined('foo'));
+      t.ok(requirejs.defined('a'));
+
+      requirejs.undef('a');
+
+      t.notOk(requirejs.defined('foo'));
+      t.notOk(requirejs.defined('a'));
+
+      define('a', () => '1');
+
+      return requirejs(['foo'],
+        r2 => {
+          t.equal(r2, '11');
+          t.ok(requirejs.defined('foo'));
+          t.ok(requirejs.defined('a'));
+        }
+      );
+    }
+  ).catch(err => {
+    t.fail(err.stack);
+    t.end();
+  }).then(t.end);
+});
