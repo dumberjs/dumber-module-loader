@@ -1,5 +1,5 @@
 import babel from 'rollup-plugin-babel';
-// import {terser} from 'rollup-plugin-terser';
+import {terser} from 'rollup-plugin-terser';
 import json from 'rollup-plugin-json';
 
 const banner = `
@@ -43,7 +43,7 @@ export default [
     plugins: [
       json(),
       babel(),
-      // terser()
+      terser()
     ]
   }
 ];

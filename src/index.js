@@ -4,7 +4,7 @@ import {cleanPath, parse, nodejsIds} from './id-utils';
 import {Space} from './space';
 import _global from './_global';
 
-// dumber-amd-loader has two fixed module spaces:
+// dumber-module-loader has two fixed module spaces:
 // 1. user space (default), for user source code
 // 2. package space, for all npm package and local packages
 //

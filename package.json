@@ -1,7 +1,7 @@
 {
-  "name": "dumber-amd-loader",
+  "name": "dumber-module-loader",
   "version": "0.1.0",
-  "description": "A modern AMD module loader, designed to work with dumber, only works in browser",
+  "description": "A modern module loader (loose AMD implementation), designed to work with dumber, only works in browser",
   "main": "dist/index.js",
   "scripts": {
     "build": "env BABEL_ENV=development rollup -c",
@@ -16,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/huochunpeng/dumber-amd-loader.git"
+    "url": "git+https://github.com/huochunpeng/dumber-module-loader.git"
   },
   "keywords": [
     "amd",
@@ -25,9 +25,9 @@
   "author": "Chunpeng Huo",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/huochunpeng/dumber-amd-loader/issues"
+    "url": "https://github.com/huochunpeng/dumber-module-loader/issues"
   },
-  "homepage": "https://github.com/huochunpeng/dumber-amd-loader#readme",
+  "homepage": "https://github.com/huochunpeng/dumber-module-loader#readme",
   "devDependencies": {
     "@babel/core": "^7.1.2",
     "@babel/plugin-external-helpers": "^7.0.0",
