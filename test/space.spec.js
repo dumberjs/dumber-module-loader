@@ -97,7 +97,6 @@ test('space define anonymous module', t => {
   t.end();
 });
 
-
 test('space define anonymous module with deps', t => {
   const space = new Space(tesseract);
 
@@ -335,9 +334,10 @@ test('space.req fails tesseract req with commonjs wrapper', t => {
 
 test('space.req supports commonjs wrapper', t => {
   const space = new Space(tesseract);
-  space.define('foo', ['require', 'exports', 'module', 'a'], function (require, exports, module) {
+  // name _require here in order to not confusing browserify
+  space.define('foo', ['require', 'exports', 'module', 'a'], function (_require, exports, module) {
     var __filename = module.filename || '', __dirname = __filename.substring(0, __filename.lastIndexOf('/') + 1);
-    const a = require('a');
+    const a = _require('a');
     exports.foo = a + 3;
     exports.filename = __filename;
     exports.dirname = __dirname;
@@ -424,7 +424,6 @@ test('space.undef removes module, re-eval all modules deps on it', t => {
     }
   ).then(t.end);
 });
-
 
 test('space.purge cleanup everything', t => {
   const space = new Space(tesseract);
