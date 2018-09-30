@@ -118,8 +118,13 @@ const _translators = [
   (parsedId, response) => {
     if (parsedId.prefix || parsedId.ext !== '.wasm') return;
 
-    // TODO
-    // return response.blob();
+    // TODO support wasm at runtime
+    // TODO how to know what kind of importObject the wasm file needs
+    // TODO do we need to delay instantiate (wrap in define callback)?
+    // return WebAssembly.instantiateStreaming(response, importObject)
+    // .then(obj => {
+    //    userSpace.define(parsedId.cleanId, [...], () => obj.instance.exports);
+    // });
   },
 
   // prefix json!
@@ -155,8 +160,6 @@ const _translators = [
     .then(text => {
       // runtime req only supports module in user space
       switchToUserSpace();
-      // TODO support customise translators
-      // right now, only support normal AMD module
       (new Function(text))();
     });
   }

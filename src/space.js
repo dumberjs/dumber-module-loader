@@ -1,23 +1,24 @@
 import {ext, parse, resolveModuleId, relativeModuleId, nodejsIds} from './id-utils';
 
 export class Space {
-  // all registered modules, but not used yet.
-  // once required (used), move to defined.
-  // shape: {id, deps, callback}
-  _registry = {};
-
-  // temporary hold anonymous module
-  _anonymous = null;
-
-  // all defined modules
-  // note callback is retained for possible demote
-  // shape: {id, deps, callback, value}
-  _defined = {};
-
   constructor(tesseract) {
     // tesseract controls spaces
     // shape: {req(id), global}
     this.tesseract = tesseract;
+
+    // all registered modules, but not used yet.
+    // once required (used), move to defined.
+    // shape: {id, deps, callback}
+    this._registry = {};
+
+    // temporary hold anonymous module
+    this._anonymous = null;
+
+    // all defined modules
+    // note callback is retained for possible demote
+    // shape: {id, deps, callback, value}
+    this._defined = {};
+
   }
 
   ids() {
