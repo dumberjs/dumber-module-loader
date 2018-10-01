@@ -4,7 +4,7 @@ import json from 'rollup-plugin-json';
 
 const banner = `
 if (typeof define === 'function') {
-  throw new Error('An AMD loader is present, dumbamd is not smart enough to deal with it.');
+  throw new Error('An AMD loader is present, dumber-module-loader is not smart enough to deal with it.');
 }
 if (typeof fetch === 'undefined') {
   throw new Error('fetch API is not available, please prepend a polyfill e.g. whatwg-fetch. https://huochunpeng.github.com/dumber#fetch-polyfill');
@@ -31,7 +31,7 @@ export default [
     plugins: [
       json(),
       babel(),
-      // terser()
+      terser()
     ]
   },
   {
