@@ -8,6 +8,7 @@ Our violation of AMD spec:
 
 * [x] AMD spec doesn't allow defining relative module `define('../package.json', ...)`. We allow it, this is to support `'../package.json'` that could be required by `src/app.js`. We call module id `'../package.json'` above surface.
 * [ ] break circular dependencies (for some npm packages like [yallist](https://github.com/isaacs/yallist)).
+* [x] if no dependencies array is provided, we don't provide default values of "require, exports, module".
 * [x] the plugin support is totally different, although we support traditional `text!` and `json!` plugins out of the box. We use translators to support flexible module preparing.
 
 Our touch on AMD:

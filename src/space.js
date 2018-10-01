@@ -55,14 +55,16 @@ export class Space {
   define(id, deps, callback) {
     // anonymous module
     if (typeof id !== 'string') {
-        callback = deps;
-        deps = id;
-        id = null;
+      callback = deps;
+      deps = id;
+      id = null;
     }
 
     if (!Array.isArray(deps)) {
-        callback = deps;
-        deps = [];
+      callback = deps;
+      // if there are NO dependencies, we don't provide the
+      // default values of "require, exports, module"
+      deps = [];
     }
 
     // different from requirejs, we doesn't auto inject commonjs deps
