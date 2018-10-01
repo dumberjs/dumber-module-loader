@@ -171,6 +171,8 @@ const _translators = [
       // runtime req only supports module in user space
       switchToUserSpace();
       (new Function(text))();
+      // could be anonymous
+      userSpace.nameAnonymousModule(parsedId.cleanId);
     });
   }
 ];
@@ -219,12 +221,10 @@ function runtimeReq(id) {
     throw new Error(`no runtime translator to handle ${parsed.cleanId}`);
   })
   .then(() => {
-    // could be anonymous
-    userSpace.nameAnonymousModule(parsed.cleanId);
     if (userSpace.has(parsed.cleanId)) {
       return userSpace.req(parsed.cleanId);
     } else {
-      throw new Error(`module "${id}" is missing from url "${JSON.stringify(urlsForId(id))}"`);
+      throw new Error(`module "${parsed.cleanId}" is missing from url "${JSON.stringify(urlsForId(id))}"`);
     }
   });
 }
