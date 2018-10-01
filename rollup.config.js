@@ -23,15 +23,15 @@ export default [
     input: 'src/index.js',
     output: {
       format: 'iife',
-      name: 'define',
+      name: 'dumberModuleLoader',
       file: 'dist/index.js',
       banner,
-      footer: "var requirejs = define.requirejs; var require = requirejs;\n",
+      footer
     },
     plugins: [
       json(),
       babel(),
-      terser()
+      // terser()
     ]
   },
   {

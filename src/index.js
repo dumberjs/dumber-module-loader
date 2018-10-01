@@ -381,9 +381,6 @@ requirejs.isBrowser = isBrowser;
 requirejs.version = version;
 requirejs.undef = undef;
 
-_global.define = define;
-_global.requirejs = requirejs;
-
 // support data-main <script data-main="app" src="some-bundle"></script>
 // different from requirejs, the data-main string is treated simply as the main module id.
 // we don't set baseUrl based on data-main's dirname.
@@ -402,6 +399,9 @@ if (isBrowser) {
     }
   }
 }
+
+_global.define = define;
+_global.requirejs = requirejs;
 
 export default define;
 
