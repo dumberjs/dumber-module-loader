@@ -4,8 +4,7 @@
       "presets": [["@babel/preset-env", {"loose": true}]]
     },
     "development": {
-      "presets": [["@babel/preset-env", {"loose": true, "modules": false}]],
-      "plugins": ["@babel/plugin-external-helpers"]
+      "presets": [["@babel/preset-env", {"loose": true, "modules": false}]]
     }
   }
 }
