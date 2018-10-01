@@ -284,9 +284,9 @@ function loadBundle(bundleName) {
   });
 }
 
+// incoming id is already mapped
 function defined(id) {
-  const mId = mappedId(id);
-  return !!(userSpace.defined(mId) || packageSpace.defined(mId));
+  return !!(userSpace.defined(id) || packageSpace.defined(id));
 }
 
 // AMD define

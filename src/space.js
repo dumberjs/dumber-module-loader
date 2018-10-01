@@ -113,10 +113,13 @@ export class Space {
       };
       let useCjsModule = false;
 
-      const localDeps = {};
       const requireFunc = dep => {
-        if (localDeps.hasOwnProperty(dep)) {
-          return localDeps[dep];
+        const absoluteId = resolveModuleId(id, dep);
+        const mId = this.tesseract.mappedId(absoluteId);
+        const depDefined = this.defined(mId);
+
+        if (depDefined) {
+          return depDefined.value;
         } else {
           throw new Error(`commonjs dependency "${dep}" is not prepared.`);
         }
@@ -139,11 +142,7 @@ export class Space {
           } else {
             const absoluteId = resolveModuleId(id, d);
             const mId = this.tesseract.mappedId(absoluteId);
-            return this.req(mId)
-              .then(got => {
-                localDeps[d] = got;
-                return got;
-              });
+            return this.req(mId);
           }
         })
       ).then(results => {
