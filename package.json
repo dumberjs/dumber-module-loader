@@ -11,8 +11,8 @@
     "version": "standard-changelog && git add CHANGELOG.md",
     "postversion": "git push && git push --tags && npm publish",
     "pretest": "npm run lint",
-    "test": "env BABEL_ENV=test tape -r @babel/register 'test/**/*.spec.js'",
-    "browser-test": "env BABEL_ENV=test browserify -t babelify test/define.spec.js test/id-utils.spec.js test/space.spec.js | tape-run"
+    "test": "env BABEL_ENV=test tape -r @babel/register 'test/**/*.spec.js' | tap-dot",
+    "browser-test": "env BABEL_ENV=test browserify -t babelify test/define.spec.js test/id-utils.spec.js test/space.spec.js | tape-run | tap-dot"
   },
   "repository": {
     "type": "git",
@@ -41,6 +41,7 @@
     "rollup-plugin-json": "^3.1.0",
     "rollup-plugin-terser": "^3.0.0",
     "standard-changelog": "^2.0.1",
+    "tap-dot": "^2.0.0",
     "tape": "^4.9.1",
     "tape-run": "^4.0.0"
   },
