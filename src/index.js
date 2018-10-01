@@ -18,6 +18,7 @@ import _global from './_global';
 const userSpaceTesseract = {
   global: _global,
   mappedId,
+  toUrl,
   // incoming id is already mapped
   req: function (id) {
     // try additional user module in bundles
@@ -35,6 +36,7 @@ const userSpace = new Space(userSpaceTesseract);
 const packageSpaceTesseract = {
   global: _global,
   mappedId,
+  toUrl,
   // incoming id is already mapped
   req: additionalPackageReq // try additional package module in bundles
 };
@@ -301,13 +303,41 @@ function requirejs(deps, callback, errback) {
   if (callback && typeof callback !== 'function') throw new Error('callback is not a function');
   if (errback && typeof errback !== 'function') throw new Error('errback is not a function');
 
-  return Promise.all(deps.map(d => userSpace.req(mappedId(d))))
+  const localDeps = {};
+  // return AMD require function or commonjs require function
+  function requireFunc() {
+    if (typeof arguments[0] === 'string') {
+      const dep = arguments[0];
+      if (localDeps.hasOwnProperty(dep)) {
+        return localDeps[dep];
+      } else {
+        throw new Error(`commonjs dependency "${dep}" is not prepared.`);
+      }
+    } else {
+      return requirejs.apply(null, arguments);
+    }
+  };
+
+  requireFunc.toUrl = toUrl;
+
+  return Promise.all(deps.map(d => {
+    if (d === 'require') {
+      return Promise.resolve(requireFunc);
+    } else {
+      return userSpace.req(mappedId(d))
+      .then(r => {
+        localDeps[d] = r;
+        return r;
+      });
+    }
+  }))
   .then(
     results => {
       if (callback) callback.apply(_global, results);
     },
     err => {
       if (errback) return errback(err);
+      else console.error(err);
     }
   );
 }
@@ -368,6 +398,11 @@ function config(opts) {
 
 const isBrowser = !!(typeof _global.navigator !== 'undefined' && typeof _global.document !== 'undefined');
 
+function toUrl(id) {
+  const urls = urlsForId(id);
+  return urls.pop();
+};
+
 define.switchToUserSpace = switchToUserSpace;
 define.switchToPackageSpace = switchToPackageSpace;
 define.reset = reset;
@@ -380,6 +415,7 @@ requirejs.defined = defined;
 requirejs.isBrowser = isBrowser;
 requirejs.version = version;
 requirejs.undef = undef;
+requirejs.toUrl = toUrl;
 
 // support data-main <script data-main="app" src="some-bundle"></script>
 // different from requirejs, the data-main string is treated simply as the main module id.

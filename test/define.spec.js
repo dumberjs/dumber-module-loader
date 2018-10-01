@@ -3,7 +3,6 @@ import test from 'tape';
 import '../src/index';
 import {mockFetchApi, restoreFetchApi} from './mock-fetch';
 
-
 test('define exports', t => {
   t.equal(typeof define, 'function');
   t.equal(typeof define.switchToUserSpace, 'function');
@@ -37,6 +36,47 @@ test('define amd modules', t => {
       t.end();
     }
   );
+});
+
+test('require can be required to behave like normal AMD require', t => {
+  define.reset();
+  define.switchToUserSpace();
+
+  define('foo/bar', ['a'], a => a + 3);
+  define('a', 1);
+  define('foo/b.js', () => 2);
+
+  requirejs(['require', 'foo/bar'],
+    (r, result) => {
+      t.equal(result, 4);
+
+      return r(['foo/b'],
+        r2 => {
+          t.equal(r2, 2);
+        }
+      );
+    },
+    err => {
+      t.fail(err.message);
+    }
+  ).then(t.end);
+});
+
+test('require can be required to behave like normal commonjs require', t => {
+  define.reset();
+  define.switchToUserSpace();
+
+  define('foo/bar', ['a'], a => a + 3);
+  define('a', 1);
+
+  requirejs(['require', 'foo/bar'],
+    req => {
+      t.equal(req('foo/bar'), 4);
+    },
+    err => {
+      t.fail(err.message);
+    }
+  ).then(t.end);
 });
 
 test('user space module can access package space module', t => {
@@ -482,4 +522,13 @@ test('requirejs.undef remove a user space module, demote all module depends on i
     t.fail(err.stack);
     t.end();
   }).then(t.end);
+});
+
+test('requirejs.toUrl returns url', t => {
+  t.equal(requirejs.toUrl('a'), './a');
+  t.equal(requirejs.toUrl('a.js'), './a.js');
+  t.equal(requirejs.toUrl('text!foo/bar.html'), './foo/bar.html');
+  t.equal(requirejs.toUrl('foo/bar.min'), './foo/bar.min');
+
+  t.end();
 });

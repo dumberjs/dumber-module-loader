@@ -3,7 +3,7 @@ import {ext, parse, resolveModuleId, relativeModuleId, nodejsIds} from './id-uti
 export class Space {
   constructor(tesseract) {
     // tesseract controls spaces
-    // shape: {req(id), mappedId(id), global}
+    // shape: {req(id), mappedId(id), toUrl, global}
     this.tesseract = tesseract;
 
     // all registered modules, but not used yet.
@@ -112,17 +112,20 @@ export class Space {
       let useCjsModule = false;
 
       const localDeps = {};
+      const requireFunc = dep => {
+        if (localDeps.hasOwnProperty(dep)) {
+          return localDeps[dep];
+        } else {
+          throw new Error(`commonjs dependency "${dep}" is not prepared.`);
+        }
+      };
+      requireFunc.toUrl = this.tesseract.toUrl;
+
       return Promise.all(
         deps.map(d => {
           if (d === 'require') {
             // commonjs require
-            return dep => {
-              if (localDeps.hasOwnProperty(dep)) {
-                return localDeps[dep];
-              } else {
-                throw new Error(`commonjs dependency "${dep}" is not prepared.`);
-              }
-            };
+            return requireFunc;
           } else if (d === 'module') {
             // commonjs module
             useCjsModule = true;

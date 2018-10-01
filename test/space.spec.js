@@ -5,6 +5,7 @@ import {parse} from '../src/id-utils';
 const tesseract = {
   global: {},
   mappedId: id => id,
+  toUrl: id => 'path/to/' + id,
   req(moduleId) {
     return Promise.reject(new Error('cannot find module ' + moduleId));
   }
@@ -536,3 +537,19 @@ test('space.purge cleanup everything', t => {
   t.equal(space.ids().length, 0);
   t.end();
 });
+
+test('space commonjs require supports toUrl', t => {
+  const space = new Space(tesseract);
+  space.define('foo', ['require'], req => req.toUrl('lorem'));
+
+  space.req('foo').then(
+    value => {
+      t.equal(value, 'path/to/lorem');
+    }
+  ).catch(
+    err => {
+      t.fail(err.message);
+    }
+  ).then(t.end);
+});
+
