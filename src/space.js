@@ -116,7 +116,13 @@ export class Space {
         deps.map(d => {
           if (d === 'require') {
             // commonjs require
-            return dep => localDeps[dep];
+            return dep => {
+              if (localDeps.hasOwnProperty(dep)) {
+                return localDeps[dep];
+              } else {
+                throw new Error(`commonjs dependency "${dep}" is not prepared.`);
+              }
+            };
           } else if (d === 'module') {
             // commonjs module
             useCjsModule = true;

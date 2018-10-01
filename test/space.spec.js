@@ -429,6 +429,30 @@ test('space.req supports commonjs wrapper', t => {
   ).then(t.end);
 });
 
+
+test('space.req fails missing commonjs dep, does not do dynamic load', t => {
+  const space = new Space(tesseract);
+  // name _require here in order to not confusing browserify
+  space.define('foo', ['require', 'exports', 'module'], function (_require, exports, module) {
+    const a = _require('a');
+    exports.foo = a + 3;
+  });
+  space.define('a', ['module'], function (module) {
+    module.exports = 2;
+  });
+
+  t.deepEqual(space.ids(), ['a', 'foo']);
+
+  space.req('foo').then(
+    () => {
+      t.fail('should not succeed');
+    },
+    err => {
+      t.pass(err.message);
+    }
+  ).then(t.end);
+});
+
 test('space.undef removes module, re-eval all modules deps on it', t => {
   const space = new Space({
     ...tesseract,
