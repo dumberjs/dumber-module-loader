@@ -1,8 +1,8 @@
-
 import {version} from '../package.json';
 import {cleanPath, parse, nodejsIds} from './id-utils';
 import {Space} from './space';
 import _global from './_global';
+import promiseSerial from './promise-serial';
 
 // dumber-module-loader has two fixed module spaces:
 // 1. user space (default), for user source code
@@ -286,9 +286,9 @@ function loadBundle(bundleName) {
   });
 }
 
-// incoming id is already mapped
 function defined(id) {
-  return !!(userSpace.defined(id) || packageSpace.defined(id));
+  const mId = mappedId(id);
+  return userSpace.defined(mId) || packageSpace.defined(mId);
 }
 
 // AMD define
@@ -305,13 +305,13 @@ function requirejs(deps, callback, errback) {
   if (callback && typeof callback !== 'function') throw new Error('callback is not a function');
   if (errback && typeof errback !== 'function') throw new Error('errback is not a function');
 
-  const localDeps = {};
   // return AMD require function or commonjs require function
   function requireFunc() {
     if (typeof arguments[0] === 'string') {
       const dep = arguments[0];
-      if (localDeps.hasOwnProperty(dep)) {
-        return localDeps[dep];
+      const got = defined(dep);
+      if (got) {
+        return got.value;
       } else {
         throw new Error(`commonjs dependency "${dep}" is not prepared.`);
       }
@@ -322,17 +322,13 @@ function requirejs(deps, callback, errback) {
 
   requireFunc.toUrl = toUrl;
 
-  return Promise.all(deps.map(d => {
+  return promiseSerial(deps, d => {
     if (d === 'require') {
       return Promise.resolve(requireFunc);
     } else {
-      return userSpace.req(mappedId(d))
-      .then(r => {
-        localDeps[d] = r;
-        return r;
-      });
+      return userSpace.req(mappedId(d));
     }
-  }))
+  })
   .then(
     results => {
       if (callback) callback.apply(_global, results);

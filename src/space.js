@@ -1,4 +1,5 @@
 import {ext, parse, resolveModuleId, relativeModuleId, nodejsIds} from './id-utils';
+import promiseSerial from './promise-serial';
 
 export class Space {
   constructor(tesseract) {
@@ -137,26 +138,25 @@ export class Space {
       };
       requireFunc.toUrl = this.tesseract.toUrl;
 
-      return Promise.all(
-        deps.map(d => {
-          if (d === 'require') {
-            // commonjs require
-            return requireFunc;
-          } else if (d === 'module') {
-            // commonjs module
-            useCjsModule = true;
-            return cjsModule;
-          } else if (d === 'exports') {
-            useCjsModule = true;
-            // commonjs exports
-            return cjsModule.exports;
-          } else {
-            const absoluteId = resolveModuleId(id, d);
-            const mId = this.tesseract.mappedId(absoluteId);
-            return this.req(mId);
-          }
-        })
-      ).then(
+      return promiseSerial(deps, d => {
+        if (d === 'require') {
+          // commonjs require
+          return requireFunc;
+        } else if (d === 'module') {
+          // commonjs module
+          useCjsModule = true;
+          return cjsModule;
+        } else if (d === 'exports') {
+          useCjsModule = true;
+          // commonjs exports
+          return cjsModule.exports;
+        } else {
+          const absoluteId = resolveModuleId(id, d);
+          const mId = this.tesseract.mappedId(absoluteId);
+          return this.req(mId);
+        }
+      })
+      .then(
         results => {
           let value;
 
