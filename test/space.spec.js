@@ -41,6 +41,67 @@ test('space define named module (nameAnonymousModule is no-op)', t => {
   t.end();
 });
 
+test('space define named module (nameAnonymousModule is no-op) with implicit deps', t => {
+  const space = new Space(tesseract);
+
+  t.notOk(space.has('foo'));
+  t.notOk(space.registered('foo'));
+  t.notOk(space.defined('foo'));
+
+  const callback = (req) => 1;
+  space.define('foo', callback);
+
+  t.ok(space.has('foo'), 'has module foo');
+  t.deepEqual(
+    space.registered('foo'),
+    {
+      id: 'foo',
+      deps: ['require'],
+      callback
+    },
+    'foo is registered'
+  );
+  t.notOk(space.defined('foo'), 'foo is not yet defined');
+
+  // no-op
+  space.nameAnonymousModule('bar');
+  t.notOk(space.has('bar'), 'bar is not named');
+  t.ok(space.has('foo'), 'still has module foo');
+
+  t.end();
+});
+
+test('space define named module (nameAnonymousModule is no-op) with implicit deps, case 2', t => {
+  const space = new Space(tesseract);
+
+  t.notOk(space.has('foo'));
+  t.notOk(space.registered('foo'));
+  t.notOk(space.defined('foo'));
+
+  // following line bypass browersify pickup on require('a');
+  const callback = new Function('require', 'exports', 'module', 'return require("a");');
+  space.define('foo', callback);
+
+  t.ok(space.has('foo'), 'has module foo');
+  t.deepEqual(
+    space.registered('foo'),
+    {
+      id: 'foo',
+      deps: ['require', 'exports', 'module', 'a'],
+      callback
+    },
+    'foo is registered'
+  );
+  t.notOk(space.defined('foo'), 'foo is not yet defined');
+
+  // no-op
+  space.nameAnonymousModule('bar');
+  t.notOk(space.has('bar'), 'bar is not named');
+  t.ok(space.has('foo'), 'still has module foo');
+
+  t.end();
+});
+
 test('space define named module with deps (nameAnonymousModule is no-op)', t => {
   const space = new Space(tesseract);
 
@@ -91,6 +152,65 @@ test('space define anonymous module', t => {
     {
       id: 'foo',
       deps: [],
+      callback
+    },
+    'foo is registered'
+  );
+  t.notOk(space.defined('foo'), 'foo is not yet defined');
+
+  t.end();
+});
+
+test('space define anonymous module width implicit deps', t => {
+  const space = new Space(tesseract);
+
+  t.notOk(space.has('foo'));
+  t.notOk(space.registered('foo'));
+  t.notOk(space.defined('foo'));
+
+  const callback = (req) => 1;
+  space.define(callback);
+
+  t.notOk(space.has('foo'));
+
+  space.nameAnonymousModule('foo');
+
+  t.ok(space.has('foo'), 'has module foo');
+  t.deepEqual(
+    space.registered('foo'),
+    {
+      id: 'foo',
+      deps: ['require'],
+      callback
+    },
+    'foo is registered'
+  );
+  t.notOk(space.defined('foo'), 'foo is not yet defined');
+
+  t.end();
+});
+
+test('space define anonymous module width implicit deps case2', t => {
+  const space = new Space(tesseract);
+
+  t.notOk(space.has('foo'));
+  t.notOk(space.registered('foo'));
+  t.notOk(space.defined('foo'));
+
+  // following line bypass browersify pickup on require('a');
+  const callback = new Function('require', 'exports', 'module', 'return require("a");');
+  space.define(callback);
+
+  t.notOk(space.has('foo'));
+
+  space.nameAnonymousModule('foo');
+
+  t.ok(space.has('foo'), 'has module foo');
+  t.deepEqual(
+    space.registered('foo'),
+    {
+      id: 'foo',
+      deps: ['require', 'exports', 'module', 'a'],
       callback
     },
     'foo is registered'
@@ -247,8 +367,8 @@ test('space.req resolve dependencies', t => {
   t.deepEqual(space.ids(), []);
   space.define('foo/sum', ['a', './b'], (a, b) => a + b);
   space.define('a/index', ['./a'], a => a);
-  space.define('a/a', [], () => 2);
-  space.define('foo/b', [], 3);
+  space.define('a/a', () => 2);
+  space.define('foo/b', 3);
 
   t.ok(space.registered('foo/sum'));
   t.ok(space.registered('a'));
@@ -288,8 +408,8 @@ test('space.req resolve dependencies with mappedId', t => {
   t.deepEqual(space.ids(), []);
   space.define('foo/sum', ['a', './b'], (a, b) => a + b);
   space.define('common/a/index', ['./a'], a => a);
-  space.define('common/a/a', [], () => 2);
-  space.define('foo/b', [], 3);
+  space.define('common/a/a', () => 2);
+  space.define('foo/b', 3);
 
   t.ok(space.registered('foo/sum'));
   t.notOk(space.registered('a'));
@@ -465,7 +585,7 @@ test('space.undef removes module, re-eval all modules deps on it', t => {
   });
   space.define('bar', ['foo'], f => f + 3);
   space.define('common/foo', ['a'], a => a + 3);
-  space.define('a', [], 2);
+  space.define('a', 2);
 
   t.ok(space.has('bar'));
   t.notOk(space.has('foo'));
@@ -497,7 +617,7 @@ test('space.undef removes module, re-eval all modules deps on it', t => {
 
       t.deepEqual(space.ids(), ['bar', 'common/foo']);
 
-      space.define('a',  [], 5);
+      space.define('a',  5);
 
       t.deepEqual(space.ids(), ['a', 'bar', 'common/foo']);
       t.ok(space.has('bar'));
@@ -522,7 +642,7 @@ test('space.purge cleanup everything', t => {
   const space = new Space(tesseract);
   space.define('bar', ['foo'], f => f + 3);
   space.define('foo', ['a'], a => a + 3);
-  space.define('a', [], 2);
+  space.define('a', 2);
 
   t.ok(space.has('bar'));
   t.ok(space.has('foo'));

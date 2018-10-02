@@ -324,7 +324,7 @@ function requirejs(deps, callback, errback) {
 
   return promiseSerial(deps, d => {
     if (d === 'require') {
-      return Promise.resolve(requireFunc);
+      return requireFunc;
     } else {
       return userSpace.req(mappedId(d));
     }

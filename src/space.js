@@ -1,6 +1,13 @@
 import {ext, parse, resolveModuleId, relativeModuleId, nodejsIds} from './id-utils';
 import promiseSerial from './promise-serial';
 
+const commentRegExp = /\/\*[\s\S]*?\*\/|([^:"'=]|^)\/\/.*$/mg;
+const cjsRequireRegExp = /[^.]\s*require\s*\(\s*["']([^'"\s]+)["']\s*\)/g;
+//Could match something like ')//comment', do not lose the prefix to comment.
+function commentReplace(match, singlePrefix) {
+    return singlePrefix || '';
+}
+
 export class Space {
   constructor(tesseract) {
     // tesseract controls spaces
@@ -65,12 +72,33 @@ export class Space {
 
     if (!Array.isArray(deps)) {
       callback = deps;
-      // if there are NO dependencies, we don't provide the
-      // default values of "require, exports, module"
-      deps = [];
+      deps = null;
     }
 
-    // different from requirejs, we doesn't auto inject commonjs deps
+    //If no name, and callback is a function, then figure out if it a
+    //CommonJS thing with dependencies.
+    if (!deps) {
+      deps = [];
+
+      //Remove comments from the callback string,
+      //look for require calls, and pull them into the dependencies,
+      //but only if there are function args.
+      if (typeof callback === 'function' && callback.length) {
+        callback
+          .toString()
+          .replace(commentRegExp, commentReplace)
+          .replace(cjsRequireRegExp, function (match, dep) {
+            deps.push(dep);
+          });
+
+        //May be a CommonJS thing even without require calls, but still
+        //could use exports, and module. Avoid doing exports and module
+        //work though if it just needs require.
+        //REQUIRES the function to expect the CommonJS variables in the
+        //order listed below.
+        deps = (callback.length === 1 ? ['require'] : ['require', 'exports', 'module']).concat(deps);
+      }
+    }
 
     // named module
     if (id) {
@@ -132,9 +160,9 @@ export class Space {
 
         if (depDefined) {
           return depDefined.value;
-        } else {
-          throw new Error(`commonjs dependency "${dep}" is not prepared.`);
         }
+
+        throw new Error(`commonjs dependency "${dep}" is not prepared.`);
       };
       requireFunc.toUrl = this.tesseract.toUrl;
 
@@ -166,7 +194,7 @@ export class Space {
             value = callback;
           }
 
-          if (useCjsModule) {
+          if (value === undefined && useCjsModule) {
             value = cjsModule.exports;
           }
 
