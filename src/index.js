@@ -356,6 +356,7 @@ function reset() {
 
   userSpace.purge();
   packageSpace.purge();
+  switchToUserSpace();
 }
 
 // https://github.com/tc39/proposal-dynamic-import

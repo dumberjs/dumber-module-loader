@@ -122,6 +122,29 @@ test('package space module can not access user space module', t => {
   );
 });
 
+test('same module id can be defined in user and package spaces', t => {
+  define.reset();
+  define.switchToUserSpace();
+
+  define('foo', ['a', 'b-package'], (a, b) => a + b);
+  define('a', () => 'a');
+
+  define.switchToPackageSpace();
+  define('b-package', ['a'], a => 'b' + a);
+  define('a', 'A');
+
+  requirejs(['foo'],
+    result => {
+      t.equal(result, 'abA');
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      t.end();
+    }
+  );
+});
+
 test('gets additional user space module from bundle', t => {
   define.reset();
   define.switchToUserSpace();
