@@ -553,3 +553,58 @@ test('space commonjs require supports toUrl', t => {
   ).then(t.end);
 });
 
+test('space supports circular dependencies as long as it is delayed', t => {
+  const space = new Space(tesseract);
+  space.define('foo', ['require', 'exports', 'bar'], (req, exp) => {
+    exp.message = () => req('bar').message();
+  });
+  space.define('bar', ['require', 'foo'], req => {
+    var bar = function (arg) {
+      return arg + "-" + req("foo").message();
+    };
+
+    bar.message = function () {
+        return "bar";
+    };
+
+    return bar;
+  });
+
+  space.req('foo').then(
+    value => {
+      t.equal(value.message(), 'bar');
+    }
+  ).catch(
+    err => {
+      t.fail(err.message);
+    }
+  ).then(t.end);
+});
+
+test('space supports circular dependencies as long as it is delayed, case2', t => {
+  const space = new Space(tesseract);
+  space.define('foo', ['require', 'exports', 'bar'], (req, exp) => {
+    exp.message = () => req('bar').message();
+  });
+  space.define('bar', ['require', 'foo'], req => {
+    var bar = function (arg) {
+      return arg + "-" + req("foo").message();
+    };
+
+    bar.message = function () {
+      return "bar";
+    };
+
+    return bar;
+  });
+
+  space.req('bar').then(
+    bar => {
+      t.equal(bar('hello'), 'hello-bar');
+    }
+  ).catch(
+    err => {
+      t.fail(err.message);
+    }
+  ).then(t.end);
+});

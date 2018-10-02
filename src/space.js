@@ -19,6 +19,8 @@ export class Space {
     // shape: {id, deps, callback, value}
     this._defined = {};
 
+    // a set of module ids promoting from _registry to _defined.
+    this._promoting = [];
   }
 
   ids() {
@@ -104,6 +106,15 @@ export class Space {
 
     if (registered) {
       const {id, deps, callback} = registered;
+
+      if (this._promoting.indexOf(id) >= 0) {
+        // in circular dependency, assume the dep value is unused directly.
+        // but will be used later through a delayed commonjs require(dep).
+        return Promise.resolve();
+      }
+
+      this._promoting.push(id);
+
       const extname = ext(id);
       const cjsModule = {
         exports: {},
@@ -145,27 +156,34 @@ export class Space {
             return this.req(mId);
           }
         })
-      ).then(results => {
-        let value;
+      ).then(
+        results => {
+          let value;
 
-        if (typeof callback === 'function') {
-          value = callback.apply(this.tesseract.global, results);
-        } else {
-          value = callback;
+          if (typeof callback === 'function') {
+            value = callback.apply(this.tesseract.global, results);
+          } else {
+            value = callback;
+          }
+
+          if (useCjsModule) {
+            value = cjsModule.exports;
+          }
+
+          // move the module from registry to defined
+          // when moduleId is foo/bar,
+          // id could be foo/bar or foo/bar/index
+          delete this._registry[id];
+          this._defined[id] = {id, deps, callback, value};
+          this._promoting.splice(this._promoting.indexOf(id), 1);
+
+          return value;
+        },
+        err => {
+          this._promoting.splice(this._promoting.indexOf(id), 1);
+          throw err;
         }
-
-        if (useCjsModule) {
-          value = cjsModule.exports;
-        }
-
-        // move the module from registry to defined
-        // when moduleId is foo/bar,
-        // id could be foo/bar or foo/bar/index
-        delete this._registry[id];
-        this._defined[id] = {id, deps, callback, value};
-
-        return value;
-      });
+      );
     }
 
     // ask tesseract, note moduleId is mapped
