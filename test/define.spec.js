@@ -229,7 +229,8 @@ test('gets runtime js user space module, with paths', t => {
     baseUrl: 'dist//runtime',
     paths: {
       'b-bundle': 'bundles/b.js',
-      'foo': 'common/foo'
+      'foo': 'common/foo',
+      'foo/b': 'other/b',
     },
     bundles: {
       'a-bundle': {
@@ -242,9 +243,9 @@ test('gets runtime js user space module, with paths', t => {
   });
 
   mockFetchApi({
-    'dist/runtime/common/foo/b.js': "define([], () => 2);",
+    'dist/runtime/other/b.js': "define([], () => 2);",
     'dist/runtime/a-bundle.js': "define.switchToPackageSpace(); define('a', 1);",
-    'dist/runtime/bundles/b.js': "define('common/foo/bar', ['a', './b'], (a, b) => a + b + 3);"
+    'dist/runtime/bundles/b.js': "define('common/foo/bar', ['a', 'foo/b'], (a, b) => a + b + 3);"
   });
 
   requirejs(['foo/bar'],

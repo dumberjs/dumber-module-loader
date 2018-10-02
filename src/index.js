@@ -61,10 +61,12 @@ let _paths = {};
 function mappedId(id) {
   const parsed = parse(id);
   let idPath = parsed.bareId;
-  const pathKeys = Object.keys(_paths);
+  const pathKeys = Object.keys(_paths).sort((a, b) => b.length - a.length);
   for (let i = 0, len = pathKeys.length; i < len; i++) {
     const k = pathKeys[i];
-    if (idPath.length >= k.length && idPath.substring(0, k.length) === k) {
+    const parsedKey = parse(k);
+    if (parsed.parts.length >= parsedKey.parts.length &&
+        parsed.parts.slice(0, parsedKey.parts.length).join('/') === k) {
       idPath = _paths[k] + idPath.substring(k.length);
       break;
     }
