@@ -31,7 +31,7 @@ export default [
     plugins: [
       json(),
       babel(),
-      // terser()
+      terser()
     ]
   },
   {
