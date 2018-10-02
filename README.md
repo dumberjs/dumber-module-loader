@@ -24,6 +24,7 @@ Our touch on AMD:
 
 Difference from requirejs:
 * size 9K vs requirejs 84K. Our 9K supports text! and json!.
+* no multi-contexts.
 * only supports config on baseUrl, paths, bundles and translators.
 * data-main attribute on script tag doesn't affect baseUrl, data-main is purely a module id.
 * paths support is simplified.
