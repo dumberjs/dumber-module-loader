@@ -728,3 +728,35 @@ test('space supports circular dependencies as long as it is delayed, case2', t =
     }
   ).then(t.end);
 });
+
+test('space supports above surface module id', t => {
+  const space = new Space(tesseract);
+  space.define('app', ['../package.json'], meta => meta.version);
+  space.define('../package.json', {version: '1.0.0'});
+
+  space.req('app').then(
+    result => {
+      t.equal(result, '1.0.0');
+    }
+  ).catch(
+    err => {
+      t.fail(err.message);
+    }
+  ).then(t.end);
+});
+
+test('space supports above surface module id, case2', t => {
+  const space = new Space(tesseract);
+  space.define('foo/bar', ['../../package.json'], meta => meta.version);
+  space.define('../package.json', {version: '1.0.0'});
+
+  space.req('foo/bar').then(
+    result => {
+      t.equal(result, '1.0.0');
+    }
+  ).catch(
+    err => {
+      t.fail(err.message);
+    }
+  ).then(t.end);
+});
