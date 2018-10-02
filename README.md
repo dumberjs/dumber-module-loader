@@ -29,6 +29,15 @@ Difference from requirejs:
 * [x] paths support is simplified.
   - doesn't support absolute path like `"foo": "/foo"`. Only do `"foo": "common/foo"` which `common/foo` is relative to baseUrl.
   - doesn't support `"foo": ["common/foo", "shared/foo"]` failover array.
+  - relative module resolution is simplified as a breaking change.
+  ```js
+  define('common/foo', ['./bar'], function (bar) { /* ... */ });
+  requirejs.config({paths: {'foo': 'common/foo'}});
+  requirejs(['foo'], function (foo) {
+    // requirejs resolves './bar' to 'bar',
+    // we resolves './bar' to 'common/bar'
+  });
+  ```
 * [x] no automatic commonjs wrapping at runtime module fetching. At runtime, we only support AMD anonymous module format, unless you supply a translator to deal with raw content.
 * [x] bundles config format is different, it needs two arrays, 'user' and 'package' for the two module spaces.
   - for example, `{"a-bundle": {"user": ['a', 'b'], "package": ["lodash", "jquery"]}}`.
