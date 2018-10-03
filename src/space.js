@@ -1,5 +1,5 @@
 import {ext, parse, resolveModuleId, relativeModuleId, nodejsIds} from './id-utils';
-import promiseSerial from './promise-serial';
+import serialResults from './serial-results';
 
 const commentRegExp = /\/\*[\s\S]*?\*\/|([^:"'=]|^)\/\/.*$/mg;
 const cjsRequireRegExp = /[^.]\s*require\s*\(\s*["']([^'"\s]+)["']\s*\)/g;
@@ -119,7 +119,9 @@ export class Space {
     }
   }
 
-  // require an AMD module, return a promise
+  // require an AMD module value
+  // return value synchronously as much as possible,
+  // or return a promise.
   // use 'req' instead of 'require' to avoid potential parsing problem.
   // param moduleId must be a clean mapped id
   req(moduleId) {
@@ -130,7 +132,7 @@ export class Space {
     const defined = this.defined(moduleId);
 
     if (defined) {
-      return Promise.resolve(defined.value);
+      return defined.value;
     }
 
     const registered = this.registered(moduleId);
@@ -140,7 +142,7 @@ export class Space {
 
       if (this._promoting.hasOwnProperty(id)) {
         // in circular dependency, early return cjsModule.exports.
-        return Promise.resolve(this._promoting[id].exports);
+        return this._promoting[id].exports;
       }
 
       const extname = ext(id);
@@ -162,16 +164,27 @@ export class Space {
           return depDefined.value;
         }
 
-        if (this._promoting.hasOwnProperty(id)) {
+        if (this._promoting.hasOwnProperty(mId)) {
           // in circular dependency, early return cjsModule.exports.
-          return Promise.resolve(this._promoting[id].exports);
+          return this._promoting[mId].exports;
+        }
+
+        if (this.registered(mId)) {
+          // try inline load
+          const result = this.req(mId);
+
+          if (result && typeof result.then === 'function') {
+            throw new Error(`commonjs dependency "${dep}" cannot be resolved synchronously.`);
+          }
+
+          return result;
         }
 
         throw new Error(`commonjs dependency "${dep}" is not prepared.`);
       };
       requireFunc.toUrl = this.tesseract.toUrl;
 
-      return promiseSerial(deps, d => {
+      const depValues = serialResults(deps, d => {
         if (d === 'require') {
           // commonjs require
           return requireFunc;
@@ -188,35 +201,42 @@ export class Space {
           const mId = this.tesseract.mappedId(absoluteId);
           return this.req(mId);
         }
-      })
-      .then(
-        results => {
-          let value;
+      });
 
-          if (typeof callback === 'function') {
-            value = callback.apply(this.tesseract.global, results);
-          } else {
-            value = callback;
-          }
+      const finalize = results => {
+        let value;
 
-          if (value === undefined && useCjsModule) {
-            value = cjsModule.exports;
-          }
-
-          // move the module from registry to defined
-          // when moduleId is foo/bar,
-          // id could be foo/bar or foo/bar/index
-          delete this._registry[id];
-          delete this._promoting[id];
-          this._defined[id] = {id, deps, callback, value};
-
-          return value;
-        },
-        err => {
-          delete this._promoting[id];
-          throw err;
+        if (typeof callback === 'function') {
+          value = callback.apply(this.tesseract.global, results);
+        } else {
+          value = callback;
         }
-      );
+
+        if (value === undefined && useCjsModule) {
+          value = cjsModule.exports;
+        }
+
+        // move the module from registry to defined
+        // when moduleId is foo/bar,
+        // id could be foo/bar or foo/bar/index
+        delete this._registry[id];
+        delete this._promoting[id];
+        this._defined[id] = {id, deps, callback, value};
+
+        return value;
+      };
+
+      if (depValues && typeof depValues.then === 'function') {
+        return depValues.then(
+          finalize,
+          err => {
+            delete this._promoting[id];
+            throw err;
+          }
+        );
+      }
+
+      return finalize(depValues);
     }
 
     // ask tesseract, note moduleId is mapped

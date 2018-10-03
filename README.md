@@ -17,7 +17,7 @@ Our touch on AMD:
   - module in user space can acquire user and package modules
   - module in package space can only acquire package modules
   - both user and package space can contain module with same id. This is designed to avoid user `src/util.js` over-shadowing Nodejs core module `util`.
-* [TBD] work around non-delayed circular dependencies (for some npm packages like [yallist](https://github.com/isaacs/yallist)). To be solved by dumber bundler, not here.
+* work around non-delayed circular dependencies (for some npm packages like [yallist](https://github.com/isaacs/yallist)). Requires dumber bundler to detect circular deps, and smartly ignore one dep, see comments in last test of `test/space.spec.js`.
 * support translator, to transpile, transform raw content
   - by default, dumber-module-loader ships with translators for js/json/html/svg/css/wasm (wasm TBD), plus support of traditional text! and json! plugins.
   - [TBD] dumber-babel-translator brings babel at runtime

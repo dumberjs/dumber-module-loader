@@ -58,6 +58,7 @@ test('require can be required to behave like normal AMD require', t => {
     },
     err => {
       t.fail(err.message);
+      t.end();
     }
   ).then(t.end);
 });

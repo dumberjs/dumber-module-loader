@@ -2,7 +2,7 @@ import {version} from '../package.json';
 import {cleanPath, parse, nodejsIds} from './id-utils';
 import {Space} from './space';
 import _global from './_global';
-import promiseSerial from './promise-serial';
+import serialResults from './serial-results';
 
 // dumber-module-loader has two fixed module spaces:
 // 1. user space (default), for user source code
@@ -193,6 +193,7 @@ const fetchUrl = url => {
 };
 
 // incoming id is already mapped
+// return a promise
 const _fetch = id => {
   const urls = urlsForId(id);
   const len = urls.length;
@@ -209,6 +210,7 @@ const _fetch = id => {
 };
 
 // incoming id is already mapped
+// return a promise
 function runtimeReq(id) {
   const parsed = parse(id);
   return _fetch(parsed.cleanId)
@@ -234,6 +236,7 @@ function runtimeReq(id) {
 }
 
 // incoming id is already mapped
+// return a promise
 function additionalUserReq(id) {
   const possibleIds = nodejsIds(id);
   const bundleName = Object.keys(_bundles).find(bn =>
@@ -255,6 +258,7 @@ function additionalUserReq(id) {
 }
 
 // incoming id is already mapped
+// return a promise
 function additionalPackageReq(id) {
   const possibleIds = nodejsIds(id);
   const bundleName = Object.keys(_bundles).find(bn =>
@@ -275,6 +279,7 @@ function additionalPackageReq(id) {
   return Promise.reject(new Error(`no bundle for module "${id}"`));
 }
 
+// return a promise
 function loadBundle(bundleName) {
   return _fetch(mappedId(bundleName))
   .then(response => response.text())
@@ -297,6 +302,12 @@ function define(id, deps, callback) {
 }
 
 // AMD require
+// run callback synchronously as much as possible.
+// in sync mode, errback is ignore (avoid try-catch for performance)
+// or use a promise to run callback/errback.
+//
+// return a promise resolving to deps module values array.
+//
 // different from requirejs:
 // 1. we don't support optional config
 // 2. errback only gets one error object
@@ -322,22 +333,31 @@ function requirejs(deps, callback, errback) {
 
   requireFunc.toUrl = toUrl;
 
-  return promiseSerial(deps, d => {
+  const depValues = serialResults(deps, d => {
     if (d === 'require') {
       return requireFunc;
     } else {
       return userSpace.req(mappedId(d));
     }
-  })
-  .then(
-    results => {
-      if (callback) callback.apply(_global, results);
-    },
-    err => {
-      if (errback) return errback(err);
-      else console.error(err);
-    }
-  );
+  });
+
+  const finalize = results => {
+    if (callback) callback.apply(_global, results);
+  };
+
+  if (depValues && typeof depValues.then === 'function') {
+    return depValues.then(
+      results => {
+        if (callback) callback.apply(_global, results);
+      },
+      err => {
+        if (errback) return errback(err);
+        else console.error(err);
+      }
+    );
+  }
+
+  return Promise.resolve(finalize(depValues));
 }
 
 // AMD requirejs.undef

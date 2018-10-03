@@ -316,21 +316,16 @@ test('space.req returns the value and move the module from registered to defined
   t.notOk(space.defined('foo/index'));
   t.notOk(space.defined('foo/index.js'));
 
-  space.req('foo').then(
-    value => {
-      t.equal(value, 5);
-      t.notOk(space.registered('foo'));
-      t.notOk(space.registered('foo/index'));
-      t.notOk(space.registered('foo/index.js'));
+  const value = space.req('foo');
+  t.equal(value, 5);
+  t.notOk(space.registered('foo'));
+  t.notOk(space.registered('foo/index'));
+  t.notOk(space.registered('foo/index.js'));
 
-      t.deepEqual(space.defined('foo'), {id: 'foo/index.js', deps: [], callback: 5, value: 5});
-      t.deepEqual(space.defined('foo/index'), {id: 'foo/index.js', deps: [], callback: 5, value: 5});
-      t.deepEqual(space.defined('foo/index.js'), {id: 'foo/index.js', deps: [], callback: 5, value: 5});
-    },
-    err => {
-      t.fail(err.message);
-    }
-  ).then(t.end);
+  t.deepEqual(space.defined('foo'), {id: 'foo/index.js', deps: [], callback: 5, value: 5});
+  t.deepEqual(space.defined('foo/index'), {id: 'foo/index.js', deps: [], callback: 5, value: 5});
+  t.deepEqual(space.defined('foo/index.js'), {id: 'foo/index.js', deps: [], callback: 5, value: 5});
+  t.end();
 });
 
 test('space.req returns the evaluated value and move the module from registered to defined', t => {
@@ -345,21 +340,16 @@ test('space.req returns the evaluated value and move the module from registered 
   t.notOk(space.defined('foo/index'));
   t.notOk(space.defined('foo/index.js'));
 
-  space.req('foo//index.js').then(
-    value => {
-      t.equal(value, 5);
-      t.notOk(space.registered('foo'));
-      t.notOk(space.registered('foo/index'));
-      t.notOk(space.registered('foo/index.js'));
+  const value = space.req('foo//index.js');
+  t.equal(value, 5);
+  t.notOk(space.registered('foo'));
+  t.notOk(space.registered('foo/index'));
+  t.notOk(space.registered('foo/index.js'));
 
-      t.deepEqual(space.defined('foo'), {id: 'foo/index', deps: [], callback, value: 5});
-      t.deepEqual(space.defined('foo/index'), {id: 'foo/index', deps: [], callback, value: 5});
-      t.deepEqual(space.defined('foo/index.js'), {id: 'foo/index', deps: [], callback, value: 5});
-    },
-    err => {
-      t.fail(err.message);
-    }
-  ).then(t.end);
+  t.deepEqual(space.defined('foo'), {id: 'foo/index', deps: [], callback, value: 5});
+  t.deepEqual(space.defined('foo/index'), {id: 'foo/index', deps: [], callback, value: 5});
+  t.deepEqual(space.defined('foo/index.js'), {id: 'foo/index', deps: [], callback, value: 5});
+  t.end();
 });
 
 test('space.req resolve dependencies', t => {
@@ -378,22 +368,17 @@ test('space.req resolve dependencies', t => {
   t.notOk(space.defined('foo/b'));
   t.deepEqual(space.ids(), ['a/a', 'a/index', 'foo/b', 'foo/sum']);
 
-  space.req('foo/sum').then(
-    value => {
-      t.equal(value, 5);
-      t.notOk(space.registered('foo/sum'));
-      t.notOk(space.registered('a'));
-      t.notOk(space.registered('foo/b'));
+  const value = space.req('foo/sum');
+  t.equal(value, 5);
+  t.notOk(space.registered('foo/sum'));
+  t.notOk(space.registered('a'));
+  t.notOk(space.registered('foo/b'));
 
-      t.ok(space.defined('foo/sum'));
-      t.ok(space.defined('a'));
-      t.ok(space.defined('foo/b'));
-      t.deepEqual(space.ids(), ['a/a', 'a/index', 'foo/b', 'foo/sum']);
-    },
-    err => {
-      t.fail(err.message);
-    }
-  ).then(t.end);
+  t.ok(space.defined('foo/sum'));
+  t.ok(space.defined('a'));
+  t.ok(space.defined('foo/b'));
+  t.deepEqual(space.ids(), ['a/a', 'a/index', 'foo/b', 'foo/sum']);
+  t.end();
 });
 
 test('space.req resolve dependencies with mappedId', t => {
@@ -425,31 +410,50 @@ test('space.req resolve dependencies with mappedId', t => {
   t.notOk(space.defined('foo/b'));
   t.deepEqual(space.ids(), ['common/a/a', 'common/a/index', 'foo/b', 'foo/sum']);
 
-  space.req('foo/sum').then(
-    value => {
-      t.equal(value, 5);
-      t.notOk(space.registered('foo/sum'));
-      t.notOk(space.registered('a'));
-      t.notOk(space.registered('common/a'));
-      t.notOk(space.registered('a/a'));
-      t.notOk(space.registered('common/a/a'));
-      t.notOk(space.registered('foo/b'));
+  const value = space.req('foo/sum');
+  t.equal(value, 5);
+  t.notOk(space.registered('foo/sum'));
+  t.notOk(space.registered('a'));
+  t.notOk(space.registered('common/a'));
+  t.notOk(space.registered('a/a'));
+  t.notOk(space.registered('common/a/a'));
+  t.notOk(space.registered('foo/b'));
 
-      t.ok(space.defined('foo/sum'));
-      t.notOk(space.defined('a'));
-      t.ok(space.defined('common/a'));
-      t.notOk(space.defined('a/a'));
-      t.ok(space.defined('common/a/a'));
-      t.ok(space.defined('foo/b'));
-      t.deepEqual(space.ids(), ['common/a/a', 'common/a/index', 'foo/b', 'foo/sum']);
-    },
-    err => {
-      t.fail(err.message);
-    }
-  ).then(t.end);
+  t.ok(space.defined('foo/sum'));
+  t.notOk(space.defined('a'));
+  t.ok(space.defined('common/a'));
+  t.notOk(space.defined('a/a'));
+  t.ok(space.defined('common/a/a'));
+  t.ok(space.defined('foo/b'));
+  t.deepEqual(space.ids(), ['common/a/a', 'common/a/index', 'foo/b', 'foo/sum']);
+  t.end();
 });
 
-test('space.req accesses tesseract global and req', t => {
+test('space.req accesses tesseract global and req, sychronously', t => {
+  const _global = {};
+  const req = function (id) {
+    if (id === 'a') return 2;
+    return Promise.reject(new Error('cannot find module ' + id));
+  };
+
+  const space = new Space({global: _global, req, mappedId: id => id});
+  space.define('foo', ['a'], function (a) {
+    this.foo = a + 3;
+    return this.foo;
+  });
+
+  t.deepEqual(space.ids(), ['foo']);
+
+  const value = space.req('foo');
+  t.equal(value, 5);
+  t.notOk(space.has('a'));
+  t.ok(space.defined('foo'));
+  t.equal(_global.foo, 5, 'mutate global');
+  t.deepEqual(space.ids(), ['foo']);
+  t.end();
+});
+
+test('space.req accesses tesseract global and req, asynchronously', t => {
   const _global = {};
   const req = function (id) {
     if (id === 'a') return Promise.resolve(2);
@@ -478,7 +482,7 @@ test('space.req accesses tesseract global and req', t => {
   ).then(t.end);
 });
 
-test('space.req fails tesseract req', t => {
+test('space.req fails tesseract req asynchronously', t => {
   const space = new Space(tesseract);
   space.define('foo', ['a'], a => a + 3);
 
@@ -492,7 +496,7 @@ test('space.req fails tesseract req', t => {
   ).then(t.end);
 });
 
-test('space.req fails tesseract req with commonjs wrapper', t => {
+test('space.req fails tesseract.req with commonjs wrapper asynchronously', t => {
   const space = new Space(tesseract);
   space.define('foo', ['require', 'module', 'a'], function (require, module, a) {
     module.exports = a + 3;
@@ -510,14 +514,13 @@ test('space.req fails tesseract req with commonjs wrapper', t => {
 
 test('space.req supports commonjs wrapper', t => {
   const space = new Space(tesseract);
-  // name _require here in order to not confusing browserify
-  space.define('foo', ['require', 'exports', 'module', 'a'], function (_require, exports, module) {
+  space.define('foo', ['require', 'exports', 'module', 'a'], new Function('require', 'exports', 'module', `
     var __filename = module.filename || '', __dirname = __filename.substring(0, __filename.lastIndexOf('/') + 1);
-    const a = _require('a');
+    const a = require('a');
     exports.foo = a + 3;
     exports.filename = __filename;
     exports.dirname = __dirname;
-  });
+  `));
   space.define('a', ['module'], function (module) {
     module.exports = 2;
   });
@@ -532,46 +535,44 @@ test('space.req supports commonjs wrapper', t => {
 
   t.deepEqual(space.ids(), ['a', 'foo']);
 
-  space.req('foo').then(
-    value => {
-      t.deepEqual(value, {foo: 5, filename: '/foo.js', dirname: '/'});
-      t.notOk(space.has('require'));
-      t.notOk(space.has('exports'));
-      t.notOk(space.has('module'));
-      t.notOk(space.registered('foo'));
-      t.notOk(space.registered('a'));
-      t.ok(space.defined('foo'));
-      t.ok(space.defined('a'));
-      t.deepEqual(space.ids(), ['a', 'foo']);
-    },
-    err => {
-      t.fail(err.message);
-    }
-  ).then(t.end);
+  const value = space.req('foo');
+  t.deepEqual(value, {foo: 5, filename: '/foo.js', dirname: '/'});
+  t.notOk(space.has('require'));
+  t.notOk(space.has('exports'));
+  t.notOk(space.has('module'));
+  t.notOk(space.registered('foo'));
+  t.notOk(space.registered('a'));
+  t.ok(space.defined('foo'));
+  t.ok(space.defined('a'));
+  t.deepEqual(space.ids(), ['a', 'foo']);
+  t.end();
 });
 
-
-test('space.req fails missing commonjs dep, does not do dynamic load', t => {
+test('space.req loads missing commonjs dep sychronously, as long as it is defined', t => {
   const space = new Space(tesseract);
-  // name _require here in order to not confusing browserify
-  space.define('foo', ['require', 'exports', 'module'], function (_require, exports, module) {
-    const a = _require('a');
+  space.define('foo', ['require', 'exports', 'module'], new Function('require', 'exports', 'module', `
+    const a = require('a');
     exports.foo = a + 3;
-  });
+  `));
   space.define('a', ['module'], function (module) {
     module.exports = 2;
   });
 
   t.deepEqual(space.ids(), ['a', 'foo']);
+  t.equal(space.req('foo').foo, 5);
+  t.end();
+});
 
-  space.req('foo').then(
-    () => {
-      t.fail('should not succeed');
-    },
-    err => {
-      t.pass(err.message);
-    }
-  ).then(t.end);
+test('space.req fails missing commonjs dep sychronously', t => {
+  const space = new Space(tesseract);
+  space.define('foo', ['require', 'exports', 'module'], new Function('require', 'exports', 'module', `
+    const a = require('a');
+    exports.foo = a + 3;
+  `));
+
+  t.deepEqual(space.ids(), ['foo']);
+  t.throws(() => space.req('foo'));
+  t.end();
 });
 
 test('space.undef removes module, re-eval all modules deps on it', t => {
@@ -594,48 +595,39 @@ test('space.undef removes module, re-eval all modules deps on it', t => {
 
   t.deepEqual(space.ids(), ['a', 'bar', 'common/foo']);
 
-  space.req('bar').then(
-    value => {
-      t.equal(value, 8);
-      t.notOk(space.registered('bar'));
-      t.notOk(space.registered('foo'));
-      t.notOk(space.registered('common/foo'));
-      t.notOk(space.registered('a'));
-      t.ok(space.defined('bar'));
-      t.notOk(space.defined('foo'));
-      t.ok(space.defined('common/foo'));
-      t.ok(space.defined('a'));
+  const value = space.req('bar');
+  t.equal(value, 8);
+  t.notOk(space.registered('bar'));
+  t.notOk(space.registered('foo'));
+  t.notOk(space.registered('common/foo'));
+  t.notOk(space.registered('a'));
+  t.ok(space.defined('bar'));
+  t.notOk(space.defined('foo'));
+  t.ok(space.defined('common/foo'));
+  t.ok(space.defined('a'));
 
-      space.undef('a.js');
-      t.ok(space.registered('bar'));
-      t.notOk(space.registered('foo'));
-      t.ok(space.registered('common/foo'));
-      t.notOk(space.defined('bar'));
-      t.notOk(space.defined('foo'));
-      t.notOk(space.defined('common/foo'));
-      t.notOk(space.has('a'));
+  space.undef('a.js');
+  t.ok(space.registered('bar'));
+  t.notOk(space.registered('foo'));
+  t.ok(space.registered('common/foo'));
+  t.notOk(space.defined('bar'));
+  t.notOk(space.defined('foo'));
+  t.notOk(space.defined('common/foo'));
+  t.notOk(space.has('a'));
 
-      t.deepEqual(space.ids(), ['bar', 'common/foo']);
+  t.deepEqual(space.ids(), ['bar', 'common/foo']);
 
-      space.define('a',  5);
+  space.define('a',  5);
 
-      t.deepEqual(space.ids(), ['a', 'bar', 'common/foo']);
-      t.ok(space.has('bar'));
-      t.notOk(space.has('foo'));
-      t.ok(space.has('common/foo'));
-      t.ok(space.has('a'));
+  t.deepEqual(space.ids(), ['a', 'bar', 'common/foo']);
+  t.ok(space.has('bar'));
+  t.notOk(space.has('foo'));
+  t.ok(space.has('common/foo'));
+  t.ok(space.has('a'));
 
-      return space.req('bar').then(
-        value => {
-          t.equal(value, 11);
-        }
-      );
-    }
-  ).catch(
-    err => {
-      t.fail(err.message);
-    }
-  ).then(t.end);
+  const value2 = space.req('bar');
+  t.equal(value2, 11);
+  t.end();
 });
 
 test('space.purge cleanup everything', t => {
@@ -661,16 +653,8 @@ test('space.purge cleanup everything', t => {
 test('space commonjs require supports toUrl', t => {
   const space = new Space(tesseract);
   space.define('foo', ['require'], req => req.toUrl('lorem'));
-
-  space.req('foo').then(
-    value => {
-      t.equal(value, 'path/to/lorem');
-    }
-  ).catch(
-    err => {
-      t.fail(err.message);
-    }
-  ).then(t.end);
+  t.equal(space.req('foo'), 'path/to/lorem');
+  t.end();
 });
 
 test('space supports circular dependencies as long as it is delayed', t => {
@@ -690,15 +674,8 @@ test('space supports circular dependencies as long as it is delayed', t => {
     return bar;
   });
 
-  space.req('foo').then(
-    value => {
-      t.equal(value.message(), 'bar');
-    }
-  ).catch(
-    err => {
-      t.fail(err.message);
-    }
-  ).then(t.end);
+  t.equal(space.req('foo').message(), 'bar');
+  t.end();
 });
 
 test('space supports circular dependencies as long as it is delayed, case2', t => {
@@ -718,15 +695,8 @@ test('space supports circular dependencies as long as it is delayed, case2', t =
     return bar;
   });
 
-  space.req('bar').then(
-    bar => {
-      t.equal(bar('hello'), 'hello-bar');
-    }
-  ).catch(
-    err => {
-      t.fail(err.message);
-    }
-  ).then(t.end);
+  t.equal(space.req('bar')('hello'), 'hello-bar');
+  t.end();
 });
 
 test('space supports above surface module id', t => {
@@ -734,15 +704,8 @@ test('space supports above surface module id', t => {
   space.define('app', ['../package.json'], meta => meta.version);
   space.define('../package.json', {version: '1.0.0'});
 
-  space.req('app').then(
-    result => {
-      t.equal(result, '1.0.0');
-    }
-  ).catch(
-    err => {
-      t.fail(err.message);
-    }
-  ).then(t.end);
+  t.equal(space.req('app'), '1.0.0');
+  t.end();
 });
 
 test('space supports above surface module id, case2', t => {
@@ -750,13 +713,27 @@ test('space supports above surface module id, case2', t => {
   space.define('foo/bar', ['../../package.json'], meta => meta.version);
   space.define('../package.json', {version: '1.0.0'});
 
-  space.req('foo/bar').then(
-    result => {
-      t.equal(result, '1.0.0');
-    }
-  ).catch(
-    err => {
-      t.fail(err.message);
-    }
-  ).then(t.end);
+  t.equal(space.req('foo/bar'), '1.0.0');
+  t.end();
+});
+
+test('space deals with yallist like circular dependencies', t => {
+  const space = new Space(tesseract);
+
+  // somehow dumber bundler has to know to skip './iterator' in deps array
+  space.define('yallist/yallist', ['require', 'exports', 'module'], new Function('require', 'exports', 'module', `
+    module.exports = Yallist;
+    function Yallist () {};
+    require('./iterator.js');
+  `));
+
+  space.define('yallist/iterator', ['require', 'exports', 'module', './yallist'], function(req, exp, mod) {
+    var Yallist = req('./yallist.js');
+    Yallist.iterator = 'got';
+  });
+
+  const Yallist = space.req('yallist/yallist');
+  t.equal((typeof Yallist), 'function');
+  t.equal(Yallist.iterator, 'got');
+  t.end();
 });
