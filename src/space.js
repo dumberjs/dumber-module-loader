@@ -190,7 +190,7 @@ export default function(tesseract) {
 
       if (registered(mId)) {
         // try synchronous load the missing module at runtime.
-        // it's is very important for commonjs circular dependency.
+        // it is very important for commonjs circular dependency.
         // this can happen when
         // 1. circular dependency is pro-actively detected.
         // 2. some define call deliberately leaves out some dep,
@@ -229,7 +229,7 @@ export default function(tesseract) {
         // user and package spaces, as user -> package is one way.
         // 2. Nodejs circular dependency only happens within one npm package, as long as
         // user didn't split circular depended modules to multiple bundles, we are fine.
-        // 3. follow commonjs require() semantic, to be resolved at code running time
+        // 3. follow commonjs require() semantic, to be resolved at code running time.
         if (isCircular(mId)) return;
 
         return req(mId);
