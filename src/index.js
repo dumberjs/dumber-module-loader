@@ -20,14 +20,30 @@ const userSpaceTesseract = {
   mappedId,
   toUrl,
   // incoming id is already mapped
-  req: function (id) {
-    // try additional user module in bundles
-    return additionalUserReq(id)
-    // then try package space
-    // packaegSpace will handle additional package module in bundles
-    .catch(() => packageSpace.req(id))
-    // then try dynamic load
-    .catch(() => runtimeReq(id));
+  // 1. try additional user module in bundles,
+  // 2. then try package space
+  // packaegSpace will handle additional package module in bundles
+  // 3. then try dynamic load
+  req: id => {
+    const p = userReqFromBundle(id);
+    // p is a promise loading additional bundle
+    if (p) return p;
+
+    const packageReq = packageSpace.req(id);
+    if (packageReq && typeof packageReq.then === 'function') {
+      // packageReq is asynchronous
+      return packageReq.catch(err => {
+        if (err && err.isBundleError) {
+          // stop at bundle error
+          throw err;
+        } else {
+          return runtimeReq(id);
+        }
+      });
+    }
+
+    // synchronous return from a loaded bundle
+    return packageReq;
   }
 };
 
@@ -38,7 +54,7 @@ const packageSpaceTesseract = {
   mappedId,
   toUrl,
   // incoming id is already mapped
-  req: additionalPackageReq // try additional package module in bundles
+  req: packageReqFromBundle
 };
 
 const packageSpace = new Space(packageSpaceTesseract);
@@ -236,8 +252,9 @@ function runtimeReq(id) {
 }
 
 // incoming id is already mapped
-// return a promise
-function additionalUserReq(id) {
+// return a promise to load additional bundle
+// or return undefined.
+function userReqFromBundle(id) {
   const possibleIds = nodejsIds(id);
   const bundleName = Object.keys(_bundles).find(bn =>
     possibleIds.some(d => _bundles[bn].user.has(d))
@@ -253,13 +270,12 @@ function additionalUserReq(id) {
       }
     });
   }
-
-  return Promise.reject(new Error(`no bundle for module "${id}"`));
 }
 
 // incoming id is already mapped
-// return a promise
-function additionalPackageReq(id) {
+// return a promise even in rejection
+// this is to help userSpaceTesseract to identify sync return in existing bundler.
+function packageReqFromBundle(id) {
   const possibleIds = nodejsIds(id);
   const bundleName = Object.keys(_bundles).find(bn =>
     possibleIds.some(d => _bundles[bn].package.has(d))
@@ -271,7 +287,9 @@ function additionalPackageReq(id) {
       if (packageSpace.has(id)) {
         return packageSpace.req(id);
       } else {
-        throw new Error(`module "${id}" is missing from bundle "${bundleName}"`);
+        const err = new Error(`module "${id}" is missing from bundle "${bundleName}"`);
+        err.isBundleError = true;
+        throw err;
       }
     });
   }

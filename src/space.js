@@ -226,6 +226,7 @@ export class Space {
         return value;
       };
 
+      // asynchronous return
       if (depValues && typeof depValues.then === 'function') {
         return depValues.then(
           finalize,
@@ -236,6 +237,7 @@ export class Space {
         );
       }
 
+      // synchronous return
       return finalize(depValues);
     }
 

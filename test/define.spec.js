@@ -177,6 +177,37 @@ test('gets additional user space module from bundle', t => {
   );
 });
 
+test('gets additional user space module from bundle, stops at bundle error', t => {
+  define.reset();
+  define.switchToUserSpace();
+
+  define('foo/bar', ['a', './b'], (a, b) => a + b + 3);
+  define('foo/b.js', () => 2);
+
+  requirejs.config({
+    bundles: {
+      'a-bundle': {
+        user: ['a']
+      }
+    }
+  });
+
+  mockFetchApi({
+    './a-bundle.js': "define('aa', 1);"
+  });
+
+  requirejs(['foo/bar'],
+    result => {
+      t.fail('should not succeed');
+      t.end();
+    },
+    err => {
+      t.pass(err.message);
+      t.end();
+    }
+  );
+});
+
 test('gets additional package space module from bundle', t => {
   define.reset();
   define.switchToUserSpace();
@@ -204,6 +235,38 @@ test('gets additional package space module from bundle', t => {
     },
     err => {
       t.fail(err.message);
+      t.end();
+    }
+  );
+});
+
+test('gets additional package space module from bundle, stops at bundle error', t => {
+  define.reset();
+  define.switchToUserSpace();
+
+  requirejs.config({
+    bundles: {
+      'a-bundle': {
+        package: ['a']
+      },
+      'b-bundle': {
+        user: ['foo/b.js', 'foo/bar']
+      }
+    }
+  });
+
+  mockFetchApi({
+    './a-bundle.js': "define.switchToPackageSpace(); define('aa', 1);",
+    './b-bundle.js': "define('foo/bar', ['a', './b'], (a, b) => a + b + 3); define('foo/b.js', () => 2);"
+  });
+
+  requirejs(['foo/bar'],
+    result => {
+      t.fail('should not succeed');
+      t.end();
+    },
+    err => {
+      t.pass(err.message);
       t.end();
     }
   );
@@ -240,6 +303,42 @@ test('gets additional package space module from bundle, requested from package s
     },
     err => {
       t.fail(err.message);
+      t.end();
+    }
+  );
+});
+
+test('gets additional package space module from bundle, requested from package space, stops at bundle error', t => {
+  define.reset();
+  define.switchToUserSpace();
+
+  requirejs.config({
+    bundles: {
+      'a-bundle': {
+        package: ['a']
+      },
+      'b-bundle': {
+        user: ['foo/bar']
+      },
+      'c-bundle': {
+        package: ['c']
+      },
+    }
+  });
+
+  mockFetchApi({
+    './a-bundle.js': "define.switchToPackageSpace(); define('aa', 1);",
+    './b-bundle.js': "define('foo/bar', ['c'], c => c + 3);",
+    './c-bundle.js': "define.switchToPackageSpace(); define('c.js', ['a'], a => a + 2);"
+  });
+
+  requirejs(['foo/bar'],
+    result => {
+      t.fail('should not succeed');
+      t.end();
+    },
+    err => {
+      t.pass(err.message);
       t.end();
     }
   );
