@@ -16,19 +16,21 @@ export class Space {
 
     // all registered modules, but not used yet.
     // once required (used), move to defined.
-    // shape: {id, deps, callback}
+    // shape: {id: {id, deps, callback}}
     this._registry = {};
 
     // temporary hold anonymous module
+    // shape: {deps, callback}
     this._anonymous = null;
 
     // all defined modules
     // note callback is retained for possible demote
-    // shape: {id, deps, callback, value}
+    // shape: {id: {id, deps, callback, value}}
     this._defined = {};
 
-    // a set of module ids promoting from _registry to _defined.
-    this._promoting = [];
+    // modules promoting from _registry to _defined.
+    // shape: {id: {id, exports, filename}}
+    this._promoting = {};
   }
 
   ids() {
@@ -136,13 +138,10 @@ export class Space {
     if (registered) {
       const {id, deps, callback} = registered;
 
-      if (this._promoting.indexOf(id) >= 0) {
-        // in circular dependency, assume the dep value is unused directly.
-        // but will be used later through a delayed commonjs require(dep).
-        return Promise.resolve();
+      if (this._promoting.hasOwnProperty(id)) {
+        // in circular dependency, early return cjsModule.exports.
+        return Promise.resolve(this._promoting[id].exports);
       }
-
-      this._promoting.push(id);
 
       const extname = ext(id);
       const cjsModule = {
@@ -152,6 +151,7 @@ export class Space {
         filename: '/' + id + (extname ? '' : '.js')
       };
       let useCjsModule = false;
+      this._promoting[id] = cjsModule;
 
       const requireFunc = dep => {
         const absoluteId = resolveModuleId(id, dep);
@@ -160,6 +160,11 @@ export class Space {
 
         if (depDefined) {
           return depDefined.value;
+        }
+
+        if (this._promoting.hasOwnProperty(id)) {
+          // in circular dependency, early return cjsModule.exports.
+          return Promise.resolve(this._promoting[id].exports);
         }
 
         throw new Error(`commonjs dependency "${dep}" is not prepared.`);
@@ -202,13 +207,13 @@ export class Space {
           // when moduleId is foo/bar,
           // id could be foo/bar or foo/bar/index
           delete this._registry[id];
+          delete this._promoting[id];
           this._defined[id] = {id, deps, callback, value};
-          this._promoting.splice(this._promoting.indexOf(id), 1);
 
           return value;
         },
         err => {
-          this._promoting.splice(this._promoting.indexOf(id), 1);
+          delete this._promoting[id];
           throw err;
         }
       );
