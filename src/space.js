@@ -77,8 +77,7 @@ export class Space {
       deps = null;
     }
 
-    //If no name, and callback is a function, then figure out if it a
-    //CommonJS thing with dependencies.
+    // fill-up CommonJS dependencies.
     if (!deps) {
       deps = [];
 
