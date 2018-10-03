@@ -1,5 +1,5 @@
 import {version} from '../package.json';
-import {cleanPath, parse, nodejsIds} from './id-utils';
+import {cleanPath, parse, nodejsIds, mapId} from './id-utils';
 import makeSpace from './space';
 import _global from './_global';
 import serialResults from './serial-results';
@@ -72,19 +72,7 @@ let _baseUrl = './';
 let _paths = {};
 
 function mappedId(id) {
-  const parsed = parse(id);
-  let idPath = parsed.bareId;
-  const pathKeys = Object.keys(_paths).sort((a, b) => b.length - a.length);
-  for (let i = 0, len = pathKeys.length; i < len; i++) {
-    const k = pathKeys[i];
-    const parsedKey = parse(k);
-    if (parsed.parts.length >= parsedKey.parts.length &&
-        parsed.parts.slice(0, parsedKey.parts.length).join('/') === k) {
-      idPath = _paths[k] + idPath.substring(k.length);
-      break;
-    }
-  }
-  return parsed.prefix + idPath;
+  return mapId(id, _paths);
 }
 
 // incoming id is already mapped
@@ -308,14 +296,13 @@ function define(id, deps, callback) {
 
 // AMD require
 // run callback synchronously as much as possible.
-// in sync mode, errback is ignore (avoid try-catch for performance)
-// or use a promise to run callback/errback.
+// or use a promise to run callback asynchronous.
 //
-// returns undefined
+// returns undefined.
 //
 // different from requirejs:
-// 1. we don't support optional config
-// 2. errback only gets one error object
+// 1. we don't support optional config.
+// 2. errback only gets one error object.
 function requirejs(deps, callback, errback) {
   if (!Array.isArray(deps)) throw new Error('missing deps array');
   if (callback && typeof callback !== 'function') throw new Error('callback is not a function');
@@ -391,7 +378,7 @@ function reset() {
 // baseUrl
 // paths, relative to baseUrl
 // bundles, for code splitting
-// translators, for module loading
+// translators, for module loading at runtime
 function config(opts) {
   if (!opts) return;
   if (opts.baseUrl) _baseUrl = parse(opts.baseUrl).bareId + '/';

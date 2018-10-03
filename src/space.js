@@ -184,10 +184,17 @@ export default function(tesseract) {
       if (depDefined) return depDefined.val;
 
       // in circular dependency, early return cjsModule.exports.
+      // this only happens in modules loaded remotely at runtime,
+      // as circular dependency cannot be pro-actively detected.
       if (_promoting.hasOwnProperty(mId)) return _promoting[mId].exports;
 
       if (registered(mId)) {
-        // try inline load
+        // try synchronous load the missing module at runtime.
+        // it's is very important for commonjs circular dependency.
+        // this can happen when
+        // 1. circular dependency is pro-actively detected.
+        // 2. some define call deliberately leaves out some dep,
+        // in order for it to be required at code running time.
         const result = req(mId);
         if (result && typeof result.then === 'function') {
           throw new Error(`module "${mId}" cannot be resolved synchronously.`);

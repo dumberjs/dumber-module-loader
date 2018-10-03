@@ -1,5 +1,5 @@
 import test from 'tape';
-import {cleanPath, resolveModuleId, ext, parse, relativeModuleId, nodejsIds} from '../src/id-utils';
+import {cleanPath, resolveModuleId, ext, parse, relativeModuleId, nodejsIds, mapId} from '../src/id-utils';
 
 test('cleanPath', t => {
   t.equal(cleanPath('  a/b '), 'a/b', 'trim off spaces');
@@ -277,5 +277,32 @@ test('nodejsIds returns possible nodejs ids', t => {
   t.deepEqual(nodejsIds('text!foo/bar.min'), ['text!foo/bar.min', 'text!foo/bar.min.js', 'text!foo/bar.min/index.js', 'text!foo/bar.min/index']);
   t.deepEqual(nodejsIds('text!foo/bar.min.js'), ['text!foo/bar.min.js', 'text!foo/bar.min', 'text!foo/bar.min.js/index.js', 'text!foo/bar.min.js/index']);
   t.deepEqual(nodejsIds('text!foo/bar.html'), ['text!foo/bar.html', 'text!foo/bar.html/index.js', 'text!foo/bar.html/index']);
+  t.end();
+});
+
+// mapId
+
+test('mapId returns mapped id', t => {
+  const paths = {
+    'b-bundle': 'bundles/b.js',
+    'foo': 'common/foo',
+    'foo/b': 'other/b',
+  };
+
+  t.equal(mapId('lorem', paths), 'lorem');
+  t.equal(mapId('text!lorem', paths), 'text!lorem');
+  t.equal(mapId('lorem/foo', paths), 'lorem/foo');
+  t.equal(mapId('text!lorem/foo', paths), 'text!lorem/foo');
+  t.equal(mapId('lorem/foo/bar', paths), 'lorem/foo/bar');
+  t.equal(mapId('lorem/foo/b', paths), 'lorem/foo/b');
+  t.equal(mapId('foo', paths), 'common/foo');
+  t.equal(mapId('foo/bar', paths), 'common/foo/bar');
+  t.equal(mapId('text!foo/bar.html', paths), 'text!common/foo/bar.html');
+  t.equal(mapId('foo2', paths), 'foo2');
+  t.equal(mapId('foo/b', paths), 'other/b');
+  t.equal(mapId('foo/b/ar', paths), 'other/b/ar');
+  t.equal(mapId('text!foo/b/ar.html', paths), 'text!other/b/ar.html');
+  t.equal(mapId('foo/b2', paths), 'common/foo/b2');
+  t.equal(mapId('b-bundle', paths), 'bundles/b.js');
   t.end();
 });

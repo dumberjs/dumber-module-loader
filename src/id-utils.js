@@ -144,3 +144,19 @@ export function nodejsIds(id) {
 
   return ids;
 }
+
+export function mapId(id, paths = {}) {
+  const parsed = parse(id);
+  let idPath = parsed.bareId;
+  const pathKeys = Object.keys(paths).sort((a, b) => b.length - a.length);
+  for (let i = 0, len = pathKeys.length; i < len; i++) {
+    const k = pathKeys[i];
+    const parsedKey = parse(k);
+    if (parsed.parts.length >= parsedKey.parts.length &&
+        parsed.parts.slice(0, parsedKey.parts.length).join('/') === k) {
+      idPath = paths[k] + idPath.substring(k.length);
+      break;
+    }
+  }
+  return parsed.prefix + idPath;
+}
