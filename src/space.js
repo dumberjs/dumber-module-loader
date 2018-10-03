@@ -118,6 +118,29 @@ export class Space {
     }
   }
 
+  isCircular(mId) {
+    let allDepend = new Set();
+
+    const isCircular = _id => {
+      const candidate = this._registry[_id];
+      if (!candidate) return;
+      const {id, deps} = candidate;
+      if (allDepend.has(id)) return true;
+      allDepend.add(id);
+
+      for (let i = 0, len = deps.length; i < len; i++) {
+        const d = deps[i];
+        if (d === 'require' || d === 'module' || d === 'exports') continue;
+        const absoluteId = resolveModuleId(id, d);
+        const _mId = this.tesseract.mappedId(absoluteId);
+
+        if (isCircular(_mId)) return true;
+      }
+    };
+
+    return isCircular(mId);
+  }
+
   // require an AMD module value
   // return value synchronously as much as possible,
   // or return a promise.
@@ -198,6 +221,22 @@ export class Space {
         } else {
           const absoluteId = resolveModuleId(id, d);
           const mId = this.tesseract.mappedId(absoluteId);
+          const defined = this.defined(mId);
+
+          if (defined) {
+            return defined.value;
+          }
+
+          // pro-actively detecting circular dependency within one space of loaded bundles
+          // 1. don't need to check across spaces, there is no circular dependency between
+          // user and package spaces, as user -> package is one way.
+          // 2. Nodejs circular dependency only happens within one npm package, as long as
+          // user didn't split circular depended modules to multiple bundles, we are fine.
+          if (this.isCircular(mId)) {
+            // follow commonjs require() semantic, to be resolved at code running time
+            return;
+          }
+
           return this.req(mId);
         }
       });

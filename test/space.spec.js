@@ -720,8 +720,7 @@ test('space supports above surface module id, case2', t => {
 test('space deals with yallist like circular dependencies', t => {
   const space = new Space(tesseract);
 
-  // somehow dumber bundler has to know to skip './iterator' in deps array
-  space.define('yallist/yallist', ['require', 'exports', 'module'], new Function('require', 'exports', 'module', `
+  space.define('yallist/yallist', ['require', 'exports', 'module', './iterator'], new Function('require', 'exports', 'module', `
     module.exports = Yallist;
     function Yallist () {};
     require('./iterator.js');
