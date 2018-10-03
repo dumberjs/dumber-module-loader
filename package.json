@@ -1,6 +1,6 @@
 {
   "name": "dumber-module-loader",
-  "version": "0.4.2",
+  "version": "0.5.0",
   "description": "A modern module loader (loose AMD implementation), designed to work with dumber, only works in browser.",
   "main": "dist/index.js",
   "scripts": {

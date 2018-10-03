@@ -1,3 +1,13 @@
+<a name="0.5.0"></a>
+# [0.5.0](https://github.com/huochunpeng/dumber-module-loader/compare/v0.4.2...v0.5.0) (2018-10-03)
+
+
+### Features
+
+* support bundle config in requirejs format ([272e461](https://github.com/huochunpeng/dumber-module-loader/commit/272e461))
+
+
+
 <a name="0.4.2"></a>
 ## [0.4.2](https://github.com/huochunpeng/dumber-module-loader/compare/v0.4.1...v0.4.2) (2018-10-03)
 
