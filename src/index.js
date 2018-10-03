@@ -24,21 +24,18 @@ const userSpaceTesseract = {
   // 2. then try package space
   // packaegSpace will handle additional package module in bundles
   // 3. then try dynamic load
-  req: id => {
-    const p = userReqFromBundle(id);
+  req: mId => {
+    const p = userReqFromBundle(mId);
     // p is a promise loading additional bundle
     if (p) return p;
 
-    const packageReq = packageSpace.req(id);
+    const packageReq = packageSpace.req(mId);
     if (packageReq && typeof packageReq.then === 'function') {
       // packageReq is asynchronous
       return packageReq.catch(err => {
-        if (err && err.isBundleError) {
-          // stop at bundle error
-          throw err;
-        } else {
-          return runtimeReq(id);
-        }
+        // stop at bundle error
+        if (err && err.isBundleError) throw err;
+        return runtimeReq(mId);
       });
     }
 
@@ -91,8 +88,8 @@ function mappedId(id) {
 }
 
 // incoming id is already mapped
-function urlsForId(id) {
-  const parsed = parse(id);
+function urlsForId(mId) {
+  const parsed = parse(mId);
   const urls = [];
   let url = _baseUrl + parsed.bareId;
   if (!parsed.ext && !(url.length > 3 && url.substring(url.length - 3) === '.js')) {
@@ -107,7 +104,7 @@ different from requirejs bundles
 
 bundles: {
   app-bundle: {
-    // note incoming arrays were saved in Set internally
+    // note incoming arrays were saved in hash internally {app: true, 'app.html': true, ...}
     user: ['app', 'app.html', 'util', 'common/index'],
     package: ['lodash', 'lodash/map', 'util']
   }
@@ -117,8 +114,6 @@ let _bundles = {};
 
 // translators for runtime loaded content
 const _translators = [
-  // TODO default js file translator, translate text to (new Function(text))()
-
   // html/svg/css file without prefix
   (parsedId, response) => {
     if (parsedId.prefix || (
@@ -200,35 +195,32 @@ const _translators = [
 const fetchUrl = url => {
   return fetch(url, {credentials: 'include'})
   .then(response => {
-    if (response.ok) {
-      return response;
-    } else {
-      throw new Error(`${response.status} ${response.statusText}`);
-    };
+    if (response.ok) return response;
+    throw new Error(`${response.status} ${response.statusText}`);
   });
 };
 
 // incoming id is already mapped
 // return a promise
-const _fetch = id => {
-  const urls = urlsForId(id);
+const _fetch = mId => {
+  const urls = urlsForId(mId);
   const len = urls.length;
 
   if (len === 1) return fetchUrl(urls[0]);
 
   // only 2 urls available, foo.min.js, foo.min
 
-  return fetchUrl(urls[0]).catch(err0 => {
-    return fetchUrl(urls[1]).catch(err1 => {
+  return fetchUrl(urls[0]).catch(err0 =>
+    fetchUrl(urls[1]).catch(err1 => {
       throw new Error(err0.message + '\n' + err1.message);
-    });
-  });
+    })
+  );
 };
 
 // incoming id is already mapped
 // return a promise
-function runtimeReq(id) {
-  const parsed = parse(id);
+function runtimeReq(mId) {
+  const parsed = parse(mId);
   return _fetch(parsed.cleanId)
   .then(response => {
     // ensure default user space
@@ -236,38 +228,30 @@ function runtimeReq(id) {
 
     for (let i = 0, len = _translators.length; i < len; i++) {
       const result = _translators[i](parsed, response);
-      if (result && result.then) {
-        return result;
-      }
+      if (result && typeof result.then === 'function') return result;
     }
     throw new Error(`no runtime translator to handle ${parsed.cleanId}`);
   })
   .then(() => {
-    if (userSpace.has(parsed.cleanId)) {
-      return userSpace.req(parsed.cleanId);
-    } else {
-      throw new Error(`module "${parsed.cleanId}" is missing from url "${JSON.stringify(urlsForId(id))}"`);
-    }
+    if (userSpace.has(parsed.cleanId)) return userSpace.req(parsed.cleanId);
+    throw new Error(`module "${parsed.cleanId}" is missing from url "${JSON.stringify(urlsForId(mId))}"`);
   });
 }
 
 // incoming id is already mapped
 // return a promise to load additional bundle
 // or return undefined.
-function userReqFromBundle(id) {
-  const possibleIds = nodejsIds(id);
+function userReqFromBundle(mId) {
+  const possibleIds = nodejsIds(mId);
   const bundleName = Object.keys(_bundles).find(bn =>
-    possibleIds.some(d => _bundles[bn].user.has(d))
+    possibleIds.some(d => _bundles[bn].user.hasOwnProperty(d))
   );
 
   if (bundleName) {
     return loadBundle(bundleName)
     .then(() => {
-      if (userSpace.has(id)) {
-        return userSpace.req(id);
-      } else {
-        throw new Error(`module "${id}" is missing from bundle "${bundleName}"`);
-      }
+      if (userSpace.has(mId)) return userSpace.req(mId);
+      throw new Error(`module "${mId}" is missing from bundle "${bundleName}"`);
     });
   }
 }
@@ -275,26 +259,23 @@ function userReqFromBundle(id) {
 // incoming id is already mapped
 // return a promise even in rejection
 // this is to help userSpaceTesseract to identify sync return in existing bundler.
-function packageReqFromBundle(id) {
-  const possibleIds = nodejsIds(id);
+function packageReqFromBundle(mId) {
+  const possibleIds = nodejsIds(mId);
   const bundleName = Object.keys(_bundles).find(bn =>
-    possibleIds.some(d => _bundles[bn].package.has(d))
+    possibleIds.some(d => _bundles[bn].package.hasOwnProperty(d))
   );
 
   if (bundleName) {
     return loadBundle(bundleName)
     .then(() => {
-      if (packageSpace.has(id)) {
-        return packageSpace.req(id);
-      } else {
-        const err = new Error(`module "${id}" is missing from bundle "${bundleName}"`);
-        err.isBundleError = true;
-        throw err;
-      }
+      if (packageSpace.has(mId)) return packageSpace.req(mId);
+      const err = new Error(`module "${mId}" is missing from bundle "${bundleName}"`);
+      err.isBundleError = true;
+      throw err;
     });
   }
 
-  return Promise.reject(new Error(`no bundle for module "${id}"`));
+  return Promise.reject(new Error(`no bundle for module "${mId}"`));
 }
 
 // return a promise
@@ -324,13 +305,13 @@ function define(id, deps, callback) {
 // in sync mode, errback is ignore (avoid try-catch for performance)
 // or use a promise to run callback/errback.
 //
-// return a promise resolving to deps module values array.
+// returns undefined
 //
 // different from requirejs:
 // 1. we don't support optional config
 // 2. errback only gets one error object
 function requirejs(deps, callback, errback) {
-  if (!Array.isArray(deps)) throw new Error('missing dependencies array');
+  if (!Array.isArray(deps)) throw new Error('missing deps array');
   if (callback && typeof callback !== 'function') throw new Error('callback is not a function');
   if (errback && typeof errback !== 'function') throw new Error('errback is not a function');
 
@@ -349,30 +330,31 @@ function requirejs(deps, callback, errback) {
   requireFunc.toUrl = toUrl;
 
   const depValues = serialResults(deps, d => {
-    if (d === 'require') {
-      return requireFunc;
-    } else {
-      return userSpace.req(mappedId(d));
-    }
+    if (d === 'require') return requireFunc;
+    return userSpace.req(mappedId(d));
   });
 
   const finalize = results => {
-    if (callback) callback.apply(_global, results);
+    if (callback) return callback.apply(_global, results);
   };
 
-  if (depValues && typeof depValues.then === 'function') {
-    return depValues.then(
-      results => {
-        if (callback) callback.apply(_global, results);
-      },
-      err => {
-        if (errback) return errback(err);
-        else console.error(err);
-      }
-    );
-  }
+  const errHandler = err => {
+    if (errback) return errback(err);
+    else console.error(err);
+  };
 
-  return Promise.resolve(finalize(depValues));
+
+  if (depValues && typeof depValues.then === 'function') {
+    // asynchronous callback
+    depValues.then(finalize, errHandler);
+  } else {
+    // synchronous callback
+    try {
+      return Promise.resolve(finalize(depValues));
+    } catch (err) {
+      errHandler(err);
+    }
+  }
 }
 
 // AMD requirejs.undef
@@ -419,8 +401,8 @@ function config(opts) {
     Object.keys(opts.bundles).forEach(bundleName => {
       const spaces = opts.bundles[bundleName];
       _bundles[bundleName] = {
-        user: new Set(spaces.user || []),
-        package: new Set(spaces.package || [])
+        user: arrayToHash(spaces.user || []),
+        package: arrayToHash(spaces.package || [])
       };
     });
   }
@@ -428,6 +410,12 @@ function config(opts) {
   if (opts.translators) {
     _translators.unshift(...opts.translators);
   }
+}
+
+function arrayToHash(arr) {
+  const hash = {};
+  arr.forEach(i => hash[i] = 1);
+  return hash;
 }
 
 const isBrowser = !!(typeof _global.navigator !== 'undefined' && typeof _global.document !== 'undefined');
@@ -474,6 +462,3 @@ _global.define = define;
 _global.requirejs = requirejs;
 
 export default define;
-
-
-

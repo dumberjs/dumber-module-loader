@@ -50,9 +50,14 @@ test('require can be required to behave like normal AMD require', t => {
     (r, result) => {
       t.equal(result, 4);
 
-      return r(['foo/b'],
+      r(['foo/b'],
         r2 => {
           t.equal(r2, 2);
+          t.end();
+        },
+        err => {
+          t.fail(err.message);
+          t.end();
         }
       );
     },
@@ -60,7 +65,7 @@ test('require can be required to behave like normal AMD require', t => {
       t.fail(err.message);
       t.end();
     }
-  ).then(t.end);
+  );
 });
 
 test('require can be required to behave like normal commonjs require', t => {
@@ -73,11 +78,13 @@ test('require can be required to behave like normal commonjs require', t => {
   requirejs(['require', 'foo/bar'],
     req => {
       t.equal(req('foo/bar'), 4);
+      t.end();
     },
     err => {
       t.fail(err.message);
+      t.end();
     }
-  ).then(t.end);
+  );
 });
 
 test('user space module can access package space module', t => {
@@ -634,25 +641,30 @@ test('requirejs.undef remove a user space module, demote all module depends on i
 
       define('a', () => '1');
 
-      return requirejs(['foo'],
+      requirejs(['foo'],
         r2 => {
           t.equal(r2, '11');
           t.ok(requirejs.defined('foo'));
           t.ok(requirejs.defined('a'));
+          t.end();
+        },
+        err => {
+          t.fail(err.stack);
+          t.end();
         }
       );
+    },
+    err => {
+      t.fail(err.stack);
+      t.end();
     }
-  ).catch(err => {
-    t.fail(err.stack);
-    t.end();
-  }).then(t.end);
+  );
 });
 
-test('requirejs.toUrl returns url', t => {
+test('requirejs.toUrl returns url in requirejs fashion', t => {
   t.equal(requirejs.toUrl('a'), './a');
   t.equal(requirejs.toUrl('a.js'), './a.js');
   t.equal(requirejs.toUrl('text!foo/bar.html'), './foo/bar.html');
   t.equal(requirejs.toUrl('foo/bar.min'), './foo/bar.min');
-
   t.end();
 });

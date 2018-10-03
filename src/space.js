@@ -89,12 +89,9 @@ export default function(tesseract) {
       //look for require calls, and pull them into the dependencies,
       //but only if there are function args.
       if (typeof cb === 'function' && cb.length) {
-        cb
-          .toString()
+        cb.toString()
           .replace(commentRegExp, commentReplace)
-          .replace(cjsRequireRegExp, function (match, dep) {
-            deps.push(dep);
-          });
+          .replace(cjsRequireRegExp, (match, dep) => deps.push(dep));
 
         //May be a CommonJS thing even without require calls, but still
         //could use exports, and module. Avoid doing exports and module
@@ -109,8 +106,9 @@ export default function(tesseract) {
     if (id) {
       const parsed = parse(id);
       _registry[parsed.cleanId] = {id: parsed.cleanId, deps, cb};
+    } else {
+      _anonymous = {deps, cb};
     }
-    else _anonymous = {deps, cb};
   }
 
   // incoming id is a mapped id
@@ -140,7 +138,6 @@ export default function(tesseract) {
         if (d === cjs_require || d === cjs_exports || d === cjs_module) continue;
         const absoluteId = resolveModuleId(id, d);
         const _mId = tesseract.mappedId(absoluteId);
-
         if (_isCircular(_mId)) return true;
       }
     };
@@ -159,9 +156,7 @@ export default function(tesseract) {
     }
 
     const def = defined(moduleId);
-    if (def) {
-      return def.val;
-    }
+    if (def) return def.val;
 
     const reg = registered(moduleId);
     // ask tesseract, note moduleId is mapped
@@ -169,10 +164,8 @@ export default function(tesseract) {
 
     const {id, deps, cb} = reg;
 
-    if (_promoting.hasOwnProperty(id)) {
-      // in circular dependency, early return cjsModule.exports.
-      return _promoting[id].exports;
-    }
+    // in circular dependency, early return cjsModule.exports.
+    if (_promoting.hasOwnProperty(id)) return _promoting[id].exports;
 
     const extname = ext(id);
     const cjsModule = {
@@ -188,24 +181,17 @@ export default function(tesseract) {
       const absoluteId = resolveModuleId(id, dep);
       const mId = tesseract.mappedId(absoluteId);
       const depDefined = defined(mId);
+      if (depDefined) return depDefined.val;
 
-      if (depDefined) {
-        return depDefined.val;
-      }
-
-      if (_promoting.hasOwnProperty(mId)) {
-        // in circular dependency, early return cjsModule.exports.
-        return _promoting[mId].exports;
-      }
+      // in circular dependency, early return cjsModule.exports.
+      if (_promoting.hasOwnProperty(mId)) return _promoting[mId].exports;
 
       if (registered(mId)) {
         // try inline load
         const result = req(mId);
-
         if (result && typeof result.then === 'function') {
           throw new Error(`module "${mId}" cannot be resolved synchronously.`);
         }
-
         return result;
       }
 
@@ -229,37 +215,23 @@ export default function(tesseract) {
         const absoluteId = resolveModuleId(id, d);
         const mId = tesseract.mappedId(absoluteId);
         const def = defined(mId);
-
-        if (def) {
-          return def.val;
-        }
+        if (def) return def.val;
 
         // pro-actively detecting circular dependency within one space of loaded bundles
         // 1. don't need to check across spaces, there is no circular dependency between
         // user and package spaces, as user -> package is one way.
         // 2. Nodejs circular dependency only happens within one npm package, as long as
         // user didn't split circular depended modules to multiple bundles, we are fine.
-        if (isCircular(mId)) {
-          // follow commonjs require() semantic, to be resolved at code running time
-          return;
-        }
+        // 3. follow commonjs require() semantic, to be resolved at code running time
+        if (isCircular(mId)) return;
 
         return req(mId);
       }
     });
 
     const finalize = results => {
-      let val;
-
-      if (typeof cb === 'function') {
-        val = cb.apply(tesseract.global, results);
-      } else {
-        val = cb;
-      }
-
-      if (val === undefined && useCjsModule) {
-        val = cjsModule.exports;
-      }
+      let val = typeof cb === 'function' ? cb.apply(tesseract.global, results) : cb;
+      if (val === undefined && useCjsModule) val = cjsModule.exports;
 
       // move the module from registry to defined
       // when moduleId is foo/bar,
@@ -290,13 +262,12 @@ export default function(tesseract) {
     let depended = [];
     Object.keys(_defined).forEach(_id => {
       const {id, deps} = _defined[_id];
-      if (deps.some(d => {
+      const isConsumer = deps.some(d => {
         const absoluteId = resolveModuleId(id, d);
         const mId = tesseract.mappedId(absoluteId);
         return mId === did;
-      })) {
-        depended.push(_id);
-      }
+      });
+      if (isConsumer) depended.push(_id);
     });
 
     depended.forEach(d => {
@@ -316,9 +287,7 @@ export default function(tesseract) {
     }
 
     const reg = registered(id);
-    if (reg) {
-      delete _registry[reg.id];
-    }
+    if (reg) delete _registry[reg.id];
   }
 
   function purge() {

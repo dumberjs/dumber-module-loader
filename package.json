@@ -12,7 +12,7 @@
     "postversion": "git push && git push --tags",
     "pretest": "npm run lint",
     "nodejs-test": "env BABEL_ENV=test tape -r @babel/register 'test/**/*.spec.js' | tap-dot",
-    "browser-test": "env BABEL_ENV=test browserify -t babelify test/define.spec.js test/id-utils.spec.js test/space.spec.js | tape-run | tap-dot",
+    "browser-test": "env BABEL_ENV=test browserify -t babelify test/all-spec.js | tape-run | tap-dot",
     "amdjs-test": "npm run build && node amdjs-tests/server/server.js",
     "test": "npm run nodejs-test && npm run browser-test"
   },
