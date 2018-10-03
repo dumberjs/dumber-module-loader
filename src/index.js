@@ -104,7 +104,7 @@ different from requirejs bundles
 
 bundles: {
   app-bundle: {
-    // note incoming arrays were saved in hash internally {app: true, 'app.html': true, ...}
+    // note incoming arrays were saved in hash internally {app: 1, 'app.html': 1, ...}
     user: ['app', 'app.html', 'util', 'common/index'],
     package: ['lodash', 'lodash/map', 'util']
   }
