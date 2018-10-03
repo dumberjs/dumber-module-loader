@@ -109,6 +109,12 @@ bundles: {
     package: ['lodash', 'lodash/map', 'util']
   }
 }
+
+for bundles only contain user space modules, a simplified config can be used.
+bundles: {
+  // still saved in hash internally
+  app-bundle: ['app', 'app.html', 'util', 'common/index']
+}
 */
 let _bundles = {};
 
@@ -400,10 +406,17 @@ function config(opts) {
   if (opts.bundles) {
     Object.keys(opts.bundles).forEach(bundleName => {
       const spaces = opts.bundles[bundleName];
-      _bundles[bundleName] = {
-        user: arrayToHash(spaces.user || []),
-        package: arrayToHash(spaces.package || [])
-      };
+      if (Array.isArray(spaces)) {
+        _bundles[bundleName] = {
+          user: arrayToHash(spaces),
+          package: arrayToHash([])
+        };
+      } else {
+        _bundles[bundleName] = {
+          user: arrayToHash(spaces.user || []),
+          package: arrayToHash(spaces.package || [])
+        };
+      }
     });
   }
 

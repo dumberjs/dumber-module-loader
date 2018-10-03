@@ -215,7 +215,7 @@ test('gets additional user space module from bundle, stops at bundle error', t =
   );
 });
 
-test('gets additional package space module from bundle', t => {
+test('gets additional package space module from bundle, supports simplified bundle config if there are only user space modules', t => {
   define.reset();
   define.switchToUserSpace();
 
@@ -224,9 +224,7 @@ test('gets additional package space module from bundle', t => {
       'a-bundle': {
         package: ['a']
       },
-      'b-bundle': {
-        user: ['foo/b.js', 'foo/bar']
-      }
+      'b-bundle': ['foo/b.js', 'foo/bar']
     }
   });
 
