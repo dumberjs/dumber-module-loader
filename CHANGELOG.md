@@ -1,3 +1,13 @@
+<a name="0.3.0"></a>
+# [0.3.0](https://github.com/huochunpeng/dumber-module-loader/compare/v0.2.0...v0.3.0) (2018-10-03)
+
+
+### Features
+
+* resolve module synchronously as mush as possible, early return for commonjs circular dependencies ([6b36739](https://github.com/huochunpeng/dumber-module-loader/commit/6b36739))
+
+
+
 <a name="0.2.0"></a>
 # 0.2.0 (2018-10-02)
 
