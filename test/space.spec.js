@@ -1,5 +1,5 @@
 import test from 'tape';
-import {Space} from '../src/space';
+import makeSpace from '../src/space';
 import {parse} from '../src/id-utils';
 
 const tesseract = {
@@ -11,15 +11,15 @@ const tesseract = {
   }
 };
 
-test('space define named module (nameAnonymousModule is no-op)', t => {
-  const space = new Space(tesseract);
+test('space define named module (nameAnonymous is no-op)', t => {
+  const space = makeSpace(tesseract);
 
   t.notOk(space.has('foo'));
   t.notOk(space.registered('foo'));
   t.notOk(space.defined('foo'));
 
-  const callback = () => 1;
-  space.define('foo', callback);
+  const cb = () => 1;
+  space.define('foo', cb);
 
   t.ok(space.has('foo'), 'has module foo');
   t.deepEqual(
@@ -27,29 +27,29 @@ test('space define named module (nameAnonymousModule is no-op)', t => {
     {
       id: 'foo',
       deps: [],
-      callback
+      cb
     },
     'foo is registered'
   );
   t.notOk(space.defined('foo'), 'foo is not yet defined');
 
   // no-op
-  space.nameAnonymousModule('bar');
+  space.nameAnonymous('bar');
   t.notOk(space.has('bar'), 'bar is not named');
   t.ok(space.has('foo'), 'still has module foo');
 
   t.end();
 });
 
-test('space define named module (nameAnonymousModule is no-op) with implicit deps', t => {
-  const space = new Space(tesseract);
+test('space define named module (nameAnonymous is no-op) with implicit deps', t => {
+  const space = makeSpace(tesseract);
 
   t.notOk(space.has('foo'));
   t.notOk(space.registered('foo'));
   t.notOk(space.defined('foo'));
 
-  const callback = (req) => 1;
-  space.define('foo', callback);
+  const cb = (req) => 1;
+  space.define('foo', cb);
 
   t.ok(space.has('foo'), 'has module foo');
   t.deepEqual(
@@ -57,30 +57,30 @@ test('space define named module (nameAnonymousModule is no-op) with implicit dep
     {
       id: 'foo',
       deps: ['require'],
-      callback
+      cb
     },
     'foo is registered'
   );
   t.notOk(space.defined('foo'), 'foo is not yet defined');
 
   // no-op
-  space.nameAnonymousModule('bar');
+  space.nameAnonymous('bar');
   t.notOk(space.has('bar'), 'bar is not named');
   t.ok(space.has('foo'), 'still has module foo');
 
   t.end();
 });
 
-test('space define named module (nameAnonymousModule is no-op) with implicit deps, case 2', t => {
-  const space = new Space(tesseract);
+test('space define named module (nameAnonymous is no-op) with implicit deps, case 2', t => {
+  const space = makeSpace(tesseract);
 
   t.notOk(space.has('foo'));
   t.notOk(space.registered('foo'));
   t.notOk(space.defined('foo'));
 
   // following line bypass browersify pickup on require('a');
-  const callback = new Function('require', 'exports', 'module', 'return require("a");');
-  space.define('foo', callback);
+  const cb = new Function('require', 'exports', 'module', 'return require("a");');
+  space.define('foo', cb);
 
   t.ok(space.has('foo'), 'has module foo');
   t.deepEqual(
@@ -88,29 +88,29 @@ test('space define named module (nameAnonymousModule is no-op) with implicit dep
     {
       id: 'foo',
       deps: ['require', 'exports', 'module', 'a'],
-      callback
+      cb
     },
     'foo is registered'
   );
   t.notOk(space.defined('foo'), 'foo is not yet defined');
 
   // no-op
-  space.nameAnonymousModule('bar');
+  space.nameAnonymous('bar');
   t.notOk(space.has('bar'), 'bar is not named');
   t.ok(space.has('foo'), 'still has module foo');
 
   t.end();
 });
 
-test('space define named module with deps (nameAnonymousModule is no-op)', t => {
-  const space = new Space(tesseract);
+test('space define named module with deps (nameAnonymous is no-op)', t => {
+  const space = makeSpace(tesseract);
 
   t.notOk(space.has('@scope/foo/bar'));
   t.notOk(space.registered('@scope/foo/bar'));
   t.notOk(space.defined('@scope/foo/bar'));
 
-  const callback = () => 1;
-  space.define('@scope/foo/bar', ['a', './b', '../c/d'], callback);
+  const cb = () => 1;
+  space.define('@scope/foo/bar', ['a', './b', '../c/d'], cb);
 
   t.ok(space.has('@scope/foo/bar'), 'has module @scope/foo/bar');
   t.deepEqual(
@@ -118,14 +118,14 @@ test('space define named module with deps (nameAnonymousModule is no-op)', t => 
     {
       id: '@scope/foo/bar',
       deps: ['a', './b', '../c/d'],
-      callback
+      cb
     },
     '@scope/foo/bar is registered'
   );
   t.notOk(space.defined('@scope/foo/bar'), '@scope/foo/bar is not yet defined');
 
   // no-op
-  space.nameAnonymousModule('foo');
+  space.nameAnonymous('foo');
   t.notOk(space.has('foo'), 'foo is not named');
   t.ok(space.has('@scope/foo/bar'), 'still has module @scope/foo/bar');
 
@@ -133,18 +133,18 @@ test('space define named module with deps (nameAnonymousModule is no-op)', t => 
 });
 
 test('space define anonymous module', t => {
-  const space = new Space(tesseract);
+  const space = makeSpace(tesseract);
 
   t.notOk(space.has('foo'));
   t.notOk(space.registered('foo'));
   t.notOk(space.defined('foo'));
 
-  const callback = () => 1;
-  space.define(callback);
+  const cb = () => 1;
+  space.define(cb);
 
   t.notOk(space.has('foo'));
 
-  space.nameAnonymousModule('foo');
+  space.nameAnonymous('foo');
 
   t.ok(space.has('foo'), 'has module foo');
   t.deepEqual(
@@ -152,7 +152,7 @@ test('space define anonymous module', t => {
     {
       id: 'foo',
       deps: [],
-      callback
+      cb
     },
     'foo is registered'
   );
@@ -162,18 +162,18 @@ test('space define anonymous module', t => {
 });
 
 test('space define anonymous module width implicit deps', t => {
-  const space = new Space(tesseract);
+  const space = makeSpace(tesseract);
 
   t.notOk(space.has('foo'));
   t.notOk(space.registered('foo'));
   t.notOk(space.defined('foo'));
 
-  const callback = (req) => 1;
-  space.define(callback);
+  const cb = (req) => 1;
+  space.define(cb);
 
   t.notOk(space.has('foo'));
 
-  space.nameAnonymousModule('foo');
+  space.nameAnonymous('foo');
 
   t.ok(space.has('foo'), 'has module foo');
   t.deepEqual(
@@ -181,7 +181,7 @@ test('space define anonymous module width implicit deps', t => {
     {
       id: 'foo',
       deps: ['require'],
-      callback
+      cb
     },
     'foo is registered'
   );
@@ -191,19 +191,19 @@ test('space define anonymous module width implicit deps', t => {
 });
 
 test('space define anonymous module width implicit deps case2', t => {
-  const space = new Space(tesseract);
+  const space = makeSpace(tesseract);
 
   t.notOk(space.has('foo'));
   t.notOk(space.registered('foo'));
   t.notOk(space.defined('foo'));
 
   // following line bypass browersify pickup on require('a');
-  const callback = new Function('require', 'exports', 'module', 'return require("a");');
-  space.define(callback);
+  const cb = new Function('require', 'exports', 'module', 'return require("a");');
+  space.define(cb);
 
   t.notOk(space.has('foo'));
 
-  space.nameAnonymousModule('foo');
+  space.nameAnonymous('foo');
 
   t.ok(space.has('foo'), 'has module foo');
   t.deepEqual(
@@ -211,7 +211,7 @@ test('space define anonymous module width implicit deps case2', t => {
     {
       id: 'foo',
       deps: ['require', 'exports', 'module', 'a'],
-      callback
+      cb
     },
     'foo is registered'
   );
@@ -221,18 +221,18 @@ test('space define anonymous module width implicit deps case2', t => {
 });
 
 test('space define anonymous module with deps', t => {
-  const space = new Space(tesseract);
+  const space = makeSpace(tesseract);
 
   t.notOk(space.has('@scope/foo/bar'));
   t.notOk(space.registered('@scope/foo/bar'));
   t.notOk(space.defined('@scope/foo/bar'));
 
-  const callback = () => 1;
-  space.define(['a', './b', '../c/d'], callback);
+  const cb = () => 1;
+  space.define(['a', './b', '../c/d'], cb);
 
   t.notOk(space.has('@scope/foo/bar'));
 
-  space.nameAnonymousModule('@scope/foo/bar');
+  space.nameAnonymous('@scope/foo/bar');
 
   t.ok(space.has('@scope/foo/bar'), 'has module @scope/foo/bar');
   t.deepEqual(
@@ -240,7 +240,7 @@ test('space define anonymous module with deps', t => {
     {
       id: '@scope/foo/bar',
       deps: ['a', './b', '../c/d'],
-      callback
+      cb
     },
     '@scope/foo/bar is registered'
   );
@@ -250,9 +250,9 @@ test('space define anonymous module with deps', t => {
 });
 
 test('space understand Nodejs module name convention on .js extension', t => {
-  const space = new Space(tesseract);
-  const callback = () => 1;
-  space.define('foo', callback);
+  const space = makeSpace(tesseract);
+  const cb = () => 1;
+  space.define('foo', cb);
 
   t.ok(space.registered('foo'));
   t.ok(space.registered('foo.js'), 'normalise .js extension');
@@ -262,9 +262,9 @@ test('space understand Nodejs module name convention on .js extension', t => {
 });
 
 test('space understand Nodejs module name convention on .js extension case2', t => {
-  const space = new Space(tesseract);
-  const callback = () => 1;
-  space.define('foo.js', callback);
+  const space = makeSpace(tesseract);
+  const cb = () => 1;
+  space.define('foo.js', cb);
 
   t.ok(space.registered('foo.js'));
   t.ok(space.registered('foo'), 'normalise .js extension');
@@ -274,9 +274,9 @@ test('space understand Nodejs module name convention on .js extension case2', t 
 });
 
 test('space understand Nodejs module name convention on implicit /index', t => {
-  const space = new Space(tesseract);
-  const callback = () => 1;
-  space.define('foo/index', callback);
+  const space = makeSpace(tesseract);
+  const cb = () => 1;
+  space.define('foo/index', cb);
 
   t.ok(space.registered('foo/index'));
   t.ok(space.registered('foo/index.js'), 'normalise .js extension');
@@ -290,9 +290,9 @@ test('space understand Nodejs module name convention on implicit /index', t => {
 });
 
 test('space understand Nodejs module name convention on implicit /index.js', t => {
-  const space = new Space(tesseract);
-  const callback = () => 1;
-  space.define('foo/index.js', callback);
+  const space = makeSpace(tesseract);
+  const cb = () => 1;
+  space.define('foo/index.js', cb);
 
   t.ok(space.registered('foo/index.js'));
   t.ok(space.registered('foo/index'), 'normalise .js extension');
@@ -306,12 +306,12 @@ test('space understand Nodejs module name convention on implicit /index.js', t =
 });
 
 test('space.req returns the value and move the module from registered to defined', t => {
-  const space = new Space(tesseract);
+  const space = makeSpace(tesseract);
   space.define('foo/index.js', 5);
 
-  t.deepEqual(space.registered('foo'), {id: 'foo/index.js', deps: [], callback: 5});
-  t.deepEqual(space.registered('foo/index'), {id: 'foo/index.js', deps: [], callback: 5});
-  t.deepEqual(space.registered('foo/index.js'), {id: 'foo/index.js', deps: [], callback: 5});
+  t.deepEqual(space.registered('foo'), {id: 'foo/index.js', deps: [], cb: 5});
+  t.deepEqual(space.registered('foo/index'), {id: 'foo/index.js', deps: [], cb: 5});
+  t.deepEqual(space.registered('foo/index.js'), {id: 'foo/index.js', deps: [], cb: 5});
   t.notOk(space.defined('foo'));
   t.notOk(space.defined('foo/index'));
   t.notOk(space.defined('foo/index.js'));
@@ -322,20 +322,20 @@ test('space.req returns the value and move the module from registered to defined
   t.notOk(space.registered('foo/index'));
   t.notOk(space.registered('foo/index.js'));
 
-  t.deepEqual(space.defined('foo'), {id: 'foo/index.js', deps: [], callback: 5, value: 5});
-  t.deepEqual(space.defined('foo/index'), {id: 'foo/index.js', deps: [], callback: 5, value: 5});
-  t.deepEqual(space.defined('foo/index.js'), {id: 'foo/index.js', deps: [], callback: 5, value: 5});
+  t.deepEqual(space.defined('foo'), {id: 'foo/index.js', deps: [], cb: 5, val: 5});
+  t.deepEqual(space.defined('foo/index'), {id: 'foo/index.js', deps: [], cb: 5, val: 5});
+  t.deepEqual(space.defined('foo/index.js'), {id: 'foo/index.js', deps: [], cb: 5, val: 5});
   t.end();
 });
 
 test('space.req returns the evaluated value and move the module from registered to defined', t => {
-  const space = new Space(tesseract);
-  const callback = () => 5;
-  space.define('foo/index', callback);
+  const space = makeSpace(tesseract);
+  const cb = () => 5;
+  space.define('foo/index', cb);
 
-  t.deepEqual(space.registered('foo'), {id: 'foo/index', deps: [], callback});
-  t.deepEqual(space.registered('foo/index'), {id: 'foo/index', deps: [], callback});
-  t.deepEqual(space.registered('foo/index.js'), {id: 'foo/index', deps: [], callback});
+  t.deepEqual(space.registered('foo'), {id: 'foo/index', deps: [], cb});
+  t.deepEqual(space.registered('foo/index'), {id: 'foo/index', deps: [], cb});
+  t.deepEqual(space.registered('foo/index.js'), {id: 'foo/index', deps: [], cb});
   t.notOk(space.defined('foo'));
   t.notOk(space.defined('foo/index'));
   t.notOk(space.defined('foo/index.js'));
@@ -346,14 +346,14 @@ test('space.req returns the evaluated value and move the module from registered 
   t.notOk(space.registered('foo/index'));
   t.notOk(space.registered('foo/index.js'));
 
-  t.deepEqual(space.defined('foo'), {id: 'foo/index', deps: [], callback, value: 5});
-  t.deepEqual(space.defined('foo/index'), {id: 'foo/index', deps: [], callback, value: 5});
-  t.deepEqual(space.defined('foo/index.js'), {id: 'foo/index', deps: [], callback, value: 5});
+  t.deepEqual(space.defined('foo'), {id: 'foo/index', deps: [], cb, val: 5});
+  t.deepEqual(space.defined('foo/index'), {id: 'foo/index', deps: [], cb, val: 5});
+  t.deepEqual(space.defined('foo/index.js'), {id: 'foo/index', deps: [], cb, val: 5});
   t.end();
 });
 
 test('space.req resolve dependencies', t => {
-  const space = new Space(tesseract);
+  const space = makeSpace(tesseract);
   t.deepEqual(space.ids(), []);
   space.define('foo/sum', ['a', './b'], (a, b) => a + b);
   space.define('a/index', ['./a'], a => a);
@@ -382,7 +382,7 @@ test('space.req resolve dependencies', t => {
 });
 
 test('space.req resolve dependencies with mappedId', t => {
-  const space = new Space({
+  const space = makeSpace({
     ...tesseract,
     mappedId: id => {
       const parsed = parse(id);
@@ -436,7 +436,7 @@ test('space.req accesses tesseract global and req, sychronously', t => {
     return Promise.reject(new Error('cannot find module ' + id));
   };
 
-  const space = new Space({global: _global, req, mappedId: id => id});
+  const space = makeSpace({global: _global, req, mappedId: id => id});
   space.define('foo', ['a'], function (a) {
     this.foo = a + 3;
     return this.foo;
@@ -460,7 +460,7 @@ test('space.req accesses tesseract global and req, asynchronously', t => {
     return Promise.reject(new Error('cannot find module ' + id));
   };
 
-  const space = new Space({global: _global, req, mappedId: id => id});
+  const space = makeSpace({global: _global, req, mappedId: id => id});
   space.define('foo', ['a'], function (a) {
     this.foo = a + 3;
     return this.foo;
@@ -483,7 +483,7 @@ test('space.req accesses tesseract global and req, asynchronously', t => {
 });
 
 test('space.req fails tesseract req asynchronously', t => {
-  const space = new Space(tesseract);
+  const space = makeSpace(tesseract);
   space.define('foo', ['a'], a => a + 3);
 
   space.req('foo').then(
@@ -497,7 +497,7 @@ test('space.req fails tesseract req asynchronously', t => {
 });
 
 test('space.req fails tesseract.req with commonjs wrapper asynchronously', t => {
-  const space = new Space(tesseract);
+  const space = makeSpace(tesseract);
   space.define('foo', ['require', 'module', 'a'], function (require, module, a) {
     module.exports = a + 3;
   });
@@ -513,7 +513,7 @@ test('space.req fails tesseract.req with commonjs wrapper asynchronously', t => 
 });
 
 test('space.req supports commonjs wrapper', t => {
-  const space = new Space(tesseract);
+  const space = makeSpace(tesseract);
   space.define('foo', ['require', 'exports', 'module', 'a'], new Function('require', 'exports', 'module', `
     var __filename = module.filename || '', __dirname = __filename.substring(0, __filename.lastIndexOf('/') + 1);
     const a = require('a');
@@ -549,7 +549,7 @@ test('space.req supports commonjs wrapper', t => {
 });
 
 test('space.req loads missing commonjs dep sychronously, as long as it is defined', t => {
-  const space = new Space(tesseract);
+  const space = makeSpace(tesseract);
   space.define('foo', ['require', 'exports', 'module'], new Function('require', 'exports', 'module', `
     const a = require('a');
     exports.foo = a + 3;
@@ -564,7 +564,7 @@ test('space.req loads missing commonjs dep sychronously, as long as it is define
 });
 
 test('space.req fails missing commonjs dep sychronously', t => {
-  const space = new Space(tesseract);
+  const space = makeSpace(tesseract);
   space.define('foo', ['require', 'exports', 'module'], new Function('require', 'exports', 'module', `
     const a = require('a');
     exports.foo = a + 3;
@@ -576,7 +576,7 @@ test('space.req fails missing commonjs dep sychronously', t => {
 });
 
 test('space.undef removes module, re-eval all modules deps on it', t => {
-  const space = new Space({
+  const space = makeSpace({
     ...tesseract,
     mappedId: id => {
       const parsed = parse(id);
@@ -631,7 +631,7 @@ test('space.undef removes module, re-eval all modules deps on it', t => {
 });
 
 test('space.purge cleanup everything', t => {
-  const space = new Space(tesseract);
+  const space = makeSpace(tesseract);
   space.define('bar', ['foo'], f => f + 3);
   space.define('foo', ['a'], a => a + 3);
   space.define('a', 2);
@@ -651,14 +651,14 @@ test('space.purge cleanup everything', t => {
 });
 
 test('space commonjs require supports toUrl', t => {
-  const space = new Space(tesseract);
+  const space = makeSpace(tesseract);
   space.define('foo', ['require'], req => req.toUrl('lorem'));
   t.equal(space.req('foo'), 'path/to/lorem');
   t.end();
 });
 
 test('space supports circular dependencies as long as it is delayed', t => {
-  const space = new Space(tesseract);
+  const space = makeSpace(tesseract);
   space.define('foo', ['require', 'exports', 'bar'], (req, exp) => {
     exp.message = () => req('bar').message();
   });
@@ -679,7 +679,7 @@ test('space supports circular dependencies as long as it is delayed', t => {
 });
 
 test('space supports circular dependencies as long as it is delayed, case2', t => {
-  const space = new Space(tesseract);
+  const space = makeSpace(tesseract);
   space.define('foo', ['require', 'exports', 'bar'], (req, exp) => {
     exp.message = () => req('bar').message();
   });
@@ -700,7 +700,7 @@ test('space supports circular dependencies as long as it is delayed, case2', t =
 });
 
 test('space supports above surface module id', t => {
-  const space = new Space(tesseract);
+  const space = makeSpace(tesseract);
   space.define('app', ['../package.json'], meta => meta.version);
   space.define('../package.json', {version: '1.0.0'});
 
@@ -709,7 +709,7 @@ test('space supports above surface module id', t => {
 });
 
 test('space supports above surface module id, case2', t => {
-  const space = new Space(tesseract);
+  const space = makeSpace(tesseract);
   space.define('foo/bar', ['../../package.json'], meta => meta.version);
   space.define('../package.json', {version: '1.0.0'});
 
@@ -718,7 +718,7 @@ test('space supports above surface module id, case2', t => {
 });
 
 test('space deals with yallist like circular dependencies', t => {
-  const space = new Space(tesseract);
+  const space = makeSpace(tesseract);
 
   space.define('yallist/yallist', ['require', 'exports', 'module', './iterator'], new Function('require', 'exports', 'module', `
     module.exports = Yallist;

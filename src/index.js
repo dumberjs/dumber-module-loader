@@ -1,6 +1,6 @@
 import {version} from '../package.json';
 import {cleanPath, parse, nodejsIds} from './id-utils';
-import {Space} from './space';
+import makeSpace from './space';
 import _global from './_global';
 import serialResults from './serial-results';
 
@@ -47,7 +47,7 @@ const userSpaceTesseract = {
   }
 };
 
-const userSpace = new Space(userSpaceTesseract);
+const userSpace = makeSpace(userSpaceTesseract);
 
 const packageSpaceTesseract = {
   global: _global,
@@ -57,7 +57,7 @@ const packageSpaceTesseract = {
   req: packageReqFromBundle
 };
 
-const packageSpace = new Space(packageSpaceTesseract);
+const packageSpace = makeSpace(packageSpaceTesseract);
 
 let currentSpace = userSpace;
 
@@ -192,7 +192,7 @@ const _translators = [
       switchToUserSpace();
       (new Function(text))();
       // could be anonymous
-      userSpace.nameAnonymousModule(parsedId.cleanId);
+      userSpace.nameAnonymous(parsedId.cleanId);
     });
   }
 ];
@@ -339,14 +339,11 @@ function requirejs(deps, callback, errback) {
     if (typeof arguments[0] === 'string') {
       const dep = arguments[0];
       const got = defined(dep);
-      if (got) {
-        return got.value;
-      } else {
-        throw new Error(`commonjs dependency "${dep}" is not prepared.`);
-      }
-    } else {
-      return requirejs.apply(null, arguments);
+      if (got) return got.val;
+      throw new Error(`commonjs dependency "${dep}" is not prepared.`);
     }
+
+    return requirejs.apply(null, arguments);
   };
 
   requireFunc.toUrl = toUrl;
