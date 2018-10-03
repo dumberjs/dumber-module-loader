@@ -2,7 +2,6 @@
 export default function (arr, callback) {
   let i = 0;
   let len = arr.length;
-  let chain = Promise.resolve([]);
 
   function resolveChain(results) {
     if (i < len) {
