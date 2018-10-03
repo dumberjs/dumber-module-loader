@@ -119,14 +119,17 @@ export class Space {
   }
 
   isCircular(mId) {
-    let allDepend = new Set();
+    let targetId;
 
-    const isCircular = _id => {
+    const _isCircular = _id => {
       const candidate = this._registry[_id];
       if (!candidate) return;
       const {id, deps} = candidate;
-      if (allDepend.has(id)) return true;
-      allDepend.add(id);
+      if (targetId) {
+        if (targetId === id) return true;
+      } else {
+        targetId = id;
+      }
 
       for (let i = 0, len = deps.length; i < len; i++) {
         const d = deps[i];
@@ -134,11 +137,11 @@ export class Space {
         const absoluteId = resolveModuleId(id, d);
         const _mId = this.tesseract.mappedId(absoluteId);
 
-        if (isCircular(_mId)) return true;
+        if (_isCircular(_mId)) return true;
       }
     };
 
-    return isCircular(mId);
+    return _isCircular(mId);
   }
 
   // require an AMD module value
