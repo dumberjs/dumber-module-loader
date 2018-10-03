@@ -7,7 +7,6 @@ dumber-module-loader is a loose [AMD](https://github.com/amdjs/amdjs-api) implem
 Our violation of AMD spec:
 
 * AMD spec doesn't allow defining relative module `define('../package.json', ...)`. We allow it, this is to support `'../package.json'` that could be required by `src/app.js`. We call module id `'../package.json'` above surface.
-* simplified implementation on dealing with circular dependencies. The deps order is important in case of circular dependencies. Note AMD circular deps only work if one of the runtime dep acquiring is delayed (like `require('dep')` call inside a function to be called later).
 * plugin support is totally different, although we support traditional `text!` and `json!` plugins out of the box. We use translators to support flexible module preparing at runtime. [TBD] how translator works at dumber bundling time?
 
 Our touch on AMD:

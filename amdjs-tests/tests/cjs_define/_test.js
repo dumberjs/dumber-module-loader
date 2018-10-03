@@ -1,7 +1,5 @@
-// modified to make two in front of one
-// due to our limitation on simplified circular deps implementation
-go(     ["_reporter", "two", "one", "three"],
-function (amdJS,       two,   one,   three) {
+go(     ["_reporter", "one", "two", "three"],
+function (amdJS,       one,   two,   three) {
   var args = two.doSomething(),
       oneMod = two.getOneModule();
 
