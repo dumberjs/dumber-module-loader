@@ -162,7 +162,7 @@ test('gets additional user space module from bundle', t => {
   });
 
   mockFetchApi({
-    './a-bundle.js': "define('a', 1);"
+    'a-bundle.js': "define('a', 1);"
   });
 
   requirejs(['foo/bar'],
@@ -192,7 +192,7 @@ test('gets additional user space module from bundle, stops at bundle error', t =
   });
 
   mockFetchApi({
-    './a-bundle.js': "define('aa', 1);"
+    'a-bundle.js': "define('aa', 1);"
   });
 
   requirejs(['foo/bar'],
@@ -220,8 +220,8 @@ test('gets additional package space module from bundle, supports simplified bund
   });
 
   mockFetchApi({
-    './a-bundle.js': "define.switchToPackageSpace(); define('a', 1);",
-    './b-bundle.js': "define('foo/bar', ['a', './b'], (a, b) => a + b + 3); define('foo/b.js', () => 2);"
+    'a-bundle.js': "define.switchToPackageSpace(); define('a', 1);",
+    'b-bundle.js': "define('foo/bar', ['a', './b'], (a, b) => a + b + 3); define('foo/b.js', () => 2);"
   });
 
   requirejs(['foo/bar'],
@@ -251,8 +251,8 @@ test('gets additional package space module from bundle, stops at bundle error', 
   });
 
   mockFetchApi({
-    './a-bundle.js': "define.switchToPackageSpace(); define('aa', 1);",
-    './b-bundle.js': "define('foo/bar', ['a', './b'], (a, b) => a + b + 3); define('foo/b.js', () => 2);"
+    'a-bundle.js': "define.switchToPackageSpace(); define('aa', 1);",
+    'b-bundle.js': "define('foo/bar', ['a', './b'], (a, b) => a + b + 3); define('foo/b.js', () => 2);"
   });
 
   requirejs(['foo/bar'],
@@ -285,9 +285,9 @@ test('gets additional package space module from bundle, requested from package s
   });
 
   mockFetchApi({
-    './a-bundle.js': "define.switchToPackageSpace(); define('a', 1);",
-    './b-bundle.js': "define('foo/bar', ['c'], c => c + 3);",
-    './c-bundle.js': "define.switchToPackageSpace(); define('c.js', ['a'], a => a + 2);"
+    'a-bundle.js': "define.switchToPackageSpace(); define('a', 1);",
+    'b-bundle.js': "define('foo/bar', ['c'], c => c + 3);",
+    'c-bundle.js': "define.switchToPackageSpace(); define('c.js', ['a'], a => a + 2);"
   });
 
   requirejs(['foo/bar'],
@@ -320,9 +320,9 @@ test('gets additional package space module from bundle, requested from package s
   });
 
   mockFetchApi({
-    './a-bundle.js': "define.switchToPackageSpace(); define('aa', 1);",
-    './b-bundle.js': "define('foo/bar', ['c'], c => c + 3);",
-    './c-bundle.js': "define.switchToPackageSpace(); define('c.js', ['a'], a => a + 2);"
+    'a-bundle.js': "define.switchToPackageSpace(); define('aa', 1);",
+    'b-bundle.js': "define('foo/bar', ['c'], c => c + 3);",
+    'c-bundle.js': "define.switchToPackageSpace(); define('c.js', ['a'], a => a + 2);"
   });
 
   requirejs(['foo/bar'],
@@ -379,7 +379,7 @@ test('gets runtime text! user space module', t => {
   define.reset();
 
   mockFetchApi({
-    './foo.html': 'lorem'
+    'foo.html': 'lorem'
   });
 
   requirejs(['text!foo.html'],
@@ -399,7 +399,7 @@ test('gets runtime json! user space module', t => {
   define.reset();
 
   mockFetchApi({
-    './foo.json': '{"a": 1}'
+    'foo.json': '{"a": 1}'
   });
 
   requirejs(['json!foo.json'],
@@ -434,7 +434,7 @@ test('gets runtime json file user space module', t => {
   define.reset();
 
   mockFetchApi({
-    './foo.json': '{"a": 1}'
+    'foo.json': '{"a": 1}'
   });
 
   requirejs(['foo.json'],
@@ -465,7 +465,7 @@ test('gets runtime html file user space module', t => {
   define.reset();
 
   mockFetchApi({
-    './foo.html': 'lorem'
+    'foo.html': 'lorem'
   });
 
   requirejs(['foo.html'],
@@ -496,7 +496,7 @@ test('gets runtime svg file user space module', t => {
   define.reset();
 
   mockFetchApi({
-    './foo.svg': 'lorem'
+    'foo.svg': 'lorem'
   });
 
   requirejs(['foo.svg'],
@@ -527,7 +527,7 @@ test('gets runtime css file user space module', t => {
   define.reset();
 
   mockFetchApi({
-    './foo.css': 'lorem'
+    'foo.css': 'lorem'
   });
 
   requirejs(['foo.css'],
@@ -572,7 +572,7 @@ test('supports custom translators', t => {
   });
 
   mockFetchApi({
-    './foo.txt': 'lorem'
+    'foo.txt': 'lorem'
   });
 
   requirejs(['foo.txt'],
@@ -639,10 +639,16 @@ test('requirejs.undef remove a user space module, demote all module depends on i
 });
 
 test('requirejs.toUrl returns url in requirejs fashion', t => {
-  t.equal(requirejs.toUrl('a'), './a');
-  t.equal(requirejs.toUrl('a.js'), './a.js');
-  t.equal(requirejs.toUrl('text!foo/bar.html'), './foo/bar.html');
-  t.equal(requirejs.toUrl('foo/bar.min'), './foo/bar.min');
+  t.equal(requirejs.toUrl('a'), 'a');
+  t.equal(requirejs.toUrl('a.js'), 'a.js');
+  t.equal(requirejs.toUrl('text!foo/bar.html'), 'foo/bar.html');
+  t.equal(requirejs.toUrl('foo/bar.min'), 'foo/bar.min');
+
+  requirejs.config({baseUrl: '/hello/world'});
+  t.equal(requirejs.toUrl('a'), '/hello/world/a');
+  t.equal(requirejs.toUrl('a.js'), '/hello/world/a.js');
+  t.equal(requirejs.toUrl('text!foo/bar.html'), '/hello/world/foo/bar.html');
+  t.equal(requirejs.toUrl('foo/bar.min'), '/hello/world/foo/bar.min');
   t.end();
 });
 

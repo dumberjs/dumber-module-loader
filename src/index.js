@@ -68,7 +68,9 @@ function switchToPackageSpace() {
 
 // AMD configs
 // same as requirejs baseUrl, paths,
-let _baseUrl = './';
+// different from requirejs, our default baseUrl is empty string, not "./".
+// but "" and "./" behave same for remote fetch,
+let _baseUrl = '';
 let _paths = {};
 
 function mappedId(id) {
@@ -368,7 +370,7 @@ function undef(id) {
 }
 
 function reset() {
-  _baseUrl = './';
+  _baseUrl = '';
   _paths = {};
   _bundles = {};
 

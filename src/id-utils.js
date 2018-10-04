@@ -29,7 +29,8 @@ export function parse(id = '') {
   let bareId = m[2];
 
   let extname = ext(bareId);
-  let parts = bareId.split('/').filter(p => p);
+  // preserve leading '/'
+  let parts = bareId.split('/').filter((p, i) => p || i === 0);
   if (parts.length > 1 && parts[0].length && parts[0][0] === '@') {
     let scope = parts.shift();
     parts[0] = scope + '/' + parts[0];
