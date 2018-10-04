@@ -20,7 +20,6 @@ test('define exports', t => {
 
 test('define amd modules', t => {
   define.reset();
-  define.switchToUserSpace();
 
   define('foo/bar', ['a', './b'], (a, b) => a + b + 3);
   define('a', 1);
@@ -40,7 +39,6 @@ test('define amd modules', t => {
 
 test('require can be required to behave like normal AMD require', t => {
   define.reset();
-  define.switchToUserSpace();
 
   define('foo/bar', ['a'], a => a + 3);
   define('a', 1);
@@ -70,7 +68,6 @@ test('require can be required to behave like normal AMD require', t => {
 
 test('require can be required to behave like normal commonjs require', t => {
   define.reset();
-  define.switchToUserSpace();
 
   define('foo/bar', ['a'], a => a + 3);
   define('a', 1);
@@ -89,7 +86,6 @@ test('require can be required to behave like normal commonjs require', t => {
 
 test('user space module can access package space module', t => {
   define.reset();
-  define.switchToUserSpace();
 
   define('foo/bar', ['a', './b'], (a, b) => a + b + 3);
   define('foo/b.js', () => 2);
@@ -111,7 +107,6 @@ test('user space module can access package space module', t => {
 test('package space module can not access user space module', t => {
   mockFetchApi();
   define.reset();
-  define.switchToUserSpace();
 
   define('foo/bar', ['a', './b'], (a, b) => a + b + 3);
   define('foo/b', () => 2);
@@ -132,7 +127,6 @@ test('package space module can not access user space module', t => {
 
 test('same module id can be defined in user and package spaces', t => {
   define.reset();
-  define.switchToUserSpace();
 
   define('foo', ['a', 'b-package'], (a, b) => a + b);
   define('a', () => 'a');
@@ -155,7 +149,6 @@ test('same module id can be defined in user and package spaces', t => {
 
 test('gets additional user space module from bundle', t => {
   define.reset();
-  define.switchToUserSpace();
 
   define('foo/bar', ['a', './b'], (a, b) => a + b + 3);
   define('foo/b.js', () => 2);
@@ -186,7 +179,6 @@ test('gets additional user space module from bundle', t => {
 
 test('gets additional user space module from bundle, stops at bundle error', t => {
   define.reset();
-  define.switchToUserSpace();
 
   define('foo/bar', ['a', './b'], (a, b) => a + b + 3);
   define('foo/b.js', () => 2);
@@ -217,7 +209,6 @@ test('gets additional user space module from bundle, stops at bundle error', t =
 
 test('gets additional package space module from bundle, supports simplified bundle config if there are only user space modules', t => {
   define.reset();
-  define.switchToUserSpace();
 
   requirejs.config({
     bundles: {
@@ -247,7 +238,6 @@ test('gets additional package space module from bundle, supports simplified bund
 
 test('gets additional package space module from bundle, stops at bundle error', t => {
   define.reset();
-  define.switchToUserSpace();
 
   requirejs.config({
     bundles: {
@@ -279,7 +269,6 @@ test('gets additional package space module from bundle, stops at bundle error', 
 
 test('gets additional package space module from bundle, requested from package space', t => {
   define.reset();
-  define.switchToUserSpace();
 
   requirejs.config({
     bundles: {
@@ -315,7 +304,6 @@ test('gets additional package space module from bundle, requested from package s
 
 test('gets additional package space module from bundle, requested from package space, stops at bundle error', t => {
   define.reset();
-  define.switchToUserSpace();
 
   requirejs.config({
     bundles: {
@@ -351,7 +339,6 @@ test('gets additional package space module from bundle, requested from package s
 
 test('gets runtime js user space module, with paths', t => {
   define.reset();
-  define.switchToUserSpace();
 
   requirejs.config({
     baseUrl: 'dist//runtime',
@@ -390,7 +377,6 @@ test('gets runtime js user space module, with paths', t => {
 
 test('gets runtime text! user space module', t => {
   define.reset();
-  define.switchToUserSpace();
 
   mockFetchApi({
     './foo.html': 'lorem'
@@ -411,7 +397,6 @@ test('gets runtime text! user space module', t => {
 
 test('gets runtime json! user space module', t => {
   define.reset();
-  define.switchToUserSpace();
 
   mockFetchApi({
     './foo.json': '{"a": 1}'
@@ -447,7 +432,6 @@ test('gets runtime json! user space module', t => {
 
 test('gets runtime json file user space module', t => {
   define.reset();
-  define.switchToUserSpace();
 
   mockFetchApi({
     './foo.json': '{"a": 1}'
@@ -479,7 +463,6 @@ test('gets runtime json file user space module', t => {
 
 test('gets runtime html file user space module', t => {
   define.reset();
-  define.switchToUserSpace();
 
   mockFetchApi({
     './foo.html': 'lorem'
@@ -511,7 +494,6 @@ test('gets runtime html file user space module', t => {
 
 test('gets runtime svg file user space module', t => {
   define.reset();
-  define.switchToUserSpace();
 
   mockFetchApi({
     './foo.svg': 'lorem'
@@ -543,7 +525,6 @@ test('gets runtime svg file user space module', t => {
 
 test('gets runtime css file user space module', t => {
   define.reset();
-  define.switchToUserSpace();
 
   mockFetchApi({
     './foo.css': 'lorem'
@@ -575,7 +556,6 @@ test('gets runtime css file user space module', t => {
 
 test('supports custom translators', t => {
   define.reset();
-  define.switchToUserSpace();
 
   requirejs.config({
     translators: [
@@ -621,7 +601,6 @@ test('supports custom translators', t => {
 
 test('requirejs.undef remove a user space module, demote all module depends on it', t => {
   define.reset();
-  define.switchToUserSpace();
 
   define('foo', ['a'], a => a + 1);
   define('a', 1);
@@ -664,5 +643,18 @@ test('requirejs.toUrl returns url in requirejs fashion', t => {
   t.equal(requirejs.toUrl('a.js'), './a.js');
   t.equal(requirejs.toUrl('text!foo/bar.html'), './foo/bar.html');
   t.equal(requirejs.toUrl('foo/bar.min'), './foo/bar.min');
+  t.end();
+});
+
+test('requirejs.definedValues returns all defined values', t => {
+  define.reset();
+
+  define('foo', ['a'], a => a + 1);
+  define('a', 2);
+  define('b', 0);
+
+  t.deepEqual(requirejs.definedValues(), {});
+  requirejs(['foo']);
+  t.deepEqual(requirejs.definedValues(), {a: 2, foo: 3});
   t.end();
 });

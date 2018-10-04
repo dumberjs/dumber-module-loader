@@ -67,6 +67,14 @@ export default function(tesseract) {
     }
   }
 
+  function definedValues() {
+    const v = {};
+    Object.keys(_defined).forEach(id => {
+      v[id] = _defined[id].val;
+    });
+    return v;
+  }
+
   // AMD define
   function define(id, deps, cb) {
     // anonymous module
@@ -308,6 +316,7 @@ export default function(tesseract) {
     has,
     registered,
     defined,
+    definedValues,
     define,
     nameAnonymous,
     req,

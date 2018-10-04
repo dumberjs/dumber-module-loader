@@ -736,3 +736,16 @@ test('space deals with yallist like circular dependencies', t => {
   t.equal(Yallist.iterator, 'got');
   t.end();
 });
+
+test('space reports definedValues', t => {
+  const space = makeSpace(tesseract);
+  space.define('foo', ['a'], a => a + 1);
+  space.define('a', 2);
+  space.define('b', 0);
+
+  t.deepEqual(space.definedValues(), {});
+  space.req('foo');
+  t.deepEqual(space.definedValues(), {a: 2, foo: 3});
+  t.end();
+});
+

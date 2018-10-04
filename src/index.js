@@ -289,6 +289,14 @@ function defined(id) {
   return userSpace.defined(mId) || packageSpace.defined(mId);
 }
 
+// return all defined module values, excluding registered but not evaluated.
+// this is to match existing behaviour of requirejs and webpack.
+// note if there is duplicated module id in user and package space, the user
+// space module value will show up.
+function definedValues() {
+  return {...packageSpace.definedValues(), ...userSpace.definedValues()};
+}
+
 // AMD define
 function define(id, deps, callback) {
   currentSpace.define(id, deps, callback);
@@ -430,6 +438,7 @@ define.switchToPackageSpace = switchToPackageSpace;
 define.reset = reset;
 // define.import = _import;
 requirejs.config = config;
+requirejs.definedValues = definedValues;
 
 // for compatibility with requirejs
 define.amd = {jQuery: true};
