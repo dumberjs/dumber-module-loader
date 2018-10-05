@@ -38,7 +38,27 @@ const userSpaceTesseract = {
       // Only do runtimeReq if mId fail immediately (not dep fail)
       // This means mId is not a known package space module, so
       // we could try to remotely load a user space module.
-      if (err && err.__unkown === mId) return runtimeReq(mId);
+      if (err && err.__unkown === mId) {
+        const parsed = parse(mId);
+        const pluginId = parsed.prefix ?
+          parsed.prefix.substring(0, parsed.prefix.length - 1) :
+          '';
+        // text and json plugins are built-in
+        if (pluginId && pluginId !== 'text' && pluginId !== 'json') {
+          return new Promise((resolve, reject) => {
+            requirejs([pluginId], plugin => {
+              // Call requirejs plugin api load(name, require, load, options)
+              // Options set to {} just to make existing requirejs plugins happy.
+              plugin.load(parsed.bareId, requirejs, loaded => {
+                userSpace.define(mId, [], () => loaded);
+                resolve(userSpace.req(mId));
+              }, {});
+            });
+          });
+        }
+        return runtimeReq(mId);
+      }
+
       throw err;
     }
 

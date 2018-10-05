@@ -386,7 +386,6 @@ test('gets runtime text! user space module', t => {
   );
 });
 
-
 test('gets runtime json! user space module', t => {
   define.reset();
 
@@ -656,3 +655,109 @@ test('requirejs.definedValues returns all defined values', t => {
   t.deepEqual(requirejs.definedValues(), {a: 2, foo: 3});
   t.end();
 });
+
+test('requirejs uses plugin module to load', t => {
+  define.reset();
+
+  define('foo', 5);
+  define('plus-one', {
+    load: (name, req, load) => {
+      req([name], v => load(v + 1));
+    }
+  });
+
+  requirejs(['plus-one!foo'],
+    r => {
+      t.equal(r, 6);
+      t.ok(requirejs.defined('foo'));
+      t.ok(requirejs.defined('plus-one!foo'));
+      t.end();
+    },
+    err => {
+      t.fail(err.stack);
+      t.end();
+    }
+  );
+});
+
+test('requirejs uses plugin module to load when plugin is in package space', t => {
+  define.reset();
+
+  define('foo', 5);
+  define.switchToPackageSpace();
+  define('plus-one', {
+    load: (name, req, load) => {
+      req([name], v => load(v + 1));
+    }
+  });
+
+  requirejs(['plus-one!foo'],
+    r => {
+      t.equal(r, 6);
+      t.ok(requirejs.defined('foo'));
+      t.ok(requirejs.defined('plus-one!foo'));
+      t.end();
+    },
+    err => {
+      t.fail(err.stack);
+      t.end();
+    }
+  );
+});
+
+test('requirejs uses plugin module to load runtime', t => {
+  define.reset();
+
+  mockFetchApi({
+    'foo.html': 'lorem'
+  });
+
+  define('wrap/html', {
+    load: (name, req, load) => {
+      req([name], v => load(`<div>${v}</div>`));
+    }
+  });
+
+  requirejs(['wrap/html!foo.html'],
+    result => {
+      t.equal(result, '<div>lorem</div>');
+      t.ok(requirejs.defined('foo.html'));
+      t.notOk(requirejs.defined('text!foo.html'));
+      t.ok(requirejs.defined('wrap/html!foo.html'));
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      t.end();
+    }
+  );
+});
+
+test('requirejs uses plugin module to load runtime case2', t => {
+  define.reset();
+
+  mockFetchApi({
+    'foo.html': 'lorem'
+  });
+
+  define('wrap/html', {
+    load: (name, req, load) => {
+      req(['text!' + name], v => load(`<div>${v}</div>`));
+    }
+  });
+
+  requirejs(['wrap/html!foo.html'],
+    result => {
+      t.equal(result, '<div>lorem</div>');
+      t.notOk(requirejs.defined('foo.html'));
+      t.ok(requirejs.defined('text!foo.html'));
+      t.ok(requirejs.defined('wrap/html!foo.html'));
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      t.end();
+    }
+  );
+});
+

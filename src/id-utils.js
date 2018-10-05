@@ -1,5 +1,5 @@
 const KNOWN_EXTS = ['.js', '.json', '.html', '.htm', '.svg', '.css', '.wasm'];
-const idMatcher = /^(\S+!)?(\S+?)\/?$/;
+const idMatcher = /^(\S+?!)?(\S+?)\/?$/;
 
 export function cleanPath(path = '') {
   let clean = path.trim();
