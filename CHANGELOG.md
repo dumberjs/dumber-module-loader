@@ -1,3 +1,13 @@
+<a name="0.8.0"></a>
+# [0.8.0](https://github.com/huochunpeng/dumber-module-loader/compare/v0.7.0...v0.8.0) (2018-10-05)
+
+
+### Features
+
+* be compatible with requirejs, skip 2nd define on existing module ([abd81d2](https://github.com/huochunpeng/dumber-module-loader/commit/abd81d2))
+
+
+
 <a name="0.7.0"></a>
 # [0.7.0](https://github.com/huochunpeng/dumber-module-loader/compare/v0.6.0...v0.7.0) (2018-10-05)
 
