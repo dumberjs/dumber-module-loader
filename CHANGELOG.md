@@ -1,3 +1,14 @@
+<a name="0.6.0"></a>
+# [0.6.0](https://github.com/huochunpeng/dumber-module-loader/compare/v0.5.0...v0.6.0) (2018-10-05)
+
+
+### Features
+
+* improve compatibility with nodejs on json file resolution ([62f678a](https://github.com/huochunpeng/dumber-module-loader/commit/62f678a))
+* requirejs.definedValues() reports all defined module values, excluding registered but not evaluated ([ee9c943](https://github.com/huochunpeng/dumber-module-loader/commit/ee9c943))
+
+
+
 <a name="0.5.0"></a>
 # [0.5.0](https://github.com/huochunpeng/dumber-module-loader/compare/v0.4.2...v0.5.0) (2018-10-03)
 
