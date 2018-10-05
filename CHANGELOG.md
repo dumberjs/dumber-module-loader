@@ -1,3 +1,18 @@
+<a name="0.9.0"></a>
+# [0.9.0](https://github.com/huochunpeng/dumber-module-loader/compare/v0.8.0...v0.9.0) (2018-10-05)
+
+
+### Bug Fixes
+
+* fix missing plugin prefix match ([0d247b2](https://github.com/huochunpeng/dumber-module-loader/commit/0d247b2))
+
+
+### Features
+
+* basic support of requirejs plugin, only support mandatory load() ([18ab776](https://github.com/huochunpeng/dumber-module-loader/commit/18ab776))
+
+
+
 <a name="0.8.0"></a>
 # [0.8.0](https://github.com/huochunpeng/dumber-module-loader/compare/v0.7.0...v0.8.0) (2018-10-05)
 
