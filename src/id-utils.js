@@ -136,12 +136,14 @@ export function nodejsIds(id) {
   if (parsed.ext === '.js') {
     const trimed = parsed.cleanId.substring(0, parsed.cleanId.length - 3);
     ids.push(trimed);
-  } else if (parsed.ext === '') {
+  } else if (!parsed.ext) {
     ids.push(parsed.cleanId + '.js');
+    ids.push(parsed.cleanId + '.json');
   }
 
-  ids.push(parsed.cleanId + '/index.js');
   ids.push(parsed.cleanId + '/index');
+  ids.push(parsed.cleanId + '/index.js');
+  ids.push(parsed.cleanId + '/index.json');
 
   return ids;
 }
