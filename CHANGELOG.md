@@ -1,3 +1,13 @@
+<a name="0.7.0"></a>
+# [0.7.0](https://github.com/huochunpeng/dumber-module-loader/compare/v0.6.0...v0.7.0) (2018-10-05)
+
+
+### Features
+
+* sync return on missing package module ([d656ed5](https://github.com/huochunpeng/dumber-module-loader/commit/d656ed5))
+
+
+
 <a name="0.6.0"></a>
 # [0.6.0](https://github.com/huochunpeng/dumber-module-loader/compare/v0.5.0...v0.6.0) (2018-10-05)
 
