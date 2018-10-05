@@ -749,3 +749,19 @@ test('space reports definedValues', t => {
   t.end();
 });
 
+test('space skips define on existing module', t => {
+  const space = makeSpace(tesseract);
+  space.define('a', 1);
+  space.define('a', 2);
+  t.equal(space.req('a'), 1);
+  t.end();
+});
+
+test('space skips define on existing module, case2', t => {
+  const space = makeSpace(tesseract);
+  space.define('a', 1);
+  t.equal(space.req('a'), 1); // promote 'a' from registered to defined
+  space.define('a', 2);
+  t.equal(space.req('a'), 1);
+  t.end();
+});

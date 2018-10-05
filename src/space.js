@@ -89,6 +89,10 @@ export default function(tesseract) {
       deps = null;
     }
 
+    // Be compatible with requirejs, skip existing module.
+    // Note SystemJS behaves differently, it overwrites.
+    if (id && has(id)) return;
+
     // fill-up CommonJS dependencies.
     if (!deps) {
       deps = [];
