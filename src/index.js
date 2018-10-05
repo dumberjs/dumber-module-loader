@@ -23,23 +23,32 @@ const userSpaceTesseract = {
   // 1. try additional user module in bundles,
   // 2. then try package space
   // packaegSpace will handle additional package module in bundles
-  // 3. then try dynamic load
+  // 3. then try runtime remote load, only if it's not a known
+  //package module
   req: mId => {
     const p = userReqFromBundle(mId);
     // p is a promise loading additional bundle
     if (p) return p;
 
-    const packageReq = packageSpace.req(mId);
-    if (packageReq && typeof packageReq.then === 'function') {
-      // packageReq is asynchronous
-      return packageReq.catch(err => {
-        // stop at bundle error
-        if (err && err.isBundleError) throw err;
-        return runtimeReq(mId);
-      });
+    let packageReq;
+    try {
+      packageReq = packageSpace.req(mId);
+    } catch (err) {
+      // Failure in sync mode.
+      // Only do runtimeReq if mId fail immediately (not dep fail)
+      // This means mId is not a known package space module, so
+      // we could try to remotely load a user space module.
+      if (err && err.__unkown === mId) return runtimeReq(mId);
+      throw err;
     }
 
-    // synchronous return from a loaded bundle
+    // packageReq could be successful require in sync mode, or a
+    // promise in async mode.
+    // The only way we can get into async mode is that mId is
+    // loaded by a remote bundle, it means at least the first
+    // level mId is a package module.
+    // So in async mode, any failure is considered final, no more
+    // fall back to runtimeReq for a remote user space module
     return packageReq;
   }
 };
@@ -253,8 +262,8 @@ function userReqFromBundle(mId) {
 }
 
 // incoming id is already mapped
-// return a promise even in rejection
-// this is to help userSpaceTesseract to identify sync return in existing bundler.
+// return a promise to load additional bundle
+// or throw an error to help userSpaceTesseract to identify sync return.
 function packageReqFromBundle(mId) {
   const possibleIds = nodejsIds(mId);
   const bundleName = Object.keys(_bundles).find(bn =>
@@ -265,13 +274,13 @@ function packageReqFromBundle(mId) {
     return loadBundle(bundleName)
     .then(() => {
       if (packageSpace.has(mId)) return packageSpace.req(mId);
-      const err = new Error(`module "${mId}" is missing from bundle "${bundleName}"`);
-      err.isBundleError = true;
-      throw err;
+      throw new Error(`module "${mId}" is missing from bundle "${bundleName}"`);
     });
   }
 
-  return Promise.reject(new Error(`no bundle for module "${mId}"`));
+  const err = new Error(`no bundle for module "${mId}"`);
+  err.__unkown = mId;
+  throw err;
 }
 
 // return a promise
@@ -353,7 +362,7 @@ function requirejs(deps, callback, errback) {
   } else {
     // synchronous callback
     try {
-      return Promise.resolve(finalize(depValues));
+      finalize(depValues);
     } catch (err) {
       errHandler(err);
     }

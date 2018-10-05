@@ -113,16 +113,8 @@ test('package space module can not access user space module', t => {
   define.switchToPackageSpace();
   define('a', ['foo/b'], b => b - 1);
 
-  requirejs(['foo/bar'],
-    result => {
-      t.fail('should not load foo/bar');
-      t.end();
-    },
-    err => {
-      t.pass('expected ' + err.message);
-      t.end();
-    }
-  );
+  t.throws(() => requirejs(['foo/bar']));
+  t.end();
 });
 
 test('same module id can be defined in user and package spaces', t => {

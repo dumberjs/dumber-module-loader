@@ -214,54 +214,67 @@ export default function(tesseract) {
     };
     requireFunc.toUrl = tesseract.toUrl;
 
-    const depValues = serialResults(deps, d => {
-      if (d === cjs_require) {
-        // commonjs require
-        return requireFunc;
-      } else if (d === cjs_module) {
-        // commonjs module
-        useCjsModule = true;
-        return cjsModule;
-      } else if (d === cjs_exports) {
-        useCjsModule = true;
-        // commonjs exports
-        return cjsModule.exports;
-      } else {
-        const absoluteId = resolveModuleId(id, d);
-        const mId = tesseract.mappedId(absoluteId);
-        const def = defined(mId);
-        if (def) return def.val;
-
-        // pro-actively detecting circular dependency within one space of loaded bundles
-        // 1. don't need to check across spaces, there is no circular dependency between
-        // user and package spaces, as user -> package is one way.
-        // 2. Nodejs circular dependency only happens within one npm package, as long as
-        // user didn't split circular depended modules to multiple bundles, we are fine.
-        // 3. follow commonjs require() semantic, to be resolved at code running time.
-        if (isCircular(mId)) return;
-
-        return req(mId);
-      }
-    });
-
     const finalize = results => {
-      let val = typeof cb === 'function' ? cb.apply(tesseract.global, results) : cb;
+      // clean up _promoting before calling cb (it might throw)
+      let val;
+      try {
+        val = typeof cb === 'function' ? cb.apply(tesseract.global, results) : cb;
+      } catch (err) {
+        delete _promoting[id];
+        throw err;
+      }
+
       if (val === undefined && useCjsModule) val = cjsModule.exports;
 
       // move the module from registry to defined
       // when moduleId is foo/bar,
       // id could be foo/bar or foo/bar/index
-      delete _registry[id];
       delete _promoting[id];
+      delete _registry[id];
       _defined[id] = {id, deps, cb, val};
-
       return val;
     };
 
+    let depValues;
+
+    try {
+      depValues = serialResults(deps, d => {
+        if (d === cjs_require) {
+          // commonjs require
+          return requireFunc;
+        } else if (d === cjs_module) {
+          // commonjs module
+          useCjsModule = true;
+          return cjsModule;
+        } else if (d === cjs_exports) {
+          useCjsModule = true;
+          // commonjs exports
+          return cjsModule.exports;
+        } else {
+          const absoluteId = resolveModuleId(id, d);
+          const mId = tesseract.mappedId(absoluteId);
+          const def = defined(mId);
+          if (def) return def.val;
+
+          // pro-actively detecting circular dependency within one space of loaded bundles
+          // 1. don't need to check across spaces, there is no circular dependency between
+          // user and package spaces, as user -> package is one way.
+          // 2. Nodejs circular dependency only happens within one npm package, as long as
+          // user didn't split circular depended modules to multiple bundles, we are fine.
+          // 3. follow commonjs require() semantic, to be resolved at code running time.
+          if (isCircular(mId)) return;
+          return req(mId);
+        }
+      });
+    } catch (err) {
+      // clean up _promoting
+      delete _promoting[id];
+      throw err;
+    }
+
     // asynchronous return
     if (depValues && typeof depValues.then === 'function') {
-      return depValues.then(
-        finalize,
+      return depValues.then(finalize,
         err => {
           delete _promoting[id];
           throw err;
