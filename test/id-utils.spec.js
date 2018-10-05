@@ -45,6 +45,7 @@ test('parse parses id with plugin prefix', t => {
   t.deepEqual(parse('text!a/b.json'), {prefix: 'text!', bareId: 'a/b.json', parts: ['a', 'b.json'], ext: '.json', cleanId: 'text!a/b.json'});
   t.deepEqual(parse('text!a/b.svg'), {prefix: 'text!', bareId: 'a/b.svg', parts: ['a', 'b.svg'], ext: '.svg', cleanId: 'text!a/b.svg'});
   t.deepEqual(parse('text!../a/b.svg'), {prefix: 'text!', bareId: '../a/b.svg', parts: ['..', 'a', 'b.svg'], ext: '.svg', cleanId: 'text!../a/b.svg'});
+  t.deepEqual(parse('text-plugin/bla!a/b.min.js'), {prefix: 'text-plugin/bla!', bareId: 'a/b.min.js', parts: ['a', 'b.min.js'], ext: '.js', cleanId: 'text-plugin/bla!a/b.min.js'});
   t.end();
 });
 
