@@ -1,3 +1,13 @@
+<a name="0.9.1"></a>
+## [0.9.1](https://github.com/huochunpeng/dumber-module-loader/compare/v0.9.0...v0.9.1) (2018-10-07)
+
+
+### Bug Fixes
+
+* fix runtime loading with absolute path ([5e55849](https://github.com/huochunpeng/dumber-module-loader/commit/5e55849))
+
+
+
 <a name="0.9.0"></a>
 # [0.9.0](https://github.com/huochunpeng/dumber-module-loader/compare/v0.8.0...v0.9.0) (2018-10-05)
 
