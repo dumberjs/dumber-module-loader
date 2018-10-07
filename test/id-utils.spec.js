@@ -288,7 +288,7 @@ test('mapId returns mapped id', t => {
   const paths = {
     'b-bundle': 'bundles/b.js',
     'foo': 'common/foo',
-    'foo/b': 'other/b',
+    'foo/b': '/other/b',
   };
 
   t.equal(mapId('lorem', paths), 'lorem');
@@ -301,9 +301,9 @@ test('mapId returns mapped id', t => {
   t.equal(mapId('foo/bar', paths), 'common/foo/bar');
   t.equal(mapId('text!foo/bar.html', paths), 'text!common/foo/bar.html');
   t.equal(mapId('foo2', paths), 'foo2');
-  t.equal(mapId('foo/b', paths), 'other/b');
-  t.equal(mapId('foo/b/ar', paths), 'other/b/ar');
-  t.equal(mapId('text!foo/b/ar.html', paths), 'text!other/b/ar.html');
+  t.equal(mapId('foo/b', paths), '/other/b');
+  t.equal(mapId('foo/b/ar', paths), '/other/b/ar');
+  t.equal(mapId('text!foo/b/ar.html', paths), 'text!/other/b/ar.html');
   t.equal(mapId('foo/b2', paths), 'common/foo/b2');
   t.equal(mapId('b-bundle', paths), 'bundles/b.js');
   t.end();

@@ -1,48 +1,53 @@
 # dumber-module-loader
 
-A modern module loader, designed to work with the [dumber](https://github.com/huochunpeng/dumber), only works in browser.
+A modern module loader, designed to work with the [dumber](https://github.com/huochunpeng/dumber).
 
-dumber-module-loader is a loose [AMD](https://github.com/amdjs/amdjs-api) implementation, is not 100% compatible with the AMD spec.
+dumber-module-loader is a loose [AMD](https://github.com/amdjs/amdjs-api) implementation, does not strictly follow the [AMD](https://github.com/amdjs/amdjs-api) spec.
 
 ## Our violation of AMD spec:
 
-* AMD spec doesn't allow defining relative module `define('../package.json', ...)`. We allow it, this is to support `'../package.json'` that could be required by `src/app.js`. We call module id `'../package.json'` above surface.
-* plugin support is totally different, although we support traditional `text!` and `json!` plugins out of the box. We use translators to support flexible module preparing at runtime. [TBD] how translator works at dumber bundling time?
+* AMD spec doesn't allow defining relative module `define('../package.json', ...)`. We allow it, this is to support `'../package.json'` that could be required by `src/app.js`. We say module id `'../package.json'` is above surface.
+* only support plugin's `load()` function, doesn't support `normalize()` function, doesn't support `load.fromText()` function (not in spec, but some requirejs plugins use it). Note we support traditional `text!` and `json!` plugins out of the box. But plugins are considered legacy, use translators (see below) as much as possible.
 
 ## Our touch on AMD:
 
 * mimic Node.js module resolving behaviour so dumber bundler can do less work.
-* two name spaces: 'user' (default) and 'package' (for npm packages and local packages).
-  - module in user space can acquire user and package modules
-  - module in package space can only acquire package modules
-  - both user and package space can contain module with same id. This is designed to avoid user `src/util.js` over-shadowing Nodejs core module `util`.
-* work around circular dependencies (for some npm packages like [yallist](https://github.com/isaacs/yallist)). Requirejs fails at yallist, we don't.
+  - in Node.js, `require('foo/bar')` could load file `foo/bar`, `foo/bar.js`, 'foo/bar.json', 'foo/bar/index.js', or 'foo/bar/index.json'.
+  - we skipped `foo/bar.node` and `foo/bar/index.node` because them are binary file only works in Node.js.
+* two name spaces: `user` (default, for local source file) and `package` (for npm packages and local packages).
+  - module in `user` space can acquire `user` or `package` modules.
+  - module in `package` space can only acquire `package` modules.
+  - both `user` and `package` space can contain module with the same id. This is designed to avoid local `src/util.js` over-shadowing Node.js core module `util`.
+* full support of Node.js circular dependencies (for some npm packages like [yallist](https://github.com/isaacs/yallist)). Requirejs supports some circular scenarios, but still fails at yallist, we don't.
 * support translator, to transpile, transform raw content
-  - by default, dumber-module-loader ships with translators for js/json/html/svg/css/wasm (wasm TBD), plus support of traditional text! and json! plugins.
+  - by default, dumber-module-loader ships with translators for js/json/html/svg/css/wasm (wasm TBD).
+  - default transolators support traditional text! and json! plugins. Note we didn't use traditional plugin module (with `load()` function) to implement traditional text! and json! plugins.
   - [TBD] dumber-babel-translator brings babel at runtime
 
 ## Difference from requirejs:
 * no multi-contexts.
-* only supports config on baseUrl, paths, bundles and translators.
-* data-main attribute on script tag doesn't affect baseUrl, data-main is purely a module id.
-* paths support is simplified.
-  - doesn't support absolute path like `"foo": "/foo"`. Only do `"foo": "common/foo"` which `common/foo` is relative to baseUrl.
-  - doesn't support `"foo": ["common/foo", "shared/foo"]` failover array.
-  - relative module resolution is simplified as a breaking change.
+* only supports config on `baseUrl`, `paths`, `bundles` and `translators`.
+* `data-main` attribute on script tag doesn't affect `baseUrl`, `data-main` is purely a module id.
+* `paths` support is simplified.
+  - supports absolute path like `"foo": "/foo"`
+  - supports normal `"foo": "common/foo"`, resolve `foo/bar/lo` to `common/foo/bar/lo`. Note we treat `common/foo/bar/lo` as the real module id, it could result to an existing known module, or through remote fetch.
+  - doesn't support `"foo": ["common/foo", "shared/foo"]` the fail-over array.
+  - relative module resolution is simplified, it's a breaking change. We changed the behaviour because we think our behaviour is less surprising.
   ```js
   define('common/foo', ['./bar'], function (bar) { /* ... */ });
   requirejs.config({paths: {'foo': 'common/foo'}});
   requirejs(['foo'], function (foo) {
     // requirejs resolves './bar' to 'bar',
-    // we resolves './bar' to 'common/bar'
+    // we resolves './bar' to 'common/bar'.
   });
   ```
-* no automatic commonjs wrapping at runtime module fetching. At runtime, we only support AMD anonymous module format, unless you supply a translator to deal with raw content.
-* bundles config format is different, it needs two arrays, 'user' and 'package' for the two module spaces.
+* no automatic commonjs wrapping at runtime module fetching. For any module loaded remotely at runtime, we only support AMD anonymous module format, unless you supply a translator to deal with the raw content.
+* `bundles` config is different, it needs two arrays, `'user'` and `'package'` for the two module spaces.
   - for example, `{"a-bundle": {"user": ['a', 'b'], "package": ["lodash", "jquery"]}}`.
-* require([...], callback, errback) doesn't support optional config, errback only gets one error object.
-* we only support browser/worker/Nodejs environments, didn't test on Rhino or any other environments.
-* note there is no support of config on package/map.
+  - if no module in `package` space, it can be written in requirejs compatible format, `{"a-bundle": ['a', 'b']}`.
+* `require([...], callback, errback)` doesn't support optional config, errback only gets one error object.
+* we only support browser/Worker/Node.js environments, didn't test on Rhino or any other environments.
+* note there is no support of config of `package` or `map`.
 * there is no support of shim. Shim is all done by dumber bundler.
 
 ## API

@@ -217,8 +217,11 @@ const _translators = [
   }
 ];
 
-const fetchUrl = url => {
-  return fetch(url, {credentials: 'include'})
+const _fetchUrl = url => {
+  if (typeof _global.fetch === 'undefined') {
+    return Promise.reject(new Error(`fetch API is not available, cannot fetch "${url}"`));
+  }
+  return _global.fetch(url, {credentials: 'include'})
   .then(response => {
     if (response.ok) return response;
     throw new Error(`${response.status} ${response.statusText}`);
@@ -231,12 +234,12 @@ const _fetch = mId => {
   const urls = urlsForId(mId);
   const len = urls.length;
 
-  if (len === 1) return fetchUrl(urls[0]);
+  if (len === 1) return _fetchUrl(urls[0]);
 
   // only 2 urls available, foo.min.js, foo.min
 
-  return fetchUrl(urls[0]).catch(err0 =>
-    fetchUrl(urls[1]).catch(err1 => {
+  return _fetchUrl(urls[0]).catch(err0 =>
+    _fetchUrl(urls[1]).catch(err1 => {
       throw new Error(err0.message + '\n' + err1.message);
     })
   );
