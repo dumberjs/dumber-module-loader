@@ -110,7 +110,8 @@ function mappedId(id) {
 function urlsForId(mId) {
   const parsed = parse(mId);
   const urls = [];
-  let url = _baseUrl + parsed.bareId;
+  let url = parsed.bareId;
+  if (url[0] !== '/') url = _baseUrl + url;
   if (!parsed.ext && !(url.length > 3 && url.substring(url.length - 3) === '.js')) {
     urls.push(url + '.js');
   }
