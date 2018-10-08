@@ -545,51 +545,6 @@ test('gets runtime css file user space module', t => {
   );
 });
 
-test('supports custom translators', t => {
-  define.reset();
-
-  requirejs.config({
-    translators: [
-      (parsedId, response) => {
-        if (parsedId.prefix || !parsedId.bareId.endsWith('.txt')) return;
-
-        return response.text()
-        .then(text => {
-          define(parsedId.cleanId, 'txt:' + text);
-          define('txt!' + parsedId.cleanId, 'txt:' + text);
-        });
-      }
-    ]
-  });
-
-  mockFetchApi({
-    'foo.txt': 'lorem'
-  });
-
-  requirejs(['foo.txt'],
-    result => {
-      t.equal(result, 'txt:lorem');
-      t.ok(requirejs.defined('foo.txt'));
-
-      requirejs(['txt!foo.txt'],
-        r2 => {
-          t.equal(result, 'txt:lorem', 'supports usage with prefix');
-          t.ok(requirejs.defined('txt!foo.txt'));
-          t.end();
-        },
-        err => {
-          t.fail(err.message);
-          t.end();
-        }
-      );
-    },
-    err => {
-      t.fail(err.stack);
-      t.end();
-    }
-  );
-});
-
 test('requirejs.undef remove a user space module, demote all module depends on it', t => {
   define.reset();
 
@@ -689,6 +644,7 @@ test('requirejs uses ext:plugin module to load', t => {
   }
 
   define('text!foo.css', 'lorem');
+  requirejs.undef('ext:css'); // unset default css plugin
   define('ext:css', {
     load: (name, req, load) => {
       req(['text!' + name], v => {
@@ -746,6 +702,7 @@ test('requirejs uses ext:plugin module to load when plugin is in package space',
   }
 
   define('text!foo.css', 'lorem');
+  requirejs.undef('ext:css'); // unset default css plugin
   define.switchToPackageSpace();
   define('ext:css', {
     load: (name, req, load) => {
@@ -787,7 +744,7 @@ test('requirejs uses plugin module to load runtime', t => {
     result => {
       t.equal(result, '<div>lorem</div>');
       t.ok(requirejs.defined('foo.html'));
-      t.notOk(requirejs.defined('text!foo.html'));
+      t.ok(requirejs.defined('text!foo.html'));
       t.ok(requirejs.defined('wrap/html!foo.html'));
       t.end();
     },
@@ -838,6 +795,7 @@ test('requirejs uses ext:plugin module to load runtime', t => {
     injected.push(v);
   }
 
+  requirejs.undef('ext:css'); // unset default css plugin
   define('ext:css', {
     load: (name, req, load) => {
       req(['text!' + name], v => {
@@ -856,6 +814,37 @@ test('requirejs uses ext:plugin module to load runtime', t => {
     },
     err => {
       t.fail(err.stack);
+      t.end();
+    }
+  );
+});
+
+test('requirejs uses ext:plugin module to fail at runtime', t => {
+  define.reset();
+  mockFetchApi();
+
+  const injected = [];
+  function injectCss(v) {
+    injected.push(v);
+  }
+
+  requirejs.undef('ext:css'); // unset default css plugin
+  define('ext:css', {
+    load: (name, req, load) => {
+      req(['text!' + name], v => {
+        injectCss(v);
+        load(v);
+      });
+    }
+  });
+
+  requirejs(['foo.css'],
+    r => {
+      t.fail('should not pass');
+      t.end();
+    },
+    err => {
+      t.pass(err.message);
       t.end();
     }
   );

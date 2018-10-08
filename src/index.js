@@ -47,28 +47,58 @@ const userSpaceTesseract = {
         if (pluginId) {
           if (pluginId !== 'text' && pluginId !== 'json') {
             return new Promise((resolve, reject) => {
-              requirejs([pluginId], plugin => {
-                // Call requirejs plugin api load(name, require, load, options)
-                // Options set to {} just to make existing requirejs plugins happy.
-                plugin.load(parsed.bareId, requirejs, loaded => {
-                  userSpace.define(mId, [], () => loaded);
-                  resolve(userSpace.req(mId));
-                }, {});
-              });
+              const req = (deps, callback, errback) => {
+                const errback2 = e => {
+                  try {
+                    if (errback) errback(e);
+                  } catch (err) {
+                    // ignore
+                  }
+                  reject(e);
+                };
+                return requirejs(deps, callback, errback2);
+              };
+              try {
+                requirejs([pluginId], plugin => {
+                  // Call requirejs plugin api load(name, require, load, options)
+                  // Options set to {} just to make existing requirejs plugins happy.
+                  plugin.load(parsed.bareId, req, loaded => {
+                    userSpace.define(mId, [], () => loaded);
+                    resolve(userSpace.req(mId));
+                  }, {});
+                });
+              } catch (err) {
+                reject(err);
+              }
             });
           }
         } else if (parsed.ext && parsed.ext !== '.js') {
           const extPluginName = 'ext:' + parsed.ext.substring(1);
           if (userSpace.has(extPluginName) || packageSpace.has(extPluginName)) {
             return new Promise((resolve, reject) => {
-              requirejs([extPluginName], plugin => {
-                // Call requirejs plugin api load(name, require, load, options)
-                // Options set to {} just to make existing requirejs plugins happy.
-                plugin.load(parsed.cleanId, requirejs, loaded => {
-                  userSpace.define(mId, [], () => loaded);
-                  resolve(userSpace.req(mId));
-                }, {});
-              });
+              const req = (deps, callback, errback) => {
+                const errback2 = e => {
+                  try {
+                    if (errback) errback(e);
+                  } catch (err) {
+                    // ignore
+                  }
+                  reject(e);
+                };
+                return requirejs(deps, callback, errback2);
+              };
+              try {
+                requirejs([extPluginName], plugin => {
+                  // Call requirejs plugin api load(name, require, load, options)
+                  // Options set to {} just to make existing requirejs plugins happy.
+                  plugin.load(parsed.cleanId, req, loaded => {
+                    userSpace.define(mId, [], () => loaded);
+                    resolve(userSpace.req(mId));
+                  }, {});
+                });
+              } catch (err) {
+                reject(err);
+              }
             });
           }
         }
@@ -156,44 +186,6 @@ let _bundles = {};
 
 // translators for runtime loaded content
 const _translators = [
-  // html/svg/css file without prefix
-  (parsedId, response) => {
-    if (parsedId.prefix || (
-        parsedId.ext !== '.html' &&
-        parsedId.ext !== '.svg' &&
-        parsedId.ext !== '.css')) return;
-
-    return response.text()
-    .then(text => {
-      userSpace.define(parsedId.cleanId, text);
-      userSpace.define('text!' + parsedId.cleanId, text);
-    });
-  },
-
-  // json file
-  (parsedId, response) => {
-    if (parsedId.prefix || parsedId.ext !== '.json') return;
-
-    return response.json()
-    .then(json => {
-      userSpace.define(parsedId.cleanId, [], json);
-      userSpace.define('json!' + parsedId.cleanId, [], json);
-    });
-  },
-
-  // .wasm file
-  (parsedId, response) => {
-    if (parsedId.prefix || parsedId.ext !== '.wasm') return;
-
-    // TODO support wasm at runtime
-    // TODO how to know what kind of importObject the wasm file needs
-    // TODO do we need to delay instantiate (wrap in define callback)?
-    // return WebAssembly.instantiateStreaming(response, importObject)
-    // .then(obj => {
-    //    userSpace.define(parsedId.cleanId, [...], () => obj.instance.exports);
-    // });
-  },
-
   // prefix json!
   (parsedId, response) => {
     if (parsedId.prefix !== 'json!') return;
@@ -215,6 +207,12 @@ const _translators = [
     .then(text => {
       userSpace.define(parsedId.cleanId, text);
     });
+  },
+
+  // prefix raw!
+  (parsedId, response) => {
+    if (parsedId.prefix !== 'text!') return;
+    userSpace.define(parsedId.cleanId, response);
   },
 
   // normal AMD module
@@ -398,11 +396,11 @@ function requirejs(deps, callback, errback) {
 
   if (depValues && typeof depValues.then === 'function') {
     // asynchronous callback
-    depValues.then(finalize, errHandler);
+    return depValues.then(finalize, errHandler);
   } else {
     // synchronous callback
     try {
-      finalize(depValues);
+      return finalize(depValues);
     } catch (err) {
       errHandler(err);
     }
@@ -418,6 +416,21 @@ function undef(id) {
   // packageSpace.undef(id);
 }
 
+function loadText(name, req, load) {
+  req(['text!' + name], load);
+}
+
+// TODO support wasm
+// how to know what kind of importObject the wasm file needs?
+function loadWasm(name, req, load) {
+  req(['raw!' + name], response => {
+    WebAssembly.instantiateStreaming(response, /*importObject*/)
+    .then(obj => {
+      load(obj.instance.exports);
+    });
+  });
+}
+
 function reset() {
   _baseUrl = '';
   _paths = {};
@@ -426,6 +439,24 @@ function reset() {
   userSpace.purge();
   packageSpace.purge();
   switchToUserSpace();
+
+  define('ext:json', {
+    load(name, req, load) {
+      req(['json!' + name], load);
+    }
+  });
+
+  define('ext:html', {load: loadText});
+
+  define('ext:svg', {load: loadText});
+
+  // by default, directly loading css file doesn't inject style
+  define('ext:css', {load: loadText});
+  // to inject style with `import 'some.css';`
+  // requirejs.undef('ext:css')
+  // define('ext:css', {load: implement_inject_style})
+
+  define('ext:wasm', {load: loadWasm});
 }
 
 // https://github.com/tc39/proposal-dynamic-import
@@ -437,7 +468,6 @@ function reset() {
 // baseUrl
 // paths, relative to baseUrl
 // bundles, for code splitting
-// translators, for module loading at runtime
 function config(opts) {
   if (!opts) return;
   if (opts.baseUrl) _baseUrl = parse(opts.baseUrl).bareId + '/';
@@ -464,10 +494,6 @@ function config(opts) {
         };
       }
     });
-  }
-
-  if (opts.translators) {
-    _translators.unshift(...opts.translators);
   }
 }
 
@@ -518,6 +544,7 @@ if (isBrowser) {
   }
 }
 
+reset();
 _global.define = define;
 _global.requirejs = requirejs;
 
