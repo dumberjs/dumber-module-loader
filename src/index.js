@@ -44,17 +44,33 @@ const userSpaceTesseract = {
           parsed.prefix.substring(0, parsed.prefix.length - 1) :
           '';
         // text and json plugins are built-in
-        if (pluginId && pluginId !== 'text' && pluginId !== 'json') {
-          return new Promise((resolve, reject) => {
-            requirejs([pluginId], plugin => {
-              // Call requirejs plugin api load(name, require, load, options)
-              // Options set to {} just to make existing requirejs plugins happy.
-              plugin.load(parsed.bareId, requirejs, loaded => {
-                userSpace.define(mId, [], () => loaded);
-                resolve(userSpace.req(mId));
-              }, {});
+        if (pluginId) {
+          if (pluginId !== 'text' && pluginId !== 'json') {
+            return new Promise((resolve, reject) => {
+              requirejs([pluginId], plugin => {
+                // Call requirejs plugin api load(name, require, load, options)
+                // Options set to {} just to make existing requirejs plugins happy.
+                plugin.load(parsed.bareId, requirejs, loaded => {
+                  userSpace.define(mId, [], () => loaded);
+                  resolve(userSpace.req(mId));
+                }, {});
+              });
             });
-          });
+          }
+        } else if (parsed.ext && parsed.ext !== '.js') {
+          const extPluginName = 'ext:' + parsed.ext.substring(1);
+          if (userSpace.has(extPluginName) || packageSpace.has(extPluginName)) {
+            return new Promise((resolve, reject) => {
+              requirejs([extPluginName], plugin => {
+                // Call requirejs plugin api load(name, require, load, options)
+                // Options set to {} just to make existing requirejs plugins happy.
+                plugin.load(parsed.cleanId, requirejs, loaded => {
+                  userSpace.define(mId, [], () => loaded);
+                  resolve(userSpace.req(mId));
+                }, {});
+              });
+            });
+          }
         }
         return runtimeReq(mId);
       }

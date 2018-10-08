@@ -680,6 +680,38 @@ test('requirejs uses plugin module to load', t => {
   );
 });
 
+test('requirejs uses ext:plugin module to load', t => {
+  define.reset();
+
+  const injected = [];
+  function injectCss(v) {
+    injected.push(v);
+  }
+
+  define('text!foo.css', 'lorem');
+  define('ext:css', {
+    load: (name, req, load) => {
+      req(['text!' + name], v => {
+        injectCss(v);
+        load(v);
+      });
+    }
+  });
+
+  requirejs(['foo.css'],
+    r => {
+      t.deepEqual(injected, ['lorem']);
+      t.ok(requirejs.defined('foo.css'));
+      t.ok(requirejs.defined('text!foo.css'));
+      t.end();
+    },
+    err => {
+      t.fail(err.stack);
+      t.end();
+    }
+  );
+});
+
 test('requirejs uses plugin module to load when plugin is in package space', t => {
   define.reset();
 
@@ -696,6 +728,39 @@ test('requirejs uses plugin module to load when plugin is in package space', t =
       t.equal(r, 6);
       t.ok(requirejs.defined('foo'));
       t.ok(requirejs.defined('plus-one!foo'));
+      t.end();
+    },
+    err => {
+      t.fail(err.stack);
+      t.end();
+    }
+  );
+});
+
+test('requirejs uses ext:plugin module to load when plugin is in package space', t => {
+  define.reset();
+
+  const injected = [];
+  function injectCss(v) {
+    injected.push(v);
+  }
+
+  define('text!foo.css', 'lorem');
+  define.switchToPackageSpace();
+  define('ext:css', {
+    load: (name, req, load) => {
+      req(['text!' + name], v => {
+        injectCss(v);
+        load(v);
+      });
+    }
+  });
+
+  requirejs(['foo.css'],
+    r => {
+      t.deepEqual(injected, ['lorem']);
+      t.ok(requirejs.defined('foo.css'));
+      t.ok(requirejs.defined('text!foo.css'));
       t.end();
     },
     err => {
@@ -761,3 +826,37 @@ test('requirejs uses plugin module to load runtime case2', t => {
   );
 });
 
+test('requirejs uses ext:plugin module to load runtime', t => {
+  define.reset();
+
+  mockFetchApi({
+    'foo.css': 'lorem'
+  });
+
+  const injected = [];
+  function injectCss(v) {
+    injected.push(v);
+  }
+
+  define('ext:css', {
+    load: (name, req, load) => {
+      req(['text!' + name], v => {
+        injectCss(v);
+        load(v);
+      });
+    }
+  });
+
+  requirejs(['foo.css'],
+    r => {
+      t.deepEqual(injected, ['lorem']);
+      t.ok(requirejs.defined('foo.css'));
+      t.ok(requirejs.defined('text!foo.css'));
+      t.end();
+    },
+    err => {
+      t.fail(err.stack);
+      t.end();
+    }
+  );
+});
