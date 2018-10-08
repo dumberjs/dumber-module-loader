@@ -31,7 +31,7 @@ dumber-module-loader is a loose [AMD](https://github.com/amdjs/amdjs-api) implem
     req(['text!' + name], text => load(text));
   }});
   ```
-  - note, our default css support is same as html support. By default, it doesn't inject style sheet to html head. dumber bundler has an optional to override default `'ext:css'` plugin to support style sheet injection.
+  - note, our default css support is same as html support. By default, it doesn't inject style sheet to html head. dumber bundler has an option to override default `'ext:css'` plugin to support style sheet injection.
   - you can supply an ext plugin for '.js' files for runtime loaded module, for example using babel transpiler at runtime.
 
 ## Difference from requirejs:
