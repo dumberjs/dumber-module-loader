@@ -49,10 +49,12 @@ const userSpaceTesseract = {
             return new Promise((resolve, reject) => {
               const req = (deps, callback, errback) => {
                 const errback2 = e => {
-                  try {
-                    if (errback) errback(e);
-                  } catch (err) {
-                    // ignore
+                  if (errback) {
+                    try {
+                      errback(e);
+                    } catch (err) {
+                      // ignore
+                    }
                   }
                   reject(e);
                 };
@@ -78,10 +80,12 @@ const userSpaceTesseract = {
             return new Promise((resolve, reject) => {
               const req = (deps, callback, errback) => {
                 const errback2 = e => {
-                  try {
-                    if (errback) errback(e);
-                  } catch (err) {
-                    // ignore
+                  if (errback) {
+                    try {
+                      errback(e);
+                    } catch (err) {
+                      // ignore
+                    }
                   }
                   reject(e);
                 };
