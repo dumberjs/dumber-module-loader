@@ -7,7 +7,7 @@ dumber-module-loader is a loose [AMD](https://github.com/amdjs/amdjs-api) implem
 ## Our violation of AMD spec:
 
 * AMD spec doesn't allow defining relative module `define('../package.json', ...)`. We allow it, this is to support `'../package.json'` that could be required by `src/app.js`. We say module id `'../package.json'` is above surface.
-* only support plugin's `load()` function, doesn't support `normalize()` function, doesn't support `load.fromText()` function (not in spec, but some requirejs plugins use it). Note we support traditional `text!` and `json!` plugins out of the box. But plugins are considered legacy, use translators (see below) as much as possible.
+* only support plugin's `load()` function, doesn't support `normalize()` function, doesn't support `load.fromText()` function (not in spec, but some requirejs plugins use it). Note we support traditional `text!` and `json!` plugins out of the box.
 
 ## Our touch on AMD:
 
@@ -19,14 +19,24 @@ dumber-module-loader is a loose [AMD](https://github.com/amdjs/amdjs-api) implem
   - module in `package` space can only acquire `package` modules.
   - both `user` and `package` space can contain module with the same id. This is designed to avoid local `src/util.js` over-shadowing Node.js core module `util`.
 * full support of Node.js circular dependencies (for some npm packages like [yallist](https://github.com/isaacs/yallist)). Requirejs supports some circular scenarios, but still fails at yallist, we don't.
-* support translator, to transpile, transform raw content
-  - by default, dumber-module-loader ships with translators for js/json/html/svg/css/wasm (wasm TBD).
-  - default transolators support traditional text! and json! plugins. Note we didn't use traditional plugin module (with `load()` function) to implement traditional text! and json! plugins.
-  - [TBD] dumber-babel-translator brings babel at runtime
+* besides normal plugin, we support ext plugin which targets ext name.
+  - by default, dumber-module-loader ships with ext plugins for json/html/svg/css/wasm (wasm TBD).
+  - all ext plugins should resolve the underneath content using one of our three predefined plugins: `text!`, `json!`, and `raw!`.
+  - `text!some.fie` will resolve to fetch API `reponse.text()`.
+  - `json!some.fie` will resolve to fetch API `reponse.json()`.
+  - `raw!some.fie` will resolve to fetch API `reponse`, note the result is a promise, not final value.
+  - for instance, our default html support is implemented as
+  ```js
+  define('ext:html', {load: function(name, req, load) {
+    req(['text!' + name], text => load(text));
+  }});
+  ```
+  - note, our default css support is same as html support. By default, it doesn't inject style sheet to html head. dumber bundler has an optional to override default `'ext:css'` plugin to support style sheet injection.
+  - you can supply an ext plugin for '.js' files for runtime loaded module, for example using babel transpiler at runtime.
 
 ## Difference from requirejs:
 * no multi-contexts.
-* only supports config on `baseUrl`, `paths`, `bundles` and `translators`.
+* only supports config on `baseUrl`, `paths`, and `bundles`.
 * `data-main` attribute on script tag doesn't affect `baseUrl`, `data-main` is purely a module id.
 * `paths` support is simplified.
   - supports absolute path like `"foo": "/foo"`
@@ -41,7 +51,7 @@ dumber-module-loader is a loose [AMD](https://github.com/amdjs/amdjs-api) implem
     // we resolves './bar' to 'common/bar'.
   });
   ```
-* no automatic commonjs wrapping at runtime module fetching. For any module loaded remotely at runtime, we only support AMD anonymous module format, unless you supply a translator to deal with the raw content.
+* no automatic commonjs wrapping at runtime module fetching. For any module loaded remotely at runtime, we only support AMD anonymous module format, unless you supply a plugin to deal with the raw content.
 * `bundles` config is different, it needs two arrays, `'user'` and `'package'` for the two module spaces.
   - for example, `{"a-bundle": {"user": ['a', 'b'], "package": ["lodash", "jquery"]}}`.
   - if no module in `package` space, it can be written in requirejs compatible format, `{"a-bundle": ['a', 'b']}`.
@@ -119,10 +129,6 @@ bundles: {
   app-bundle: ['app', 'app.html', 'util', 'common/index']
 }
 ```
-
-##### 4. optional `translators`
-
-TBD. Design may change.
 
 ### `requirejs.definedValues()`
 
