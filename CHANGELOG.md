@@ -1,3 +1,14 @@
+<a name="0.10.0"></a>
+# [0.10.0](https://github.com/huochunpeng/dumber-module-loader/compare/v0.9.1...v0.10.0) (2018-10-08)
+
+
+### Features
+
+* implement default json/html/svg/css/wasm handler in ext plugins ([330313c](https://github.com/huochunpeng/dumber-module-loader/commit/330313c))
+* support ext plugin like 'ext:css' ([a23b677](https://github.com/huochunpeng/dumber-module-loader/commit/a23b677))
+
+
+
 <a name="0.9.1"></a>
 ## [0.9.1](https://github.com/huochunpeng/dumber-module-loader/compare/v0.9.0...v0.9.1) (2018-10-07)
 
