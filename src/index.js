@@ -424,6 +424,8 @@ function loadText(name, req, load) {
   req(['text!' + name], load);
 }
 
+const textExtPlugin = {load: loadText};
+
 // TODO support wasm
 // how to know what kind of importObject the wasm file needs?
 function loadWasm(name, req, load) {
@@ -446,16 +448,19 @@ function reset() {
 
   define('ext:json', {
     load(name, req, load) {
-      req(['json!' + name], load);
+      req(['text!' + name], text => load(JSON.parse(text)));
     }
   });
 
-  define('ext:html', {load: loadText});
-
-  define('ext:svg', {load: loadText});
+  define('ext:html', textExtPlugin);
+  define('ext:htm', textExtPlugin);
+  define('ext:md', textExtPlugin);
+  define('ext:svg', textExtPlugin);
+  define('ext:yml', textExtPlugin);
+  define('ext:yaml', textExtPlugin);
 
   // by default, directly loading css file doesn't inject style
-  define('ext:css', {load: loadText});
+  define('ext:css', textExtPlugin);
   // to inject style with `import 'some.css';`
   // requirejs.undef('ext:css')
   // define('ext:css', {load: implement_inject_style})
