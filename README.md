@@ -4,61 +4,63 @@ A modern module loader, designed to work with the [dumber](https://github.com/hu
 
 dumber-module-loader is a loose [AMD](https://github.com/amdjs/amdjs-api) implementation, does not strictly follow the [AMD](https://github.com/amdjs/amdjs-api) spec.
 
-## Our violation of AMD spec:
+## Our violation on AMD spec:
 
-* AMD spec doesn't allow defining relative module `define('../package.json', ...)`. We allow it, this is to support `'../package.json'` that could be required by `src/app.js`. We say module id `'../package.json'` is above surface.
-* only support plugin's `load()` function, doesn't support `normalize()` function, doesn't support `load.fromText()` function (not in spec, but some requirejs plugins use it). Note we support traditional `text!` and `json!` plugins out of the box.
+* AMD spec doesn't allow defining relative module name `define('../package.json', ...)`. We allow it. This is to support dependency `'../package.json'` that could be required by `src/app.js`. We say module id `'../package.json'` is above surface.
+* Only supports plugin's `load()` function, doesn't support `normalize()` function, doesn't support `load.fromText()` function (not in spec, but some requirejs plugins use it). Note we support traditional `text!` and `json!` plugins out of the box.
 
 ## Our touch on AMD:
 
-* mimic Node.js module resolving behaviour so dumber bundler can do less work.
-  - in Node.js, `require('foo/bar')` could load file `foo/bar`, `foo/bar.js`, 'foo/bar.json', 'foo/bar/index.js', or 'foo/bar/index.json'.
+* Mimic Node.js module resolving behaviour so dumber bundler can do less work.
+  - `require('foo/bar')` could load module `foo/bar`, `foo/bar.js`, `foo/bar.json`, `foo/bar/index.js`, or `foo/bar/index.json`.
+  - if there is a `package.json` file in folder `foo/bar/`, it can load file `foo/bar/resolved/main.js`, dumber will build an alias `foo/bar/index` to `foo/bar/resolved/main.js`.
   - we skipped `foo/bar.node` and `foo/bar/index.node` because them are binary file only works in Node.js.
-* two name spaces: `user` (default, for local source file) and `package` (for npm packages and local packages).
+* Two name spaces: `user` (default, for local source file) and `package` (for npm packages and local packages).
   - module in `user` space can acquire `user` or `package` modules.
   - module in `package` space can only acquire `package` modules.
   - both `user` and `package` space can contain module with the same id. This is designed to avoid local `src/util.js` over-shadowing Node.js core module `util`.
-* full support of Node.js circular dependencies (for some npm packages like [yallist](https://github.com/isaacs/yallist)). Requirejs supports some circular scenarios, but still fails at yallist, we don't.
-* besides normal plugin, we support ext plugin which targets ext name.
+* Full support of Node.js circular dependencies (for packages like [yallist](https://github.com/isaacs/yallist)).
+* Besides normal plugin, we support ext plugin which targets ext name.
   - by default, dumber-module-loader ships with ext plugins for json/html/svg/css/wasm (wasm TBD).
   - all ext plugins should resolve the underneath content using one of our three predefined plugins: `text!`, `json!`, and `raw!`.
-  - `text!some.fie` will resolve to fetch API `reponse.text()`.
-  - `json!some.fie` will resolve to fetch API `reponse.json()`.
+  - `text!some.fie` will resolve to the text content of the file, at runtime it uses fetch API `reponse.text()` to get the content.
+  - `json!some.fie` will resolve to the parsed json, at runtime it uses fetch API `reponse.json()` to parse the content.
   - `raw!some.fie` will resolve to fetch API `reponse`, note the result is a promise, not final value.
   - for instance, our default html support is implemented as
+
   ```js
   define('ext:html', {load: function(name, req, load) {
     req(['text!' + name], text => load(text));
   }});
   ```
   - note, our default css support is same as html support. By default, it doesn't inject style sheet to html head. dumber bundler has an option to override default `'ext:css'` plugin to support style sheet injection.
-  - you can supply an ext plugin for '.js' files for runtime loaded module, for example using babel transpiler at runtime.
 
 ## Difference from requirejs:
-* no multi-contexts.
-* only supports config on `baseUrl`, `paths`, and `bundles`.
+* No multi-contexts.
+* Only supports config on `baseUrl`, `paths`, and `bundles`.
 * `data-main` attribute on script tag doesn't affect `baseUrl`, `data-main` is purely a module id.
 * `paths` support is simplified.
   - supports absolute path like `"foo": "/foo"`
-  - supports normal `"foo": "common/foo"`, resolve `foo/bar/lo` to `common/foo/bar/lo`. Note we treat `common/foo/bar/lo` as the real module id, it could result to an existing known module, or through remote fetch.
+  - supports normal `"foo": "common/foo"`, resolve `foo/bar/lo` to `common/foo/bar/lo`. Note we treat `common/foo/bar/lo` as the real module id, it could result to an existing known module, otherwise go through remote fetch.
   - doesn't support `"foo": ["common/foo", "shared/foo"]` the fail-over array.
-  - relative module resolution is simplified, it's a breaking change. We changed the behaviour because we think our behaviour is less surprising.
-  ```js
-  define('common/foo', ['./bar'], function (bar) { /* ... */ });
-  requirejs.config({paths: {'foo': 'common/foo'}});
-  requirejs(['foo'], function (foo) {
-    // requirejs resolves './bar' to 'bar',
-    // we resolves './bar' to 'common/bar'.
-  });
-  ```
-* no automatic commonjs wrapping at runtime module fetching. For any module loaded remotely at runtime, we only support AMD anonymous module format, unless you supply a plugin to deal with the raw content.
+  - relative module resolution is simplified. This is a breaking change. We changed the behaviour because we think our behaviour is less surprising.
+
+```js
+define('common/foo', ['./bar'], function (bar) { /* ... */ });
+requirejs.config({paths: {'foo': 'common/foo'}});
+requirejs(['foo'], function (foo) {
+  // requirejs resolves './bar' to 'bar',
+  // we resolves './bar' to 'common/bar'.
+});
+```
+* No automatic commonjs wrapping for runtime fetched module. For any module loaded remotely at runtime, we only support AMD anonymous module format, unless you supply a plugin to deal with the raw content.
 * `bundles` config is different, it needs two arrays, `'user'` and `'package'` for the two module spaces.
   - for example, `{"a-bundle": {"user": ['a', 'b'], "package": ["lodash", "jquery"]}}`.
   - if no module in `package` space, it can be written in requirejs compatible format, `{"a-bundle": ['a', 'b']}`.
 * `require([...], callback, errback)` doesn't support optional config, errback only gets one error object.
-* we only support browser/Worker/Node.js environments, didn't test on Rhino or any other environments.
-* note there is no support of config of `package` or `map`.
-* there is no support of shim. Shim is all done by dumber bundler.
+* We only support browser/Worker/Node.js environments, didn't test on Rhino or any other environments.
+* Note there is no support of `package` or `map` config.
+* There is no support of shim. Shim is all done by dumber bundler.
 
 ## API
 
