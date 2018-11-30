@@ -1,3 +1,12 @@
+## [0.10.2](https://github.com/huochunpeng/dumber-module-loader/compare/v0.10.1...v0.10.2) (2018-11-30)
+
+
+### Bug Fixes
+
+* fix missed sync module loading when using commonjs require() ([59e319f](https://github.com/huochunpeng/dumber-module-loader/commit/59e319f))
+
+
+
 ## [0.10.1](https://github.com/huochunpeng/dumber-module-loader/compare/v0.10.0...v0.10.1) (2018-11-30)
 
 
