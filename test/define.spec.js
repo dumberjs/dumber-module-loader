@@ -104,6 +104,25 @@ test('user space module can access package space module', t => {
   );
 });
 
+test('user space module can access package space module through cjs require', t => {
+  define.reset();
+
+  define('foo', ['require', 'bar'], req => req('bar')('HELLO'));
+  define.switchToPackageSpace();
+  define('bar', () => (s => s.toLowerCase()));
+
+  requirejs(['foo'],
+    result => {
+      t.equal(result, 'hello');
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      t.end();
+    }
+  );
+});
+
 test('package space module can not access user space module', t => {
   mockFetchApi();
   define.reset();

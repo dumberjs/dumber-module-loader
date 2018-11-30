@@ -200,18 +200,26 @@ export default function(tesseract) {
       // as circular dependency cannot be pro-actively detected.
       if (_promoting.hasOwnProperty(mId)) return _promoting[mId].exports;
 
+      // try synchronous load the missing module at runtime.
+      // it is very important for commonjs circular dependency.
+      // this can happen when
+      // 1. circular dependency is pro-actively detected.
+      // 2. some define call deliberately leaves out some dep,
+      // in order for it to be required at code running time.
+      let syncLoad;
       if (registered(mId)) {
-        // try synchronous load the missing module at runtime.
-        // it is very important for commonjs circular dependency.
-        // this can happen when
-        // 1. circular dependency is pro-actively detected.
-        // 2. some define call deliberately leaves out some dep,
-        // in order for it to be required at code running time.
-        const result = req(mId);
-        if (result && typeof result.then === 'function') {
+        // check current space first
+        syncLoad = req(mId);
+      } else {
+        // then try sync load from tesseract
+        syncLoad = tesseract.req(mId);
+      }
+
+      if (syncLoad) {
+        if (syncLoad && typeof syncLoad.then === 'function') {
           throw new Error(`module "${mId}" cannot be resolved synchronously.`);
         }
-        return result;
+        return syncLoad;
       }
 
       throw new Error(`module "${mId}" is not prepared.`);
