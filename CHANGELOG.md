@@ -1,3 +1,7 @@
+## [0.10.1](https://github.com/huochunpeng/dumber-module-loader/compare/v0.10.0...v0.10.1) (2018-11-30)
+
+
+
 <a name="0.10.0"></a>
 # [0.10.0](https://github.com/huochunpeng/dumber-module-loader/compare/v0.9.1...v0.10.0) (2018-10-08)
 
