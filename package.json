@@ -18,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/huochunpeng/dumber-module-loader.git"
+    "url": "https://github.com/dumberjs/dumber-module-loader"
   },
   "keywords": [
     "dumber",
@@ -28,9 +28,9 @@
   "author": "Chunpeng Huo",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/huochunpeng/dumber-module-loader/issues"
+    "url": "https://github.com/dumberjs/dumber-module-loader/issues"
   },
-  "homepage": "https://github.com/huochunpeng/dumber-module-loader#readme",
+  "homepage": "https://github.com/dumberjs/dumber-module-loader#readme",
   "devDependencies": {
     "@babel/core": "^7.1.6",
     "@babel/preset-env": "^7.1.6",

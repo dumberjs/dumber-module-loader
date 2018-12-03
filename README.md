@@ -1,8 +1,10 @@
 # dumber-module-loader
 
-A modern module loader, designed to work with the [dumber](https://github.com/huochunpeng/dumber).
+A modern module loader, used by [dumber](https://github.com/dumberjs/dumber) bundler internally.
 
 dumber-module-loader is a loose [AMD](https://github.com/amdjs/amdjs-api) implementation, does not strictly follow the [AMD](https://github.com/amdjs/amdjs-api) spec.
+
+For users of dumber bundler, you only need to know that the internal module loader is an AMD loader, similar to requirejs. The good old AMD gives dumber bundler intuitive code splitting, and flexible runtime composition.
 
 ## Our violation on AMD spec:
 
@@ -14,14 +16,13 @@ dumber-module-loader is a loose [AMD](https://github.com/amdjs/amdjs-api) implem
 * Mimic Node.js module resolving behaviour so dumber bundler can do less work.
   - `require('foo/bar')` could load module `foo/bar`, `foo/bar.js`, `foo/bar.json`, `foo/bar/index.js`, or `foo/bar/index.json`.
   - if there is a `package.json` file in folder `foo/bar/`, it can load file `foo/bar/resolved/main.js`, dumber will build an alias `foo/bar/index` to `foo/bar/resolved/main.js`.
-  - we skipped `foo/bar.node` and `foo/bar/index.node` because them are binary file only works in Node.js.
 * Two name spaces: `user` (default, for local source file) and `package` (for npm packages and local packages).
   - module in `user` space can acquire `user` or `package` modules.
   - module in `package` space can only acquire `package` modules.
   - both `user` and `package` space can contain module with the same id. This is designed to avoid local `src/util.js` over-shadowing Node.js core module `util`.
 * Full support of Node.js circular dependencies (for packages like [yallist](https://github.com/isaacs/yallist), note yallist 3.0.3 has removed circular dependency).
 * Besides normal plugin, we support ext plugin which targets ext name.
-  - by default, dumber-module-loader ships with ext plugins for json/html/svg/css/wasm (wasm TBD).
+  - by default, dumber-module-loader ships with ext plugins for json/html/svg/css/wasm (do not yet support wasm importObjects).
   - all ext plugins should resolve the underneath content using one of our three predefined plugins: `text!`, `json!`, and `raw!`.
   - `text!some.fie` will resolve to the text content of the file, at runtime it uses fetch API `reponse.text()` to get the content.
   - `json!some.fie` will resolve to the parsed json, at runtime it uses fetch API `reponse.json()` to parse the content.
@@ -33,7 +34,7 @@ dumber-module-loader is a loose [AMD](https://github.com/amdjs/amdjs-api) implem
     req(['text!' + name], text => load(text));
   }});
   ```
-  - note, our default css support is same as html support. By default, it doesn't inject style sheet to html head. dumber bundler has an option to override default `'ext:css'` plugin to support style sheet injection.
+  - note, our default css support is just returning the text content, same as our html support. By default, it doesn't inject style sheet to html head. dumber bundler has an option to override default `'ext:css'` plugin to support style sheet injection.
 
 ## Difference from requirejs:
 * No multi-contexts.
