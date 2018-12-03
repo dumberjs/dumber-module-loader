@@ -1,3 +1,12 @@
+# [0.11.0](https://github.com/huochunpeng/dumber-module-loader/compare/v0.10.2...v0.11.0) (2018-12-03)
+
+
+### Features
+
+* use script tag in browser to load bundle, this is only because of sourcemaps ([157cd3f](https://github.com/huochunpeng/dumber-module-loader/commit/157cd3f))
+
+
+
 ## [0.10.2](https://github.com/huochunpeng/dumber-module-loader/compare/v0.10.1...v0.10.2) (2018-11-30)
 
 
