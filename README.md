@@ -1,6 +1,6 @@
 # dumber-module-loader
 
-A modern module loader, used by [dumber](https://github.com/dumberjs/dumber) bundler internally.
+A modern AMD module loader, used by [dumber](https://github.com/dumberjs/dumber) bundler internally.
 
 dumber-module-loader is a loose [AMD](https://github.com/amdjs/amdjs-api) implementation, does not strictly follow the [AMD](https://github.com/amdjs/amdjs-api) spec.
 
