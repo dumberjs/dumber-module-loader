@@ -105,6 +105,11 @@ const userSpaceTesseract = {
               }
             });
           }
+          // else by default use text!
+          return new Promise(resolve => {
+            userSpace.define(parsed.cleanId,['text!' + parsed.cleanId], m => m);
+            resolve(userSpace.req(mId));
+          });
         }
         return runtimeReq(mId);
       }
@@ -441,11 +446,11 @@ function undef(id) {
   // packageSpace.undef(id);
 }
 
-function loadText(name, req, load) {
-  req(['text!' + name], load);
-}
+// function loadText(name, req, load) {
+//   req(['text!' + name], load);
+// }
 
-const textExtPlugin = {load: loadText};
+// const textExtPlugin = {load: loadText};
 
 // Only support wasm without importObject.
 // How to know what kind of importObject the wasm file needs?
@@ -476,15 +481,17 @@ function reset() {
     }
   });
 
-  define('ext:html', textExtPlugin);
-  define('ext:htm', textExtPlugin);
-  define('ext:md', textExtPlugin);
-  define('ext:svg', textExtPlugin);
-  define('ext:yml', textExtPlugin);
-  define('ext:yaml', textExtPlugin);
+  // now it's default to load them with text plugin
+
+  // define('ext:html', textExtPlugin);
+  // define('ext:htm', textExtPlugin);
+  // define('ext:md', textExtPlugin);
+  // define('ext:svg', textExtPlugin);
+  // define('ext:yml', textExtPlugin);
+  // define('ext:yaml', textExtPlugin);
 
   // by default, directly loading css file doesn't inject style
-  define('ext:css', textExtPlugin);
+  // define('ext:css', textExtPlugin);
   // to inject style with `import 'some.css';`
   // requirejs.undef('ext:css')
   // define('ext:css', {load: implement_inject_style})
@@ -551,7 +558,7 @@ requirejs.defined = defined;
 requirejs.isBrowser = isBrowser;
 requirejs.version = version;
 requirejs.undef = undef;
-requirejs.toUrl = toUrl;
+requirejs.toUrl = id => toUrl(mappedId(id));
 
 // support data-main <script data-main="app" src="some-bundle"></script>
 // different from requirejs, the data-main string is treated simply as the main module id.

@@ -641,11 +641,11 @@ test('requirejs.toUrl returns url in requirejs fashion', t => {
   t.equal(requirejs.toUrl('text!foo/bar.html'), 'foo/bar.html');
   t.equal(requirejs.toUrl('foo/bar.min'), 'foo/bar.min.js');
 
-  requirejs.config({baseUrl: '/hello/world'});
+  requirejs.config({baseUrl: '/hello/world', paths: {foo: 'common/foo'}});
   t.equal(requirejs.toUrl('a'), '/hello/world/a.js');
   t.equal(requirejs.toUrl('a.js'), '/hello/world/a.js');
-  t.equal(requirejs.toUrl('text!foo/bar.html'), '/hello/world/foo/bar.html');
-  t.equal(requirejs.toUrl('foo/bar.min'), '/hello/world/foo/bar.min.js');
+  t.equal(requirejs.toUrl('text!foo/bar.html'), '/hello/world/common/foo/bar.html');
+  t.equal(requirejs.toUrl('foo/bar.min'), '/hello/world/common/foo/bar.min.js');
   t.end();
 });
 
