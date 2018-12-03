@@ -1,4 +1,4 @@
-# dumber-module-loader
+# dumber-module-loader [![Build Status](https://travis-ci.org/dumberjs/dumber-module-loader.svg?branch=master)](https://travis-ci.org/dumberjs/dumber-module-loader)
 
 A modern AMD module loader, used by [dumber](https://github.com/dumberjs/dumber) bundler internally.
 
