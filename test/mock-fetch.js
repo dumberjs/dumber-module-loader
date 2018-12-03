@@ -3,9 +3,10 @@ import _global from '../src/_global';
 let originalFetchApi = _global.fetch;
 
 export function mockFetchApi(mock = {}) {
+  _global.define.__skip_script_load_test = true;
   _global.fetch = url => {
     const text = mock[url];
-    if (typeof text !== 'string') {
+    if (!text) {
       return new Promise(resolve => {
         setTimeout(() => {
           resolve({
@@ -32,6 +33,11 @@ export function mockFetchApi(mock = {}) {
             setTimeout(() => {
               resolve(JSON.parse(text));
             });
+          }),
+          arrayBuffer: () => new Promise(resolve => {
+            setTimeout(() => {
+              resolve(text);
+            });
           })
         });
       });
@@ -41,4 +47,5 @@ export function mockFetchApi(mock = {}) {
 
 export function restoreFetchApi() {
   _global.fetch = originalFetchApi;
+  _global.define.__skip_script_load_test = false;
 }

@@ -19,7 +19,7 @@ dumber-module-loader is a loose [AMD](https://github.com/amdjs/amdjs-api) implem
   - module in `user` space can acquire `user` or `package` modules.
   - module in `package` space can only acquire `package` modules.
   - both `user` and `package` space can contain module with the same id. This is designed to avoid local `src/util.js` over-shadowing Node.js core module `util`.
-* Full support of Node.js circular dependencies (for packages like [yallist](https://github.com/isaacs/yallist)).
+* Full support of Node.js circular dependencies (for packages like [yallist](https://github.com/isaacs/yallist), note yallist 3.0.3 has removed circular dependency).
 * Besides normal plugin, we support ext plugin which targets ext name.
   - by default, dumber-module-loader ships with ext plugins for json/html/svg/css/wasm (wasm TBD).
   - all ext plugins should resolve the underneath content using one of our three predefined plugins: `text!`, `json!`, and `raw!`.

@@ -43,9 +43,9 @@ const userSpaceTesseract = {
         const pluginId = parsed.prefix ?
           parsed.prefix.substring(0, parsed.prefix.length - 1) :
           '';
-        // text and json plugins are built-in
+        // text,json,raw plugins are built-in
         if (pluginId) {
-          if (pluginId !== 'text' && pluginId !== 'json') {
+          if (pluginId !== 'text' && pluginId !== 'json' && pluginId !== 'raw') {
             return new Promise((resolve, reject) => {
               const req = (deps, callback, errback) => {
                 const errback2 = e => {
@@ -214,8 +214,9 @@ const _translators = [
 
   // prefix raw!
   (parsedId, response) => {
-    if (parsedId.prefix !== 'text!') return;
-    userSpace.define(parsedId.cleanId, response);
+    if (parsedId.prefix !== 'raw!') return;
+    userSpace.define(parsedId.cleanId, () => response);
+    return Promise.resolve();
   },
 
   // normal AMD module
@@ -446,11 +447,13 @@ function loadText(name, req, load) {
 
 const textExtPlugin = {load: loadText};
 
-// TODO support wasm
-// how to know what kind of importObject the wasm file needs?
+// Only support wasm without importObject.
+// How to know what kind of importObject the wasm file needs?
 function loadWasm(name, req, load) {
   req(['raw!' + name], response => {
-    WebAssembly.instantiateStreaming(response, /*importObject*/)
+    response.arrayBuffer().then(buffer =>
+      WebAssembly.instantiate(buffer, /*importObject*/)
+    )
     .then(obj => {
       load(obj.instance.exports);
     });

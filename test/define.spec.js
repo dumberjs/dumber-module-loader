@@ -3,8 +3,6 @@ import test from 'tape';
 import '../src/index';
 import {mockFetchApi, restoreFetchApi} from './mock-fetch';
 
-define.__skip_script_load_test = true;
-
 test('define exports', t => {
   t.equal(typeof define, 'function');
   t.equal(typeof define.switchToUserSpace, 'function');
@@ -910,7 +908,3 @@ test('requirejs uses ext:plugin module to fail at runtime', t => {
     }
   );
 });
-
-// TODO test wasm
-
-
