@@ -9,7 +9,7 @@
     "prepare": "npm run build",
     "preversion": "npm test",
     "version": "standard-changelog && git add CHANGELOG.md",
-    "postversion": "git push && git push --tags",
+    "postversion": "git push && git push --tags && npm publish",
     "pretest": "npm run lint",
     "nodejs-test": "env BABEL_ENV=test tape -r @babel/register 'test/**/*.spec.js' | tap-dot",
     "browser-test": "env BABEL_ENV=test browserify -t babelify test/all-spec.js | tape-run --static . | tap-dot",
