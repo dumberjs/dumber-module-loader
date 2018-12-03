@@ -1,3 +1,12 @@
+# [0.12.0](https://github.com/huochunpeng/dumber-module-loader/compare/v0.11.0...v0.12.0) (2018-12-03)
+
+
+### Features
+
+* basic support of wasm ([07286c6](https://github.com/huochunpeng/dumber-module-loader/commit/07286c6))
+
+
+
 # [0.11.0](https://github.com/huochunpeng/dumber-module-loader/compare/v0.10.2...v0.11.0) (2018-12-03)
 
 
