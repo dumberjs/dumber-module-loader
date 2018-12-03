@@ -3,6 +3,8 @@ import test from 'tape';
 import '../src/index';
 import {mockFetchApi, restoreFetchApi} from './mock-fetch';
 
+define.__skip_script_load_test = true;
+
 test('define exports', t => {
   t.equal(typeof define, 'function');
   t.equal(typeof define.switchToUserSpace, 'function');
@@ -133,6 +135,7 @@ test('package space module can not access user space module', t => {
   define('a', ['foo/b'], b => b - 1);
 
   t.throws(() => requirejs(['foo/bar']));
+  restoreFetchApi();
   t.end();
 });
 
@@ -179,10 +182,12 @@ test('gets additional user space module from bundle', t => {
   requirejs(['foo/bar'],
     result => {
       t.equal(result, 6);
+      restoreFetchApi();
       t.end();
     },
     err => {
       t.fail(err.message);
+      restoreFetchApi();
       t.end();
     }
   );
@@ -207,12 +212,14 @@ test('gets additional user space module from bundle, stops at bundle error', t =
   });
 
   requirejs(['foo/bar'],
-    result => {
+    () => {
       t.fail('should not succeed');
+      restoreFetchApi();
       t.end();
     },
     err => {
       t.pass(err.message);
+      restoreFetchApi();
       t.end();
     }
   );
@@ -238,10 +245,12 @@ test('gets additional package space module from bundle, supports simplified bund
   requirejs(['foo/bar'],
     result => {
       t.equal(result, 6);
+      restoreFetchApi();
       t.end();
     },
     err => {
       t.fail(err.message);
+      restoreFetchApi();
       t.end();
     }
   );
@@ -267,12 +276,14 @@ test('gets additional package space module from bundle, stops at bundle error', 
   });
 
   requirejs(['foo/bar'],
-    result => {
+    () => {
       t.fail('should not succeed');
+      restoreFetchApi();
       t.end();
     },
     err => {
       t.pass(err.message);
+      restoreFetchApi();
       t.end();
     }
   );
@@ -304,10 +315,12 @@ test('gets additional package space module from bundle, requested from package s
   requirejs(['foo/bar'],
     result => {
       t.equal(result, 6);
+      restoreFetchApi();
       t.end();
     },
     err => {
       t.fail(err.message);
+      restoreFetchApi();
       t.end();
     }
   );
@@ -337,12 +350,14 @@ test('gets additional package space module from bundle, requested from package s
   });
 
   requirejs(['foo/bar'],
-    result => {
+    () => {
       t.fail('should not succeed');
+      restoreFetchApi();
       t.end();
     },
     err => {
       t.pass(err.message);
+      restoreFetchApi();
       t.end();
     }
   );
@@ -377,10 +392,12 @@ test('gets runtime js user space module, with paths', t => {
   requirejs(['foo/bar'],
     result => {
       t.equal(result, 6);
+      restoreFetchApi();
       t.end();
     },
     err => {
       t.fail(err.message);
+      restoreFetchApi();
       t.end();
     }
   );
@@ -396,10 +413,12 @@ test('gets runtime text! user space module', t => {
   requirejs(['text!foo.html'],
     result => {
       t.equal(result, 'lorem');
+      restoreFetchApi();
       t.end();
     },
     err => {
       t.fail(err.message);
+      restoreFetchApi();
       t.end();
     }
   );
@@ -419,26 +438,25 @@ test('gets runtime json! user space module', t => {
 
       requirejs(['foo.json'],
         r2 => {
-          t.deepEqual(result, {a: 1}, 'supports usage without prefix');
+          t.deepEqual(r2, {a: 1}, 'supports usage without prefix');
           t.ok(requirejs.defined('foo.json'));
+          restoreFetchApi();
           t.end();
         },
         err => {
           t.fail(err.message);
+          restoreFetchApi();
           t.end();
         }
       );
     },
     err => {
       t.fail(err.message);
+      restoreFetchApi();
       t.end();
     }
   );
 });
-
-
-// TODO test wasm
-
 
 test('gets runtime json file user space module', t => {
   define.reset();
@@ -454,18 +472,21 @@ test('gets runtime json file user space module', t => {
 
       requirejs(['json!foo.json'],
         r2 => {
-          t.deepEqual(result, {a: 1}, 'supports usage with prefix');
+          t.deepEqual(r2, {a: 1}, 'supports usage with prefix');
           t.ok(requirejs.defined('json!foo.json'));
+          restoreFetchApi();
           t.end();
         },
         err => {
           t.fail(err.message);
+          restoreFetchApi();
           t.end();
         }
       );
     },
     err => {
       t.fail(err.message);
+      restoreFetchApi();
       t.end();
     }
   );
@@ -485,18 +506,21 @@ test('gets runtime html file user space module', t => {
 
       requirejs(['text!foo.html'],
         r2 => {
-          t.equal(result, 'lorem', 'supports usage with prefix');
+          t.equal(r2, 'lorem', 'supports usage with prefix');
           t.ok(requirejs.defined('text!foo.html'));
+          restoreFetchApi();
           t.end();
         },
         err => {
           t.fail(err.message);
+          restoreFetchApi();
           t.end();
         }
       );
     },
     err => {
       t.fail(err.message);
+      restoreFetchApi();
       t.end();
     }
   );
@@ -516,18 +540,21 @@ test('gets runtime svg file user space module', t => {
 
       requirejs(['text!foo.svg'],
         r2 => {
-          t.equal(result, 'lorem', 'supports usage with prefix');
+          t.equal(r2, 'lorem', 'supports usage with prefix');
           t.ok(requirejs.defined('text!foo.svg'));
+          restoreFetchApi();
           t.end();
         },
         err => {
           t.fail(err.message);
+          restoreFetchApi();
           t.end();
         }
       );
     },
     err => {
       t.fail(err.message);
+      restoreFetchApi();
       t.end();
     }
   );
@@ -547,18 +574,21 @@ test('gets runtime css file user space module', t => {
 
       requirejs(['text!foo.css'],
         r2 => {
-          t.equal(result, 'lorem', 'supports usage with prefix');
+          t.equal(r2, 'lorem', 'supports usage with prefix');
           t.ok(requirejs.defined('text!foo.css'));
+          restoreFetchApi();
           t.end();
         },
         err => {
           t.fail(err.message);
+          restoreFetchApi();
           t.end();
         }
       );
     },
     err => {
       t.fail(err.message);
+      restoreFetchApi();
       t.end();
     }
   );
@@ -588,32 +618,36 @@ test('requirejs.undef remove a user space module, demote all module depends on i
           t.equal(r2, '11');
           t.ok(requirejs.defined('foo'));
           t.ok(requirejs.defined('a'));
+          restoreFetchApi();
           t.end();
         },
         err => {
           t.fail(err.stack);
+          restoreFetchApi();
           t.end();
         }
       );
     },
     err => {
       t.fail(err.stack);
+          restoreFetchApi();
       t.end();
     }
   );
 });
 
 test('requirejs.toUrl returns url in requirejs fashion', t => {
-  t.equal(requirejs.toUrl('a'), 'a');
+  define.reset();
+  t.equal(requirejs.toUrl('a'), 'a.js');
   t.equal(requirejs.toUrl('a.js'), 'a.js');
   t.equal(requirejs.toUrl('text!foo/bar.html'), 'foo/bar.html');
-  t.equal(requirejs.toUrl('foo/bar.min'), 'foo/bar.min');
+  t.equal(requirejs.toUrl('foo/bar.min'), 'foo/bar.min.js');
 
   requirejs.config({baseUrl: '/hello/world'});
-  t.equal(requirejs.toUrl('a'), '/hello/world/a');
+  t.equal(requirejs.toUrl('a'), '/hello/world/a.js');
   t.equal(requirejs.toUrl('a.js'), '/hello/world/a.js');
   t.equal(requirejs.toUrl('text!foo/bar.html'), '/hello/world/foo/bar.html');
-  t.equal(requirejs.toUrl('foo/bar.min'), '/hello/world/foo/bar.min');
+  t.equal(requirejs.toUrl('foo/bar.min'), '/hello/world/foo/bar.min.js');
   t.end();
 });
 
@@ -674,7 +708,7 @@ test('requirejs uses ext:plugin module to load', t => {
   });
 
   requirejs(['foo.css'],
-    r => {
+    () => {
       t.deepEqual(injected, ['lorem']);
       t.ok(requirejs.defined('foo.css'));
       t.ok(requirejs.defined('text!foo.css'));
@@ -733,7 +767,7 @@ test('requirejs uses ext:plugin module to load when plugin is in package space',
   });
 
   requirejs(['foo.css'],
-    r => {
+    () => {
       t.deepEqual(injected, ['lorem']);
       t.ok(requirejs.defined('foo.css'));
       t.ok(requirejs.defined('text!foo.css'));
@@ -765,10 +799,12 @@ test('requirejs uses plugin module to load runtime', t => {
       t.ok(requirejs.defined('foo.html'));
       t.ok(requirejs.defined('text!foo.html'));
       t.ok(requirejs.defined('wrap/html!foo.html'));
+      restoreFetchApi();
       t.end();
     },
     err => {
       t.fail(err.message);
+      restoreFetchApi();
       t.end();
     }
   );
@@ -793,10 +829,12 @@ test('requirejs uses plugin module to load runtime case2', t => {
       t.notOk(requirejs.defined('foo.html'));
       t.ok(requirejs.defined('text!foo.html'));
       t.ok(requirejs.defined('wrap/html!foo.html'));
+      restoreFetchApi();
       t.end();
     },
     err => {
       t.fail(err.message);
+      restoreFetchApi();
       t.end();
     }
   );
@@ -825,14 +863,16 @@ test('requirejs uses ext:plugin module to load runtime', t => {
   });
 
   requirejs(['foo.css'],
-    r => {
+    () => {
       t.deepEqual(injected, ['lorem']);
       t.ok(requirejs.defined('foo.css'));
       t.ok(requirejs.defined('text!foo.css'));
+      restoreFetchApi();
       t.end();
     },
     err => {
       t.fail(err.stack);
+      restoreFetchApi();
       t.end();
     }
   );
@@ -858,13 +898,19 @@ test('requirejs uses ext:plugin module to fail at runtime', t => {
   });
 
   requirejs(['foo.css'],
-    r => {
+    () => {
       t.fail('should not pass');
+      restoreFetchApi();
       t.end();
     },
     err => {
       t.pass(err.message);
+      restoreFetchApi();
       t.end();
     }
   );
 });
+
+// TODO test wasm
+
+

@@ -1,4 +1,4 @@
-import {ext, parse, resolveModuleId, relativeModuleId, nodejsIds} from './id-utils';
+import {ext, parse, resolveModuleId, nodejsIds} from './id-utils';
 import serialResults from './serial-results';
 
 const commentRegExp = /\/\*[\s\S]*?\*\/|([^:"'=]|^)\/\/.*$/mg;

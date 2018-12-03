@@ -1,4 +1,4 @@
-const KNOWN_EXTS = ['.js', '.json', '.html', '.htm', '.svg', '.css', '.wasm'];
+const KNOWN_EXTS = ['.js', '.xml', '.txt', '.json', '.html', '.htm', '.svg', '.css', '.wasm'];
 const idMatcher = /^(\S+?!)?(\S+?)\/?$/;
 
 export function cleanPath(path = '') {

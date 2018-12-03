@@ -157,23 +157,22 @@ function mappedId(id) {
 }
 
 // incoming id is already mapped
-function urlsForId(mId) {
+function toUrl(mId) {
   const parsed = parse(mId);
-  const urls = [];
   let url = parsed.bareId;
   if (url[0] !== '/') url = _baseUrl + url;
-  if (!parsed.ext && !(url.length > 3 && url.substring(url.length - 3) === '.js')) {
-    urls.push(url + '.js');
+  if (!parsed.ext) {
+    // no known ext, add .js
+    url += '.js';
   }
-  urls.push(url);
-  return urls;
+  return url;
 }
 
 /*
 different from requirejs bundles
 
 bundles: {
-  app-bundle: {
+  'app-bundle': {
     // note incoming arrays were saved in hash internally {app: 1, 'app.html': 1, ...}
     user: ['app', 'app.html', 'util', 'common/index'],
     package: ['lodash', 'lodash/map', 'util']
@@ -183,7 +182,7 @@ bundles: {
 for bundles only contain user space modules, a simplified config can be used.
 bundles: {
   // still saved in hash internally
-  app-bundle: ['app', 'app.html', 'util', 'common/index']
+  'app-bundle': ['app', 'app.html', 'util', 'common/index']
 }
 */
 let _bundles = {};
@@ -250,18 +249,7 @@ const _fetchUrl = url => {
 // incoming id is already mapped
 // return a promise
 const _fetch = mId => {
-  const urls = urlsForId(mId);
-  const len = urls.length;
-
-  if (len === 1) return _fetchUrl(urls[0]);
-
-  // only 2 urls available, foo.min.js, foo.min
-
-  return _fetchUrl(urls[0]).catch(err0 =>
-    _fetchUrl(urls[1]).catch(err1 => {
-      throw new Error(err0.message + '\n' + err1.message);
-    })
-  );
+  return _fetchUrl(toUrl(mId));
 };
 
 // incoming id is already mapped
@@ -281,7 +269,7 @@ function runtimeReq(mId) {
   })
   .then(() => {
     if (userSpace.has(parsed.cleanId)) return userSpace.req(parsed.cleanId);
-    throw new Error(`module "${parsed.cleanId}" is missing from url "${JSON.stringify(urlsForId(mId))}"`);
+    throw new Error(`module "${parsed.cleanId}" is missing from url "${toUrl(mId)}"`);
   });
 }
 
@@ -325,14 +313,47 @@ function packageReqFromBundle(mId) {
   throw err;
 }
 
+let _urlLoaded = {};
 // return a promise
 function loadBundle(bundleName) {
-  return _fetch(mappedId(bundleName))
+  const mappedBundleName = mappedId(bundleName);
+  const url = toUrl(mappedBundleName);
+  if (_urlLoaded[url]) return Promise.resolve();
+  _urlLoaded[url] = true;
+
+  // I really hate this.
+  // Use script tag, not fetch, only to support sourcemaps.
+  // And I don't know what to mock it up, so __skip_script_load_test
+  if (isBrowser && !define.__skip_script_load_test) {
+    return new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.setAttribute('data-requiremodule', mappedBundleName);
+      script.type = 'text/javascript';
+      script.charset = 'utf-8';
+      script.async = true;
+      script.addEventListener('load', resolve);
+      script.addEventListener('error', reject);
+      script.src = url;
+
+      // If the script is cached, IE10 executes the script body and the
+      // onload handler synchronously here.  That's a spec violation,
+      // so be sure to do this asynchronously.
+      if (document.documentMode === 10) {
+        setTimeout(() => {
+          document.head.appendChild(script);
+        });
+      } else {
+        document.head.appendChild(script);
+      }
+    });
+  }
+
+  // in nodejs or web worker
+  return _fetch(mappedBundleName)
   .then(response => response.text())
   .then(text => {
     // ensure default user space
     // the bundle itself may switch to package space in middle of the file
-    switchToUserSpace();
     (new Function(text))();
   });
 }
@@ -379,7 +400,7 @@ function requirejs(deps, callback, errback) {
     }
 
     return requirejs.apply(null, arguments);
-  };
+  }
 
   requireFunc.toUrl = toUrl;
 
@@ -394,20 +415,19 @@ function requirejs(deps, callback, errback) {
 
   const errHandler = err => {
     if (errback) return errback(err);
-    else console.error(err);
+    else console.error(err); // eslint-disable-line no-console
   };
-
 
   if (depValues && typeof depValues.then === 'function') {
     // asynchronous callback
     return depValues.then(finalize, errHandler);
-  } else {
-    // synchronous callback
-    try {
-      return finalize(depValues);
-    } catch (err) {
-      errHandler(err);
-    }
+  }
+
+  // synchronous callback
+  try {
+    return finalize(depValues);
+  } catch (err) {
+    errHandler(err);
   }
 }
 
@@ -441,6 +461,7 @@ function reset() {
   _baseUrl = '';
   _paths = {};
   _bundles = {};
+  _urlLoaded = {};
 
   userSpace.purge();
   packageSpace.purge();
@@ -513,11 +534,6 @@ function arrayToHash(arr) {
 }
 
 const isBrowser = !!(typeof _global.navigator !== 'undefined' && typeof _global.document !== 'undefined');
-
-function toUrl(id) {
-  const urls = urlsForId(id);
-  return urls.pop();
-};
 
 define.switchToUserSpace = switchToUserSpace;
 define.switchToPackageSpace = switchToPackageSpace;
