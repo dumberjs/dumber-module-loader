@@ -1,3 +1,17 @@
+# [0.14.0](https://github.com/dumberjs/dumber-module-loader/compare/v0.13.0...v0.14.0) (2018-12-04)
+
+
+### Bug Fixes
+
+* **test:** fix amdjs-tests result check ([3143e0b](https://github.com/dumberjs/dumber-module-loader/commit/3143e0b))
+
+
+### Features
+
+* simplify default ext plugin implementation, use text plugin to load by default ([21f836b](https://github.com/dumberjs/dumber-module-loader/commit/21f836b))
+
+
+
 # [0.13.0](https://github.com/dumberjs/dumber-module-loader/compare/v0.12.0...v0.13.0) (2018-12-03)
 
 
