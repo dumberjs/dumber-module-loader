@@ -112,11 +112,15 @@ automatically, again for Travis-CI.
         window.clearTimeout(globalTimeout);
         travisResult.innerHTML = 'pass';
         document.body.appendChild(travisResult);
+        console.log('#test: pass');
+      }
+
+      if (expectedDone <= 0 && failed) {
+        console.log('#test: fail');
       }
     }
   };
 
-  // do an autorun if enabled by query string
   window.setTimeout(function() {
     runTests();
   }, 10);

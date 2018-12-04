@@ -13,8 +13,8 @@
     "pretest": "npm run lint",
     "nodejs-test": "env BABEL_ENV=test tape -r @babel/register 'test/**/*.spec.js' | tap-dot",
     "browser-test": "env BABEL_ENV=test browserify -t babelify test/all-spec.js | tape-run --static . | tap-dot",
-    "amdjs-test": "npm run build && node amdjs-tests/server/server.js",
-    "test": "npm run nodejs-test && npm run browser-test"
+    "amdjs-test": "node amdjs-run",
+    "test": "npm run nodejs-test && npm run browser-test && npm run amdjs-test"
   },
   "repository": {
     "type": "git",
@@ -37,6 +37,7 @@
     "@babel/register": "^7.0.0",
     "babel-eslint": "^10.0.1",
     "babelify": "^10.0.0",
+    "browser-run": "^5.0.0",
     "browserify": "^16.2.3",
     "eslint": "^5.9.0",
     "express": "^4.16.4",

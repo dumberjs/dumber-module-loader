@@ -2,24 +2,25 @@
 <html>
 <head>
   <title>AMD Test Suite</title>
-  <link rel="stylesheet" href="/util/all.css" />
+  <link rel="stylesheet" href="/mock/util/all.css" />
 </head>
 <body class="has-tests">
-  <script src="/dumber-module-loader.js"></script>
-  <script src="/config.js"></script>
+  <script src="/reporter.js"></script>
+  <script src="/mock/dumber-module-loader.js"></script>
+  <script src="/mock/config.js"></script>
 
   <h2>Tests</h2>
 
   <ul id="tests">
     <li>Anonymous Tests
       <ul>
-        <li class="anon" id="anon_circular"><a href="/tests/anon_circular/test.html">
+        <li class="anon" id="anon_circular"><a href="/mock/tests/anon_circular/test.html">
           anon_circular: test for circular references in anonymous modules
         </a></li>
-        <li class="anon" id="anon_relative"><a href="/tests/anon_relative/test.html">
+        <li class="anon" id="anon_relative"><a href="/mock/tests/anon_relative/test.html">
           anon_relative: test for relative module ids in anonymous modules
         </a></li>
-        <li class="anon" id="anon_simple"><a href="/tests/anon_simple/test.html">
+        <li class="anon" id="anon_simple"><a href="/mock/tests/anon_simple/test.html">
           anon_simple: basic AMD functionality for anonymous modules
         </a></li>
       </ul>
@@ -27,22 +28,22 @@
 
     <li>Basic Tests
       <ul>
-        <li class="basic" id="basic_circular"><a href="/tests/basic_circular/test.html">
+        <li class="basic" id="basic_circular"><a href="/mock/tests/basic_circular/test.html">
           basic_circular: basic AMD functionality for named AMD modules
         </a></li>
-        <li class="basic" id="basic_define"><a href="/tests/basic_define/test.html">
+        <li class="basic" id="basic_define"><a href="/mock/tests/basic_define/test.html">
           basic_define: ensure define and define.amd are working properly
         </a></li>
-        <li class="basic" id="basic_require"><a href="/tests/basic_require/test.html">
+        <li class="basic" id="basic_require"><a href="/mock/tests/basic_require/test.html">
           basic_require: ensure the AMD require() interface is working properly
         </a></li>
-        <li class="basic" id="basic_simple"><a href="/tests/basic_simple/test.html">
+        <li class="basic" id="basic_simple"><a href="/mock/tests/basic_simple/test.html">
           basic_simple: amd simple includes for named AMD modules
         </a></li>
-        <li class="basic" id="basic_empty_deps"><a href="/tests/basic_empty_deps/test.html">
+        <li class="basic" id="basic_empty_deps"><a href="/mock/tests/basic_empty_deps/test.html">
           basic_empty_deps: [] should imply no dependencies, while an empty "dependencies" variable defaults to require, exports, module
         </a></li>
-        <li class="basic" id="basic_no_deps"><a href="/tests/basic_no_deps/test.html">
+        <li class="basic" id="basic_no_deps"><a href="/mock/tests/basic_no_deps/test.html">
           basic_no_deps: [] should imply no dependencies, while an empty "dependencies" variable defaults to require, exports, module
         </a></li>
       </ul>
@@ -50,7 +51,7 @@
 
     <li>funcString and CommonJS
       <ul>
-        <li class="funcString" id="cjs_define"><a href="/tests/cjs_define/test.html">
+        <li class="funcString" id="cjs_define"><a href="/mock/tests/cjs_define/test.html">
           cjs_define: tests for anonymous wrapped CommonJS Modules
         </a> (modified _test.js)</li>
       </ul>
@@ -58,7 +59,7 @@
 
     <li>named define() and CommonJS
       <ul>
-        <li class="namedWrapped" id="cjs_named"><a href="/tests/cjs_named/test.html">
+        <li class="namedWrapped" id="cjs_named"><a href="/mock/tests/cjs_named/test.html">
           cjs_named: tests for named wrapped CommonJS Modules
         </a></li>
       </ul>
@@ -66,7 +67,7 @@
 
     <li>"paths" in config (DRAFT)
       <ul>
-        <li class="pathsConfig" id="config_paths"><a href="/tests/config_paths/test.html">
+        <li class="pathsConfig" id="config_paths"><a href="/mock/tests/config_paths/test.html">
           config_paths: test for the "path" functionality of Common Config
         </a></li>
       </ul>
@@ -74,13 +75,13 @@
 
     <li>Plugin Support
       <ul>
-        <li class="plugins" id="plugin_double"><a href="/tests/plugin_double/test.html">
+        <li class="plugins" id="plugin_double"><a href="/mock/tests/plugin_double/test.html">
           plugin_double: test the double include of plugins
         </a></li>
       </ul>
     </li>
   </ul>
 
-  <script src="/util/all.js"></script>
+  <script src="/mock/util/all.js"></script>
 </body>
 </html>

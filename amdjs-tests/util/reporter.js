@@ -47,8 +47,7 @@
       if (window.top.amdJSSignal) {
         if (type === 'fail') {
           window.top.amdJSSignal.fail(message);
-        }
-        else if (type === 'done') {
+        } else if (type === 'done') {
           window.top.amdJSSignal.done(fullMessage);
         }
       }
