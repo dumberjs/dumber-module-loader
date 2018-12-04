@@ -12,11 +12,12 @@ const server = browserRun(opts);
 
 const detectFinish = new Writable({
   write(chunk, encoding, callback) {
-    const line = chunk.toString();
-    process.stdout.write(line);
-    if (line.startsWith('#test:')) {
-      process.stdout.write('finish ' + line + '\n');
-      result = line.substring(6).trim();
+    const lines = chunk.toString();
+    process.stdout.write(lines);
+    const check = lines.match(/#test: (\w+)/);
+    if (check) {
+      result = check[1];
+      process.stdout.write('amdjs-tests ' + result + '\n');
       done();
     }
     callback();
