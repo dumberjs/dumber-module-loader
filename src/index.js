@@ -41,7 +41,7 @@ const userSpaceTesseract = {
       if (err && err.__unkown === mId) {
         const parsed = parse(mId);
         const pluginId = parsed.prefix ?
-          parsed.prefix.substring(0, parsed.prefix.length - 1) :
+          parsed.prefix.slice(0, -1) :
           '';
         // text,json,raw plugins are built-in
         if (pluginId) {

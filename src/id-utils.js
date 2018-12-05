@@ -19,7 +19,7 @@ const idMatcher = /^(\S+?!)?(\S+?)\/?$/;
 export function cleanPath(path = '') {
   let clean = path.trim();
   if (clean.length && clean[clean.length - 1] === '/') {
-    clean = clean.substring(0, clean.length - 1);
+    clean = clean.slice(0, -1);
   }
   return clean;
 }
@@ -149,7 +149,7 @@ export function nodejsIds(id) {
   const ids = [parsed.cleanId];
 
   if (parsed.ext === '.js') {
-    const trimed = parsed.cleanId.substring(0, parsed.cleanId.length - 3);
+    const trimed = parsed.cleanId.slice(0, -3);
     ids.push(trimed);
   } else if (!parsed.ext) {
     ids.push(parsed.cleanId + '.js');
