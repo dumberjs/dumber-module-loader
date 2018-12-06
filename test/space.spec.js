@@ -515,7 +515,7 @@ test('space.req fails tesseract.req with commonjs wrapper asynchronously', t => 
 test('space.req supports commonjs wrapper', t => {
   const space = makeSpace(tesseract);
   space.define('foo', ['require', 'exports', 'module', 'a'], new Function('require', 'exports', 'module', `
-    var __filename = module.filename || '', __dirname = __filename.substring(0, __filename.lastIndexOf('/') + 1);
+    var __filename = module.filename || '', __dirname = __filename.slice(0, __filename.lastIndexOf('/') + 1);
     const a = require('a');
     exports.foo = a + 3;
     exports.filename = __filename;

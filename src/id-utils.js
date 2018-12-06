@@ -31,7 +31,7 @@ export function ext(id = '') {
   const last = parts.pop();
   const dotPos = last.lastIndexOf('.');
   if (dotPos !== -1) {
-    const ext = last.substring(dotPos).toLowerCase();
+    const ext = last.slice(dotPos).toLowerCase();
     if (KNOWN_EXTS.indexOf(ext) !== -1) return ext;
   }
   return '';
@@ -172,7 +172,7 @@ export function mapId(id, paths = {}) {
     const parsedKey = parse(k);
     if (parsed.parts.length >= parsedKey.parts.length &&
         parsed.parts.slice(0, parsedKey.parts.length).join('/') === k) {
-      idPath = paths[k] + idPath.substring(k.length);
+      idPath = paths[k] + idPath.slice(k.length);
       break;
     }
   }

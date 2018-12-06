@@ -75,7 +75,7 @@ const userSpaceTesseract = {
             });
           }
         } else if (parsed.ext && parsed.ext !== '.js') {
-          const extPluginName = 'ext:' + parsed.ext.substring(1);
+          const extPluginName = 'ext:' + parsed.ext.slice(1);
           if (userSpace.has(extPluginName) || packageSpace.has(extPluginName)) {
             return new Promise((resolve, reject) => {
               const req = (deps, callback, errback) => {
