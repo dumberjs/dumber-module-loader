@@ -934,3 +934,23 @@ test('requirejs supports regexp glob', t => {
   );
 });
 
+test('requirejs supports cjs module returning undefined', t => {
+  define.reset();
+
+  define('foo', ['require', 'bar-core', 'bar'], req => '' + req('bar'));
+  define.switchToPackageSpace();
+  define('bar-core', [], () => 1);
+  define('bar', ['bar-core'], () => undefined);
+
+  requirejs(['foo'],
+    result => {
+      t.equal(result, 'undefined');
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      t.end();
+    }
+  );
+});
+

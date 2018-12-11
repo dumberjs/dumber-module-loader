@@ -171,6 +171,7 @@ export default function(tesseract) {
     if (def) return def.val;
 
     const reg = registered(moduleId);
+
     // ask tesseract, note moduleId is mapped
     if (!reg) return tesseract.req(moduleId);
 
@@ -206,6 +207,7 @@ export default function(tesseract) {
       // 1. circular dependency is pro-actively detected.
       // 2. some define call deliberately leaves out some dep,
       // in order for it to be required at code running time.
+      // 3. user package module in cjs wrapper requires npm module.
       let syncLoad;
       if (registered(mId)) {
         // check current space first
@@ -215,17 +217,15 @@ export default function(tesseract) {
         syncLoad = tesseract.req(mId);
       }
 
-      if (syncLoad) {
-        if (syncLoad && typeof syncLoad.then === 'function') {
-          // silent any possible error
-          syncLoad.then(() => {}, () => {});
-          throw new Error(`module "${mId}" cannot be resolved synchronously.`);
-        }
-        return syncLoad;
+      if (syncLoad && typeof syncLoad.then === 'function') {
+        // silent any possible error
+        syncLoad.then(() => {}, () => {});
+        throw new Error(`module "${mId}" cannot be resolved synchronously.`);
       }
 
-      throw new Error(`module "${mId}" is not prepared.`);
+      return syncLoad;
     };
+
     requireFunc.toUrl = tesseract.toUrl;
 
     const finalize = results => {
