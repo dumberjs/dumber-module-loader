@@ -1,3 +1,12 @@
+# [0.15.0](https://github.com/dumberjs/dumber-module-loader/compare/v0.14.1...v0.15.0) (2018-12-11)
+
+
+### Features
+
+* regexp glob require support ([47c854e](https://github.com/dumberjs/dumber-module-loader/commit/47c854e))
+
+
+
 ## [0.14.1](https://github.com/dumberjs/dumber-module-loader/compare/v0.14.0...v0.14.1) (2018-12-05)
 
 
