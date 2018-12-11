@@ -908,3 +908,29 @@ test('requirejs uses ext:plugin module to fail at runtime', t => {
     }
   );
 });
+
+test('requirejs supports regexp glob', t => {
+  const touched = [];
+  define.reset();
+
+  define('foo.spec', [], () => touched.push('foo.spec'));
+  define('foo-bar', [], () => touched.push('foo-bar'));
+  define('xyz.spec', [], () => touched.push('xyz.spec'));
+  define.switchToPackageSpace();
+  define('bar.spec', [], () => touched.push('bar.spec'));
+  define('loo', [], () => touched.push('loo'));
+
+  requirejs([/\.spec$/],
+    () => {
+      t.deepEqual(touched.sort(), [
+        'bar.spec', 'foo.spec', 'xyz.spec'
+      ]);
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      t.end();
+    }
+  );
+});
+

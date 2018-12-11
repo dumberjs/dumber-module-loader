@@ -412,6 +412,10 @@ function requirejs(deps, callback, errback) {
 
   const depValues = serialResults(deps, d => {
     if (d === 'require') return requireFunc;
+    if (d instanceof RegExp) {
+      const expanded = [...userSpace.ids(), ...packageSpace.ids()].filter(id => id.match(d));
+      return serialResults(expanded, e => userSpace.req(e));
+    }
     return userSpace.req(mappedId(d));
   });
 

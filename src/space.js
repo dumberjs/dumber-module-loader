@@ -217,6 +217,8 @@ export default function(tesseract) {
 
       if (syncLoad) {
         if (syncLoad && typeof syncLoad.then === 'function') {
+          // silent any possible error
+          syncLoad.then(() => {}, () => {});
           throw new Error(`module "${mId}" cannot be resolved synchronously.`);
         }
         return syncLoad;

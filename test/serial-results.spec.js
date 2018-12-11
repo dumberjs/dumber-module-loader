@@ -7,8 +7,6 @@ test('serialResults run tasks in sequence', t => {
 });
 
 test('serialResults returns promise ensuring order, in case of promise', t => {
-  let result = '';
-
   serialResults(['a', 'b', 'c'], c => {
     if (c === 'b') {
       return new Promise(resolve => {
@@ -30,8 +28,6 @@ test('serialResults returns promise ensuring order, in case of promise', t => {
 });
 
 test('serialResults stops at first failure, in case of promise', t => {
-  let result = '';
-
   serialResults(['a', 'b', 'c'], c => {
     if (c === 'b') {
       return new Promise((resolve, reject) => {
@@ -56,8 +52,6 @@ test('serialResults stops at first failure, in case of promise', t => {
 });
 
 test('serialResults stops at first failure, when no promise', t => {
-  let result = '';
-
   t.throws(() => serialResults(['a', 'b', 'c'], c => {
     if (c === 'b') {
       throw new Error('stop at b');

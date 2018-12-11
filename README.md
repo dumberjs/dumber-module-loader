@@ -10,6 +10,11 @@ For users of dumber bundler, you only need to know that the internal module load
 
 * AMD spec doesn't allow defining relative module name `define('../package.json', ...)`. We allow it. This is to support dependency `'../package.json'` that could be required by `src/app.js`. We say module id `'../package.json'` is above surface.
 * Only supports plugin's `load()` function, doesn't support `normalize()` function, doesn't support `load.fromText()` function (not in spec, but some requirejs plugins use it). Note we support traditional `text!` and `json!` plugins out of the box.
+* Special RegExp support for mass require, mainly for test runner.
+```js
+requirejs([/\.spec$/], function() {
+});
+```
 
 ## Our touch on AMD:
 

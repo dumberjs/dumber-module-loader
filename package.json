@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "cross-env BABEL_ENV=development rollup -c",
-    "lint": "eslint src",
+    "lint": "eslint src test",
     "prepare": "npm run build",
     "preversion": "npm test",
     "version": "standard-changelog && git add CHANGELOG.md",

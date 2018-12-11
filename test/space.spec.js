@@ -48,7 +48,7 @@ test('space define named module (nameAnonymous is no-op) with implicit deps', t 
   t.notOk(space.registered('foo'));
   t.notOk(space.defined('foo'));
 
-  const cb = (req) => 1;
+  const cb = (req) => 1; // eslint-disable-line no-unused-vars
   space.define('foo', cb);
 
   t.ok(space.has('foo'), 'has module foo');
@@ -168,7 +168,7 @@ test('space define anonymous module width implicit deps', t => {
   t.notOk(space.registered('foo'));
   t.notOk(space.defined('foo'));
 
-  const cb = (req) => 1;
+  const cb = (req) => 1; // eslint-disable-line no-unused-vars
   space.define(cb);
 
   t.notOk(space.has('foo'));
@@ -487,7 +487,7 @@ test('space.req fails tesseract req asynchronously', t => {
   space.define('foo', ['a'], a => a + 3);
 
   space.req('foo').then(
-    value => {
+    () => {
       t.fail('should not get foo!');
     },
     err => {
@@ -503,7 +503,7 @@ test('space.req fails tesseract.req with commonjs wrapper asynchronously', t => 
   });
 
   space.req('foo').then(
-    value => {
+    () => {
       t.fail('should not get foo!');
     },
     err => {
@@ -726,7 +726,7 @@ test('space deals with yallist like circular dependencies', t => {
     require('./iterator.js');
   `));
 
-  space.define('yallist/iterator', ['require', 'exports', 'module', './yallist'], function(req, exp, mod) {
+  space.define('yallist/iterator', ['require', 'exports', 'module', './yallist'], function(req) {
     var Yallist = req('./yallist.js');
     Yallist.iterator = 'got';
   });
