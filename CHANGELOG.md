@@ -1,3 +1,12 @@
+## [0.15.1](https://github.com/dumberjs/dumber-module-loader/compare/v0.15.0...v0.15.1) (2018-12-11)
+
+
+### Bug Fixes
+
+* fix false exception when user space module in cjs wrapper requires npm package which returns undefined ([8651040](https://github.com/dumberjs/dumber-module-loader/commit/8651040))
+
+
+
 # [0.15.0](https://github.com/dumberjs/dumber-module-loader/compare/v0.14.1...v0.15.0) (2018-12-11)
 
 
