@@ -765,3 +765,28 @@ test('space skips define on existing module, case2', t => {
   t.equal(space.req('a'), 1);
   t.end();
 });
+
+test('space does not do endless circular deps check', t => {
+  const space = makeSpace(tesseract);
+
+  space.define('test', ['test1'], function(y) { return y; });
+  space.define('test1', ['require', 'yallist/yallist'], function(req) {
+    const y = req('yallist/yallist');
+    return y;
+  });
+  space.define('yallist/yallist', ['require', 'exports', 'module', './iterator'], new Function('require', 'exports', 'module', `
+    module.exports = Yallist;
+    function Yallist () {};
+    require('./iterator.js');
+  `));
+
+  space.define('yallist/iterator', ['require', 'exports', 'module', './yallist'], function(req) {
+    var Yallist = req('./yallist.js');
+    Yallist.iterator = 'got';
+  });
+
+  const Yallist = space.req('test');
+  t.equal((typeof Yallist), 'function');
+  t.equal(Yallist.iterator, 'got');
+  t.end();
+});

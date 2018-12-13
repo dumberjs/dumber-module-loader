@@ -134,22 +134,26 @@ export default function(tesseract) {
 
   function isCircular(mId) {
     let targetId;
+    const checked = Object.create(null);
 
     const _isCircular = _id => {
       const candidate = _registry[_id];
       if (!candidate) return;
       const {id, deps} = candidate;
       if (targetId) {
+        checked[_id] = true;
         if (targetId === id) return true;
       } else {
         targetId = id;
       }
+
 
       for (let i = 0, len = deps.length; i < len; i++) {
         const d = deps[i];
         if (d === cjs_require || d === cjs_exports || d === cjs_module) continue;
         const absoluteId = resolveModuleId(id, d);
         const _mId = tesseract.mappedId(absoluteId);
+        if (checked[_mId]) continue;
         if (_isCircular(_mId)) return true;
       }
     };
