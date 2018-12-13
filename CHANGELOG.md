@@ -1,3 +1,12 @@
+## [0.15.2](https://github.com/dumberjs/dumber-module-loader/compare/v0.15.1...v0.15.2) (2018-12-13)
+
+
+### Bug Fixes
+
+* fix a endless circular check when inner deps have circular structure ([8317b86](https://github.com/dumberjs/dumber-module-loader/commit/8317b86))
+
+
+
 ## [0.15.1](https://github.com/dumberjs/dumber-module-loader/compare/v0.15.0...v0.15.1) (2018-12-11)
 
 
