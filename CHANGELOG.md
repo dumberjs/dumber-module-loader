@@ -1,3 +1,12 @@
+## [0.15.3](https://github.com/dumberjs/dumber-module-loader/compare/v0.15.2...v0.15.3) (2018-12-14)
+
+
+### Bug Fixes
+
+* ensure returning of promise in both async/sync requirejs call ([4dbb9bb](https://github.com/dumberjs/dumber-module-loader/commit/4dbb9bb))
+
+
+
 ## [0.15.2](https://github.com/dumberjs/dumber-module-loader/compare/v0.15.1...v0.15.2) (2018-12-13)
 
 
