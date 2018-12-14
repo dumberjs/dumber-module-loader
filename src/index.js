@@ -421,6 +421,7 @@ function requirejs(deps, callback, errback) {
 
   const finalize = results => {
     if (callback) return callback.apply(_global, results);
+    else return results;
   };
 
   const errHandler = err => {
@@ -434,11 +435,9 @@ function requirejs(deps, callback, errback) {
   }
 
   // synchronous callback
-  try {
-    return finalize(depValues);
-  } catch (err) {
-    errHandler(err);
-  }
+  return new Promise(resolve => {
+    resolve(finalize(depValues));
+  });
 }
 
 // AMD requirejs.undef

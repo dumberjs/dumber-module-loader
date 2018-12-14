@@ -37,6 +37,26 @@ test('define amd modules', t => {
   );
 });
 
+test('requirejs can return promise', t => {
+  define.reset();
+
+  define('foo/bar', ['a', './b'], (a, b) => a + b + 3);
+  define('a', 1);
+  define('foo/b.js', () => 2);
+
+  requirejs(['foo/bar'])
+  .then(
+    result => {
+      t.equal(result[0], 6);
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      t.end();
+    }
+  );
+});
+
 test('require can be required to behave like normal AMD require', t => {
   define.reset();
 
@@ -180,6 +200,39 @@ test('gets additional user space module from bundle', t => {
   requirejs(['foo/bar'],
     result => {
       t.equal(result, 6);
+      restoreFetchApi();
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      restoreFetchApi();
+      t.end();
+    }
+  );
+});
+
+test('gets additional user space module from bundle, requirejs returns promise', t => {
+  define.reset();
+
+  define('foo/bar', ['a', './b'], (a, b) => a + b + 3);
+  define('foo/b.js', () => 2);
+
+  requirejs.config({
+    bundles: {
+      'a-bundle': {
+        user: ['a']
+      }
+    }
+  });
+
+  mockFetchApi({
+    'a-bundle.js': "define('a', 1);"
+  });
+
+  requirejs(['foo/bar'])
+  .then(
+    result => {
+      t.equal(result[0], 6);
       restoreFetchApi();
       t.end();
     },
