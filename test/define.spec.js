@@ -1008,3 +1008,38 @@ test('requirejs supports cjs module returning undefined', t => {
   );
 });
 
+test("requirejs supports dumber's wrap on es dynamic import()", t => {
+  define.reset();
+
+  define('foo', ['require', 'exports', 'module'], function (req, exps, mod) {var impor_ = function(d){return requirejs([requirejs.resolveModuleId(mod.id,d)]).then(function(r){return r[0]&&r[0].default?r[0].default:r;});};
+    "use strict";
+    exps.__esModule = true;
+    exps.default = void 0;
+    var _default = impor_('./a');
+    exps.default = _default;
+  });
+
+  // simulate es module
+  define('a',[], () => ({default:2}));
+
+  requirejs(['foo'],
+    result => {
+      t.ok(result.default.then);
+
+      result.default.then(
+        v => {
+          t.equal(v, 2);
+          t.end();
+        },
+        err => {
+          t.fail(err.message);
+          t.end();
+        }
+      );
+    },
+    err => {
+      t.fail(err.message);
+      t.end();
+    }
+  );
+});
