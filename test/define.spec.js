@@ -14,6 +14,7 @@ test('define exports', t => {
   t.equal(typeof requirejs.defined, 'function');
   t.equal(typeof requirejs.isBrowser, 'boolean');
   t.equal(typeof requirejs.version, 'string');
+  t.equal(typeof requirejs.resolveModuleId, 'function');
   t.equal(typeof requirejs.undef, 'function');
   t.end();
 });

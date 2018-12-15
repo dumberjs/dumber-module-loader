@@ -1,5 +1,5 @@
 import {version} from '../package.json';
-import {cleanPath, parse, nodejsIds, mapId} from './id-utils';
+import {cleanPath, parse, nodejsIds, mapId, resolveModuleId} from './id-utils';
 import makeSpace from './space';
 import _global from './_global';
 import serialResults from './serial-results';
@@ -562,6 +562,7 @@ requirejs.isBrowser = isBrowser;
 requirejs.version = version;
 requirejs.undef = undef;
 requirejs.toUrl = id => toUrl(mappedId(id));
+requirejs.resolveModuleId = resolveModuleId;
 
 // support data-main <script data-main="app" src="some-bundle"></script>
 // different from requirejs, the data-main string is treated simply as the main module id.
