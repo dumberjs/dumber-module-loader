@@ -1,3 +1,12 @@
+## [0.15.5](https://github.com/dumberjs/dumber-module-loader/compare/v0.15.4...v0.15.5) (2018-12-15)
+
+
+### Bug Fixes
+
+* fix possible duplicated bundle loading ([831bc71](https://github.com/dumberjs/dumber-module-loader/commit/831bc71))
+
+
+
 ## [0.15.4](https://github.com/dumberjs/dumber-module-loader/compare/v0.15.3...v0.15.4) (2018-12-15)
 
 
