@@ -1,3 +1,12 @@
+## [0.15.4](https://github.com/dumberjs/dumber-module-loader/compare/v0.15.3...v0.15.4) (2018-12-15)
+
+
+### Features
+
+* expose resolveModuleId ([bacf6a2](https://github.com/dumberjs/dumber-module-loader/commit/bacf6a2))
+
+
+
 ## [0.15.3](https://github.com/dumberjs/dumber-module-loader/compare/v0.15.2...v0.15.3) (2018-12-14)
 
 
