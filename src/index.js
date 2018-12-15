@@ -319,19 +319,29 @@ function packageReqFromBundle(mId) {
   throw err;
 }
 
+let _urlWaiting = {};
 let _urlLoaded = {};
 // return a promise
 function loadBundle(bundleName) {
   const mappedBundleName = mappedId(bundleName);
   const url = toUrl(mappedBundleName);
   if (_urlLoaded[url]) return Promise.resolve();
-  _urlLoaded[url] = true;
+  if (_urlWaiting[url]) {
+    return new Promise((resolve, reject) => {
+      _urlWaiting[url].push({resolve, reject});
+    });
+  }
+
+  // init waiting list to block duplicated loading request
+  _urlWaiting[url] = [];
+
+  let job;
 
   // I really hate this.
   // Use script tag, not fetch, only to support sourcemaps.
   // And I don't know what to mock it up, so __skip_script_load_test
   if (isBrowser && !define.__skip_script_load_test) {
-    return new Promise((resolve, reject) => {
+    job = new Promise((resolve, reject) => {
       const script = document.createElement('script');
       script.setAttribute('data-requiremodule', mappedBundleName);
       script.type = 'text/javascript';
@@ -352,16 +362,34 @@ function loadBundle(bundleName) {
         document.head.appendChild(script);
       }
     });
+  } else {
+    // in nodejs or web worker
+    job = _fetch(mappedBundleName)
+    .then(response => response.text())
+    .then(text => {
+      // ensure default user space
+      // the bundle itself may switch to package space in middle of the file
+      (new Function(text))();
+    });
   }
 
-  // in nodejs or web worker
-  return _fetch(mappedBundleName)
-  .then(response => response.text())
-  .then(text => {
-    // ensure default user space
-    // the bundle itself may switch to package space in middle of the file
-    (new Function(text))();
-  });
+  return job.then(
+    () => {
+      _urlLoaded[url] = true;
+      if (_urlWaiting[url]) {
+        _urlWaiting[url].forEach(pending => pending.resolve());
+        delete _urlWaiting[url];
+      }
+    },
+    err => {
+      if (_urlWaiting[url]) {
+        _urlWaiting[url].forEach(pending => pending.reject(err));
+        delete _urlWaiting[url];
+      }
+      throw err;
+    }
+  );
+
 }
 
 function defined(id) {

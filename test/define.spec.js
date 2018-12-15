@@ -1043,3 +1043,37 @@ test("requirejs supports dumber's wrap on es dynamic import()", t => {
     }
   );
 });
+
+test('does not create duplicated request to load additional bundle', t => {
+  define.reset();
+
+  requirejs.config({
+    bundles: {
+      'a-bundle': {
+        user: ['a', 'b']
+      }
+    }
+  });
+
+  define._debug_count = 0;
+
+  mockFetchApi({
+    'a-bundle.js': "define('a', 1);define('b', 2);define._debug_count+=1;"
+  });
+
+  Promise.all([requirejs(['a']), requirejs(['b'])])
+  .then(
+    results => {
+      t.deepEqual(results, [[1], [2]]);
+      t.equal(define._debug_count, 1);
+      delete define._debug_count;
+      restoreFetchApi();
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      restoreFetchApi();
+      t.end();
+    }
+  );
+});
