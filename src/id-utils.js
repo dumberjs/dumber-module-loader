@@ -40,10 +40,16 @@ export function ext(id = '') {
 export function parse(id = '') {
   let m = id.trim().match(idMatcher);
   if (!m) throw new Error(`not a vaid module id: "${id}"`);
-  const prefix = m[1] || '';
+  let prefix = m[1] || '';
   let bareId = m[2];
 
   let extname = ext(bareId);
+
+  // remove json! prefix, json module is supported directly.
+  if (extname === '.json' && prefix === 'json!') {
+    prefix = '';
+  }
+
   // preserve leading '/'
   let parts = bareId.split('/').filter((p, i) => p || i === 0);
   if (parts.length > 1 && parts[0].length && parts[0][0] === '@') {

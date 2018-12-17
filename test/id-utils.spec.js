@@ -33,6 +33,8 @@ test('parse parses id', t => {
   t.deepEqual(parse('a/../..//foo/a/b.min.js'), {prefix: '', bareId: '../foo/a/b.min.js', parts: ['..', 'foo', 'a', 'b.min.js'], ext: '.js', cleanId: '../foo/a/b.min.js'});
   t.deepEqual(parse('a/../a/b.min.js'), {prefix: '', bareId: 'a/b.min.js', parts: ['a', 'b.min.js'], ext: '.js', cleanId: 'a/b.min.js'});
   t.deepEqual(parse('a/b.json'), {prefix: '', bareId: 'a/b.json', parts: ['a', 'b.json'], ext: '.json', cleanId: 'a/b.json'});
+  // strip json! prefix
+  t.deepEqual(parse('json!a/b.json'), {prefix: '', bareId: 'a/b.json', parts: ['a', 'b.json'], ext: '.json', cleanId: 'a/b.json'});
   t.deepEqual(parse('a/b.svg'), {prefix: '', bareId: 'a/b.svg', parts: ['a', 'b.svg'], ext: '.svg', cleanId: 'a/b.svg'});
   t.deepEqual(parse('../a/b.svg'), {prefix: '', bareId: '../a/b.svg', parts: ['..', 'a', 'b.svg'], ext: '.svg', cleanId: '../a/b.svg'});
   t.end();

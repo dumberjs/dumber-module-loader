@@ -476,6 +476,72 @@ test('gets runtime text! user space module', t => {
   );
 });
 
+test('gets user space json module', t => {
+  define.reset();
+
+  define('text!foo.json', '{"a":1}');
+
+  requirejs(['json!foo.json'],
+    result => {
+      t.deepEqual(result, {a: 1});
+      t.ok(requirejs.defined('json!foo.json'));
+      t.ok(requirejs.defined('foo.json'));
+
+      requirejs(['foo.json'],
+        r2 => {
+          t.deepEqual(r2, {a: 1}, 'supports usage without prefix');
+
+          restoreFetchApi();
+          t.end();
+        },
+        err => {
+          t.fail(err.message);
+          restoreFetchApi();
+          t.end();
+        }
+      );
+    },
+    err => {
+      t.fail(err.message);
+      restoreFetchApi();
+      t.end();
+    }
+  );
+});
+
+test('gets package space json module', t => {
+  define.reset();
+
+  define.switchToPackageSpace();
+  define('text!foo.json', '{"a":1}');
+
+  requirejs(['json!foo.json'],
+    result => {
+      t.deepEqual(result, {a: 1});
+      t.ok(requirejs.defined('json!foo.json'));
+
+      requirejs(['foo.json'],
+        r2 => {
+          t.deepEqual(r2, {a: 1}, 'supports usage without prefix');
+          t.ok(requirejs.defined('foo.json'));
+          restoreFetchApi();
+          t.end();
+        },
+        err => {
+          t.fail(err.message);
+          restoreFetchApi();
+          t.end();
+        }
+      );
+    },
+    err => {
+      t.fail(err.message);
+      restoreFetchApi();
+      t.end();
+    }
+  );
+});
+
 test('gets runtime json! user space module', t => {
   define.reset();
 

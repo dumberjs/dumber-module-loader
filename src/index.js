@@ -5,7 +5,7 @@ import _global from './_global';
 import serialResults from './serial-results';
 
 // Try prefix plugin (like text!mId) or extension plugin like "ext:css".
-// This is for user space only
+// This is for user space only.
 function tryPlugin(mId) {
   const parsed = parse(mId);
   const pluginId = parsed.prefix.slice(0, -1);
@@ -114,7 +114,7 @@ const userSpaceTesseract = {
     if (p) {
       return p.catch(err => {
         if (err && err.__missing === mId) {
-          const tried = tryPlugin(mId);
+          const tried = tryExtPlugin(mId, userSpace);
           // tried is a promise or undefined
           if (tried) return tried;
         }
