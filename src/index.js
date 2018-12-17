@@ -4,6 +4,91 @@ import makeSpace from './space';
 import _global from './_global';
 import serialResults from './serial-results';
 
+// Try prefix plugin (like text!mId) or extension plugin like "ext:css".
+// This is for user space only
+function tryPlugin(mId) {
+  const parsed = parse(mId);
+  const pluginId = parsed.prefix ?
+    parsed.prefix.slice(0, -1) :
+    '';
+  // text,json,raw plugins are built-in
+  if (pluginId) {
+    if (pluginId !== 'text' && pluginId !== 'json' && pluginId !== 'raw') {
+      return new Promise((resolve, reject) => {
+        const req = (deps, callback, errback) => {
+          const errback2 = e => {
+            if (errback) {
+              try {
+                errback(e);
+              } catch (err) {
+                // ignore
+              }
+            }
+            reject(e);
+          };
+          return requirejs(deps, callback, errback2);
+        };
+        try {
+          requirejs([pluginId], plugin => {
+            // Call requirejs plugin api load(name, require, load, options)
+            // Options set to {} just to make existing requirejs plugins happy.
+            plugin.load(parsed.bareId, req, loaded => {
+              userSpace.define(mId, [], () => loaded);
+              resolve(userSpace.req(mId));
+            }, {});
+          });
+        } catch (err) {
+          reject(err);
+        }
+      });
+    }
+  } else {
+    return tryExtPlugin(mId, userSpace);
+  }
+}
+
+// Try extension plugin like "ext:css".
+// This is for both user and package space.
+function tryExtPlugin(mId, space) {
+  const parsed = parse(mId);
+  if (!parsed.prefix && parsed.ext && parsed.ext !== '.js') {
+    const extPluginName = 'ext:' + parsed.ext.slice(1);
+    if (userSpace.has(extPluginName) || packageSpace.has(extPluginName)) {
+      return new Promise((resolve, reject) => {
+        const req = (deps, callback, errback) => {
+          const errback2 = e => {
+            if (errback) {
+              try {
+                errback(e);
+              } catch (err) {
+                // ignore
+              }
+            }
+            reject(e);
+          };
+          return requirejs(deps, callback, errback2);
+        };
+        try {
+          requirejs([extPluginName], plugin => {
+            // Call requirejs plugin api load(name, require, load, options)
+            // Options set to {} just to make existing requirejs plugins happy.
+            plugin.load(parsed.cleanId, req, loaded => {
+              space.define(mId, [], () => loaded);
+              resolve(space.req(mId));
+            }, {});
+          });
+        } catch (err) {
+          reject(err);
+        }
+      });
+    }
+    // else by default use text!
+    return new Promise(resolve => {
+      userSpace.define(parsed.cleanId,['text!' + parsed.cleanId], m => m);
+      resolve(userSpace.req(mId));
+    });
+  }
+}
 // dumber-module-loader has two fixed module spaces:
 // 1. user space (default), for user source code
 // 2. package space, for all npm package and local packages
@@ -28,7 +113,16 @@ const userSpaceTesseract = {
   req: mId => {
     const p = userReqFromBundle(mId);
     // p is a promise loading additional bundle
-    if (p) return p;
+    if (p) {
+      return p.catch(err => {
+        if (err && err.__missing === mId) {
+          const tried = tryPlugin(mId);
+          // tried is a promise or undefined
+          if (tried) return tried;
+        }
+        throw err;
+      });
+    }
 
     let packageReq;
     try {
@@ -39,78 +133,9 @@ const userSpaceTesseract = {
       // This means mId is not a known package space module, so
       // we could try to remotely load a user space module.
       if (err && err.__unkown === mId) {
-        const parsed = parse(mId);
-        const pluginId = parsed.prefix ?
-          parsed.prefix.slice(0, -1) :
-          '';
-        // text,json,raw plugins are built-in
-        if (pluginId) {
-          if (pluginId !== 'text' && pluginId !== 'json' && pluginId !== 'raw') {
-            return new Promise((resolve, reject) => {
-              const req = (deps, callback, errback) => {
-                const errback2 = e => {
-                  if (errback) {
-                    try {
-                      errback(e);
-                    } catch (err) {
-                      // ignore
-                    }
-                  }
-                  reject(e);
-                };
-                return requirejs(deps, callback, errback2);
-              };
-              try {
-                requirejs([pluginId], plugin => {
-                  // Call requirejs plugin api load(name, require, load, options)
-                  // Options set to {} just to make existing requirejs plugins happy.
-                  plugin.load(parsed.bareId, req, loaded => {
-                    userSpace.define(mId, [], () => loaded);
-                    resolve(userSpace.req(mId));
-                  }, {});
-                });
-              } catch (err) {
-                reject(err);
-              }
-            });
-          }
-        } else if (parsed.ext && parsed.ext !== '.js') {
-          const extPluginName = 'ext:' + parsed.ext.slice(1);
-          if (userSpace.has(extPluginName) || packageSpace.has(extPluginName)) {
-            return new Promise((resolve, reject) => {
-              const req = (deps, callback, errback) => {
-                const errback2 = e => {
-                  if (errback) {
-                    try {
-                      errback(e);
-                    } catch (err) {
-                      // ignore
-                    }
-                  }
-                  reject(e);
-                };
-                return requirejs(deps, callback, errback2);
-              };
-              try {
-                requirejs([extPluginName], plugin => {
-                  // Call requirejs plugin api load(name, require, load, options)
-                  // Options set to {} just to make existing requirejs plugins happy.
-                  plugin.load(parsed.cleanId, req, loaded => {
-                    userSpace.define(mId, [], () => loaded);
-                    resolve(userSpace.req(mId));
-                  }, {});
-                });
-              } catch (err) {
-                reject(err);
-              }
-            });
-          }
-          // else by default use text!
-          return new Promise(resolve => {
-            userSpace.define(parsed.cleanId,['text!' + parsed.cleanId], m => m);
-            resolve(userSpace.req(mId));
-          });
-        }
+        const tried = tryPlugin(mId);
+        // tried is a promise or undefined
+        if (tried) return tried;
         return runtimeReq(mId);
       }
 
@@ -135,7 +160,20 @@ const packageSpaceTesseract = {
   mappedId,
   toUrl,
   // incoming id is already mapped
-  req: packageReqFromBundle
+  req: mId => {
+    const p = packageReqFromBundle(mId);
+    // p is a promise loading additional bundle
+    if (p) {
+      return p.catch(err => {
+        if (err && err.__missing === mId) {
+          const tried = tryExtPlugin(mId, packageSpace);
+          // tried is a promise or undefined
+          if (tried) return tried;
+        }
+        throw err;
+      });
+    }
+  }
 };
 
 const packageSpace = makeSpace(packageSpaceTesseract);
@@ -292,7 +330,9 @@ function userReqFromBundle(mId) {
     return loadBundle(bundleName)
     .then(() => {
       if (userSpace.has(mId)) return userSpace.req(mId);
-      throw new Error(`module "${mId}" is missing from bundle "${bundleName}"`);
+      const err = new Error(`module "${mId}" is missing from bundle "${bundleName}"`);
+      err.__missing = mId;
+      throw err;
     });
   }
 }
@@ -310,7 +350,9 @@ function packageReqFromBundle(mId) {
     return loadBundle(bundleName)
     .then(() => {
       if (packageSpace.has(mId)) return packageSpace.req(mId);
-      throw new Error(`module "${mId}" is missing from bundle "${bundleName}"`);
+      const err = new Error(`module "${mId}" is missing from bundle "${bundleName}"`);
+      err.__missing = mId;
+      throw err;
     });
   }
 

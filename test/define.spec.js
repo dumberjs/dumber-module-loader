@@ -1077,3 +1077,65 @@ test('does not create duplicated request to load additional bundle', t => {
     }
   );
 });
+
+test('gets additional user space non-js module from bundle', t => {
+  define.reset();
+
+  define('foo', ['./a.html'], a => '<div>' + a + '</div>');
+
+  requirejs.config({
+    bundles: {
+      'a-bundle': {
+        user: ['a.html', 'text!a.html']
+      }
+    }
+  });
+
+  mockFetchApi({
+    'a-bundle.js': "define('text!a.html', '<p>1</p>');"
+  });
+
+  requirejs(['foo'],
+    result => {
+      t.equal(result, '<div><p>1</p></div>');
+      restoreFetchApi();
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      restoreFetchApi();
+      t.end();
+    }
+  );
+});
+
+test('gets additional package space non-js module from bundle', t => {
+  define.reset();
+
+  define('foo', ['bar/a.html'], a => '<div>' + a + '</div>');
+
+  requirejs.config({
+    bundles: {
+      'a-bundle': {
+        package: ['bar/a.html', 'text!bar/a.html']
+      }
+    }
+  });
+
+  mockFetchApi({
+    'a-bundle.js': "define('text!bar/a.html', '<p>1</p>');"
+  });
+
+  requirejs(['foo'],
+    result => {
+      t.equal(result, '<div><p>1</p></div>');
+      restoreFetchApi();
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      restoreFetchApi();
+      t.end();
+    }
+  );
+});
