@@ -1,3 +1,12 @@
+## [0.15.7](https://github.com/dumberjs/dumber-module-loader/compare/v0.15.6...v0.15.7) (2018-12-17)
+
+
+### Bug Fixes
+
+* normalise json! prefix ([c33d3ca](https://github.com/dumberjs/dumber-module-loader/commit/c33d3ca))
+
+
+
 ## [0.15.6](https://github.com/dumberjs/dumber-module-loader/compare/v0.15.5...v0.15.6) (2018-12-17)
 
 
