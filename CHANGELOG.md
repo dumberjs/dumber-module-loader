@@ -1,3 +1,12 @@
+## [0.15.8](https://github.com/dumberjs/dumber-module-loader/compare/v0.15.7...v0.15.8) (2018-12-20)
+
+
+### Features
+
+* expose define.currentSpace() which returns "user" or "package" ([2455469](https://github.com/dumberjs/dumber-module-loader/commit/2455469))
+
+
+
 ## [0.15.7](https://github.com/dumberjs/dumber-module-loader/compare/v0.15.6...v0.15.7) (2018-12-17)
 
 
