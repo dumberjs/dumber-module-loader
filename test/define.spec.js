@@ -7,6 +7,7 @@ test('define exports', t => {
   t.equal(typeof define, 'function');
   t.equal(typeof define.switchToUserSpace, 'function');
   t.equal(typeof define.switchToPackageSpace, 'function');
+  t.equal(typeof define.currentSpace, 'function');
   t.equal(typeof define.amd, 'object');
   t.equal(typeof define.reset, 'function');
   t.equal(typeof requirejs, 'function');
@@ -108,9 +109,12 @@ test('require can be required to behave like normal commonjs require', t => {
 test('user space module can access package space module', t => {
   define.reset();
 
+  t.equal(define.currentSpace(), 'user');
   define('foo/bar', ['a', './b'], (a, b) => a + b + 3);
   define('foo/b.js', () => 2);
+  t.equal(define.currentSpace(), 'user');
   define.switchToPackageSpace();
+  t.equal(define.currentSpace(), 'package');
   define('a', 1);
 
   requirejs(['foo/bar'],

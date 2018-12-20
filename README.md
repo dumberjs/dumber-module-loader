@@ -93,6 +93,10 @@ User module space is the default module space.
 
 Switch to package module space, `define()` call after this will define module in package space.
 
+### `define.currentSpace()`
+
+Returns `"user"` if current space is user space, or `"package"` if current space is packaeg space. Current space only affects `define()` call, it doesn't affect `requirejs()` call.
+
 ### `define.reset()`
 
 Reset all config, remove all registered and defined modules, switch to default user space.
