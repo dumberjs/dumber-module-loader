@@ -1,3 +1,12 @@
+## [0.15.9](https://github.com/dumberjs/dumber-module-loader/compare/v0.15.8...v0.15.9) (2018-12-23)
+
+
+### Bug Fixes
+
+* fix path to shortcut '../src' to '' ([c9abdfb](https://github.com/dumberjs/dumber-module-loader/commit/c9abdfb))
+
+
+
 ## [0.15.8](https://github.com/dumberjs/dumber-module-loader/compare/v0.15.7...v0.15.8) (2018-12-20)
 
 
