@@ -179,6 +179,8 @@ export function mapId(id, paths = {}) {
     if (parsed.parts.length >= parsedKey.parts.length &&
         parsed.parts.slice(0, parsedKey.parts.length).join('/') === k) {
       idPath = paths[k] + idPath.slice(k.length);
+      // for {'../src': ''}, remove final leading '/'
+      if (paths[k] === '') idPath = idPath.slice(1);
       break;
     }
   }
