@@ -158,6 +158,7 @@ test('resolveModuleId returns clean id', t => {
 test('resolveModuleId can work on base with ..', t => {
   t.equal(resolveModuleId('../foo', './bar'), '../bar');
   t.equal(resolveModuleId('../../foo', '../goo/bar'), '../goo/bar');
+  t.equal(resolveModuleId('../test/app.spec', '../src/app'), '../src/app');
   t.end();
 });
 
@@ -262,6 +263,7 @@ test('relativeModuleId returns clean id', t => {
 test('relativeModuleId can work on base with ..', t => {
   t.equal(relativeModuleId('../foo', '../bar'), './bar');
   t.equal(relativeModuleId('../../foo', '../goo/bar'), '../goo/bar');
+  t.equal(relativeModuleId('../test/app.spec', '../src/app'), '../src/app');
   t.end();
 });
 
