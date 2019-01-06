@@ -1,3 +1,12 @@
+## [0.15.10](https://github.com/dumberjs/dumber-module-loader/compare/v0.15.9...v0.15.10) (2019-01-06)
+
+
+### Features
+
+* support name spaced bundle ([37f8c3b](https://github.com/dumberjs/dumber-module-loader/commit/37f8c3b))
+
+
+
 ## [0.15.9](https://github.com/dumberjs/dumber-module-loader/compare/v0.15.8...v0.15.9) (2018-12-23)
 
 
