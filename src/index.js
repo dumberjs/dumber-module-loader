@@ -194,7 +194,15 @@ let _baseUrl = '';
 let _paths = {};
 
 function mappedId(id) {
-  return mapId(id, _paths);
+  const paths = {};
+  Object.keys(_paths).forEach(k => {
+    // Skip path for bundle, they are not for id mapping.
+    // This fixes an id mapping bug when a named space bundle uses
+    // same name for name space and bundle name.
+    if (_bundles.hasOwnProperty(k)) return;
+    paths[k] = _paths[k];
+  });
+  return mapId(id, paths);
 }
 
 // incoming id is already mapped
@@ -372,7 +380,7 @@ let _urlWaiting = {};
 let _urlLoaded = {};
 // return a promise
 function loadBundle(bundleName) {
-  const mappedBundleName = mappedId(bundleName);
+  const mappedBundleName = _paths[bundleName] || bundleName;
   const url = toUrl(mappedBundleName);
   const {nameSpace} = _bundles[bundleName] || {};
 

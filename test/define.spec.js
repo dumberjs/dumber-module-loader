@@ -1255,3 +1255,45 @@ test('gets name spaced modules from bundle', t => {
   );
 });
 
+test('gets name spaced modules from bundle when bundle name and name space name are same', t => {
+  define.reset();
+
+  requirejs.config({
+    paths: {
+      'ns': '/path/to/ns.js'
+    },
+    bundles: {
+      'ns': {
+        nameSpace: 'ns',
+        user: ['a'],
+        package: ['b']
+      }
+    }
+  });
+
+  mockFetchApi({
+    '/path/to/ns.js': `
+      define.switchToUserSpace();
+      define('a', ['b', 'lorem!./c'], (b, c) => b + c);
+      define('lorem!c', [], () => 1);
+      define.switchToPackageSpace();
+      define('b', [], () => 2);
+      define.switchToUserSpace();`
+  });
+
+  requirejs(['ns/a'],
+    result => {
+      t.equal(result, 3);
+      t.deepEqual(Object.keys(requirejs.definedValues()).sort(), [
+        'b', 'lorem!ns/c', 'ns/a'
+      ]);
+      restoreFetchApi();
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      restoreFetchApi();
+      t.end();
+    }
+  );
+});
