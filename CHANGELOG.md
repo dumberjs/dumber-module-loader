@@ -1,3 +1,12 @@
+## [0.15.11](https://github.com/dumberjs/dumber-module-loader/compare/v0.15.10...v0.15.11) (2019-01-06)
+
+
+### Bug Fixes
+
+* fix an id mapping bug when a name spaced bundle uses extract same name for bundle name and name space ([1b63aed](https://github.com/dumberjs/dumber-module-loader/commit/1b63aed))
+
+
+
 ## [0.15.10](https://github.com/dumberjs/dumber-module-loader/compare/v0.15.9...v0.15.10) (2019-01-06)
 
 
