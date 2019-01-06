@@ -13,7 +13,9 @@ var config = require.config,
         namedWrapped: true,
         require: true,
         pathsConfig: true,
-        plugins: true
+        plugins: true,
+        // dumber-module-loader feature
+        namedSpacedBundle: true
     };
 
 //Remove the global require, to make sure a global require is not assumed

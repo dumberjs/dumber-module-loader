@@ -21,7 +21,7 @@ requirejs([/\.spec$/], function() {
 * Mimic Node.js module resolving behaviour so dumber bundler can do less work.
   - `require('foo/bar')` could load module `foo/bar`, `foo/bar.js`, `foo/bar.json`, `foo/bar/index.js`, or `foo/bar/index.json`.
   - if there is a `package.json` file in folder `foo/bar/`, it can load file `foo/bar/resolved/main.js`, dumber will build an alias `foo/bar/index` to `foo/bar/resolved/main.js`.
-* Two name spaces: `user` (default, for local source file) and `package` (for npm packages and local packages).
+* Two module spaces: `user` (default, for local source file) and `package` (for npm packages and local packages).
   - module in `user` space can acquire `user` or `package` modules.
   - module in `package` space can only acquire `package` modules.
   - both `user` and `package` space can contain module with the same id. This is designed to avoid local `src/util.js` over-shadowing Node.js core module `util`.
@@ -126,9 +126,14 @@ Similar to `requirejs` paths, but simplified, see [above](#difference-from-requi
 
 Tells dumber-module-loader what remote bundle file contains certain missing module. Note user and package space modules are listed separately.
 
+`nameSpace` is optional, it's designed to [load foreign bundle file at runtime](https://github.com/dumberjs/examples/tree/master/runtime-composition-aurelia).
+
+When `nameSpace` is in use, all modules in user module space will be prefixed with `optional-name-space/`. For instance, `app` module is name spaced as `optional-name-space/app`. Note all modules in package module space are not affected, for instance, `lodash` will still be `lodash`.
+
 ```js
 bundles: {
   app-bundle: {
+    nameSpace: 'optional-name-space',
     user: ['app', 'app.html', 'util', 'common/index'],
     package: ['lodash', 'lodash/map', 'util']
   }

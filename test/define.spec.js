@@ -1211,3 +1211,47 @@ test('gets additional package space non-js module from bundle', t => {
     }
   );
 });
+
+test('gets name spaced modules from bundle', t => {
+  define.reset();
+
+  requirejs.config({
+    paths: {
+      'a-bundle': '/path/to/a-bundle.js'
+    },
+    bundles: {
+      'a-bundle': {
+        nameSpace: 'ns',
+        user: ['a'],
+        package: ['b']
+      }
+    }
+  });
+
+  mockFetchApi({
+    '/path/to/a-bundle.js': `
+      define.switchToUserSpace();
+      define('a', ['b', 'lorem!./c'], (b, c) => b + c);
+      define('lorem!c', [], () => 1);
+      define.switchToPackageSpace();
+      define('b', [], () => 2);
+      define.switchToUserSpace();`
+  });
+
+  requirejs(['ns/a'],
+    result => {
+      t.equal(result, 3);
+      t.deepEqual(Object.keys(requirejs.definedValues()).sort(), [
+        'b', 'lorem!ns/c', 'ns/a'
+      ]);
+      restoreFetchApi();
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      restoreFetchApi();
+      t.end();
+    }
+  );
+});
+

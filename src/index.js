@@ -201,7 +201,7 @@ function mappedId(id) {
 function toUrl(mId) {
   const parsed = parse(mId);
   let url = parsed.bareId;
-  if (url[0] !== '/') url = _baseUrl + url;
+  if (url[0] !== '/' && !url.match(/^https?:\/\//)) url = _baseUrl + url;
   if (!parsed.ext) {
     // no known ext, add .js
     url += '.js';
@@ -270,7 +270,7 @@ const _translators = [
     .then(text => {
       // runtime req only supports module in user space
       switchToUserSpace();
-      (new Function(text))();
+      (new Function(text)).call(_global);
       // could be anonymous
       userSpace.nameAnonymous(parsedId.cleanId);
     });
@@ -320,9 +320,18 @@ function runtimeReq(mId) {
 // or return undefined.
 function userReqFromBundle(mId) {
   const possibleIds = nodejsIds(mId);
-  const bundleName = Object.keys(_bundles).find(bn =>
-    possibleIds.some(d => _bundles[bn].user.hasOwnProperty(d))
-  );
+  const bundleName = Object.keys(_bundles).find(bn => {
+    const {nameSpace, user} = _bundles[bn];
+    return possibleIds.some(d => {
+      if (nameSpace) {
+        const parsed = parse(d);
+        if (parsed.bareId.slice(0, nameSpace.length + 1) === nameSpace + '/') {
+          d = parsed.prefix + parsed.bareId.slice(nameSpace.length + 1);
+        }
+      }
+      return user.hasOwnProperty(d);
+    });
+  });
 
   if (bundleName) {
     return loadBundle(bundleName)
@@ -365,6 +374,8 @@ let _urlLoaded = {};
 function loadBundle(bundleName) {
   const mappedBundleName = mappedId(bundleName);
   const url = toUrl(mappedBundleName);
+  const {nameSpace} = _bundles[bundleName] || {};
+
   if (_urlLoaded[url]) return Promise.resolve();
   if (_urlWaiting[url]) {
     return new Promise((resolve, reject) => {
@@ -379,11 +390,16 @@ function loadBundle(bundleName) {
 
   // I really hate this.
   // Use script tag, not fetch, only to support sourcemaps.
-  // And I don't know what to mock it up, so __skip_script_load_test
-  if (isBrowser && !define.__skip_script_load_test) {
+  // And I don't know how to mock it up, so __skip_script_load_test
+  if (!define.__skip_script_load_test &&
+      isBrowser &&
+      // no name space or browser has support of document.currentScript
+      (!nameSpace || 'currentScript' in _global.document)) {
     job = new Promise((resolve, reject) => {
       const script = document.createElement('script');
-      script.setAttribute('data-requiremodule', mappedBundleName);
+      if (nameSpace) {
+        script.setAttribute('data-namespace', nameSpace);
+      }
       script.type = 'text/javascript';
       script.charset = 'utf-8';
       script.async = true;
@@ -402,14 +418,29 @@ function loadBundle(bundleName) {
         document.head.appendChild(script);
       }
     });
-  } else {
+  }
+
+  if (!job) {
     // in nodejs or web worker
+    // or need name space in browser doesn't support document.currentScipt
     job = _fetch(mappedBundleName)
     .then(response => response.text())
     .then(text => {
       // ensure default user space
       // the bundle itself may switch to package space in middle of the file
-      (new Function(text))();
+      switchToUserSpace();
+      if (!nameSpace) {
+        (new Function(text)).call(_global);
+      } else {
+        const wrapped = function(id, deps, cb) {
+          nameSpacedDefine(nameSpace, id, deps, cb);
+        };
+        wrapped.amd = define.amd;
+        wrapped.switchToUserSpace = switchToUserSpace;
+        wrapped.switchToPackageSpace = switchToPackageSpace;
+        const f = new Function('define', text);
+        f.call(_global, wrapped);
+      }
     });
   }
 
@@ -447,7 +478,27 @@ function definedValues() {
 
 // AMD define
 function define(id, deps, callback) {
+  if (isBrowser && _global.document.currentScript) {
+    const nameSpace = _global.document.currentScript.getAttribute('data-namespace');
+    if (nameSpace) {
+      return nameSpacedDefine(nameSpace, id, deps, callback);
+    }
+  }
+
   currentSpace.define(id, deps, callback);
+}
+
+// Special named spaced define
+// Designed to load runtime extensions
+function nameSpacedDefine(nameSpace, id, deps, callback) {
+  // only add name space for modules in user space
+  // also skip any ext: plugin (a dumber-module-loader feature)
+  if (currentSpace === userSpace && id.slice(0, 4) !== 'ext:') {
+    const parsed = parse(id);
+    userSpace.define(parsed.prefix + nameSpace + '/' + parsed.bareId, deps, callback);
+  } else {
+    currentSpace.define(id, deps, callback);
+  }
 }
 
 // AMD require
@@ -600,6 +651,7 @@ function config(opts) {
         };
       } else {
         _bundles[bundleName] = {
+          nameSpace: spaces.nameSpace || null,
           user: arrayToHash(spaces.user || []),
           package: arrayToHash(spaces.package || [])
         };
