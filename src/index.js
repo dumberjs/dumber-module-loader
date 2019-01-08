@@ -376,99 +376,75 @@ function packageReqFromBundle(mId) {
   throw err;
 }
 
-let _urlWaiting = {};
-let _urlLoaded = {};
+let _bundleLoad = {};
 // return a promise
 function loadBundle(bundleName) {
-  const mappedBundleName = _paths[bundleName] || bundleName;
-  const url = toUrl(mappedBundleName);
-  const {nameSpace} = _bundles[bundleName] || {};
+  if (!_bundleLoad[bundleName]) {
+    const mappedBundleName = _paths[bundleName] || bundleName;
+    const url = toUrl(mappedBundleName);
+    const {nameSpace} = _bundles[bundleName] || {};
+    let job;
 
-  if (_urlLoaded[url]) return Promise.resolve();
-  if (_urlWaiting[url]) {
-    return new Promise((resolve, reject) => {
-      _urlWaiting[url].push({resolve, reject});
-    });
-  }
+    // I really hate this.
+    // Use script tag, not fetch, only to support sourcemaps.
+    // And I don't know how to mock it up, so __skip_script_load_test
+    if (!define.__skip_script_load_test &&
+        isBrowser &&
+        // no name space or browser has support of document.currentScript
+        (!nameSpace || 'currentScript' in _global.document)) {
+      job = new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        if (nameSpace) {
+          script.setAttribute('data-namespace', nameSpace);
+        }
+        script.type = 'text/javascript';
+        script.charset = 'utf-8';
+        script.async = true;
+        script.addEventListener('load', resolve);
+        script.addEventListener('error', reject);
+        script.src = url;
 
-  // init waiting list to block duplicated loading request
-  _urlWaiting[url] = [];
-
-  let job;
-
-  // I really hate this.
-  // Use script tag, not fetch, only to support sourcemaps.
-  // And I don't know how to mock it up, so __skip_script_load_test
-  if (!define.__skip_script_load_test &&
-      isBrowser &&
-      // no name space or browser has support of document.currentScript
-      (!nameSpace || 'currentScript' in _global.document)) {
-    job = new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      if (nameSpace) {
-        script.setAttribute('data-namespace', nameSpace);
-      }
-      script.type = 'text/javascript';
-      script.charset = 'utf-8';
-      script.async = true;
-      script.addEventListener('load', resolve);
-      script.addEventListener('error', reject);
-      script.src = url;
-
-      // If the script is cached, IE10 executes the script body and the
-      // onload handler synchronously here.  That's a spec violation,
-      // so be sure to do this asynchronously.
-      if (document.documentMode === 10) {
-        setTimeout(() => {
+        // If the script is cached, IE10 executes the script body and the
+        // onload handler synchronously here.  That's a spec violation,
+        // so be sure to do this asynchronously.
+        if (document.documentMode === 10) {
+          setTimeout(() => {
+            document.head.appendChild(script);
+          });
+        } else {
           document.head.appendChild(script);
-        });
-      } else {
-        document.head.appendChild(script);
-      }
-    });
-  }
-
-  if (!job) {
-    // in nodejs or web worker
-    // or need name space in browser doesn't support document.currentScipt
-    job = _fetch(mappedBundleName)
-    .then(response => response.text())
-    .then(text => {
-      // ensure default user space
-      // the bundle itself may switch to package space in middle of the file
-      switchToUserSpace();
-      if (!nameSpace) {
-        (new Function(text)).call(_global);
-      } else {
-        const wrapped = function(id, deps, cb) {
-          nameSpacedDefine(nameSpace, id, deps, cb);
-        };
-        wrapped.amd = define.amd;
-        wrapped.switchToUserSpace = switchToUserSpace;
-        wrapped.switchToPackageSpace = switchToPackageSpace;
-        const f = new Function('define', text);
-        f.call(_global, wrapped);
-      }
-    });
-  }
-
-  return job.then(
-    () => {
-      _urlLoaded[url] = true;
-      if (_urlWaiting[url]) {
-        _urlWaiting[url].forEach(pending => pending.resolve());
-        delete _urlWaiting[url];
-      }
-    },
-    err => {
-      if (_urlWaiting[url]) {
-        _urlWaiting[url].forEach(pending => pending.reject(err));
-        delete _urlWaiting[url];
-      }
-      throw err;
+        }
+      });
     }
-  );
 
+    if (!job) {
+      // in nodejs or web worker
+      // or need name space in browser doesn't support document.currentScipt
+      job = _fetch(mappedBundleName)
+      .then(response => response.text())
+      .then(text => {
+        // ensure default user space
+        // the bundle itself may switch to package space in middle of the file
+        switchToUserSpace();
+        if (!nameSpace) {
+          (new Function(text)).call(_global);
+        } else {
+          const wrapped = function(id, deps, cb) {
+            nameSpacedDefine(nameSpace, id, deps, cb);
+          };
+          wrapped.amd = define.amd;
+          wrapped.switchToUserSpace = switchToUserSpace;
+          wrapped.switchToPackageSpace = switchToPackageSpace;
+          const f = new Function('define', text);
+          f.call(_global, wrapped);
+        }
+      });
+    }
+
+    _bundleLoad[bundleName] = job;
+  }
+
+  return _bundleLoad[bundleName];
 }
 
 function defined(id) {
@@ -599,7 +575,7 @@ function reset() {
   _baseUrl = '';
   _paths = {};
   _bundles = {};
-  _urlLoaded = {};
+  _bundleLoad = {};
 
   userSpace.purge();
   packageSpace.purge();
