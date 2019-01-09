@@ -1,3 +1,12 @@
+## [0.15.12](https://github.com/dumberjs/dumber-module-loader/compare/v0.15.11...v0.15.12) (2019-01-09)
+
+
+### Features
+
+* support require.specified() ([507bd4f](https://github.com/dumberjs/dumber-module-loader/commit/507bd4f))
+
+
+
 ## [0.15.11](https://github.com/dumberjs/dumber-module-loader/compare/v0.15.10...v0.15.11) (2019-01-06)
 
 
