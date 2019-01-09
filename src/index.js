@@ -452,6 +452,10 @@ function defined(id) {
   return userSpace.defined(mId) || packageSpace.defined(mId);
 }
 
+function specified(id) {
+  const mId = mappedId(id);
+  return userSpace.has(mId) || packageSpace.has(mId);
+}
 // return all defined module values, excluding registered but not evaluated.
 // this is to match existing behaviour of requirejs and webpack.
 // note if there is duplicated module id in user and package space, the user
@@ -663,6 +667,7 @@ requirejs.definedValues = definedValues;
 // for compatibility with requirejs
 define.amd = {jQuery: true};
 requirejs.defined = defined;
+requirejs.specified = specified;
 requirejs.isBrowser = isBrowser;
 requirejs.version = version;
 requirejs.undef = undef;

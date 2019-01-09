@@ -13,6 +13,7 @@ test('define exports', t => {
   t.equal(typeof requirejs, 'function');
   t.equal(typeof requirejs.config, 'function');
   t.equal(typeof requirejs.defined, 'function');
+  t.equal(typeof requirejs.specified, 'function');
   t.equal(typeof requirejs.isBrowser, 'boolean');
   t.equal(typeof requirejs.version, 'string');
   t.equal(typeof requirejs.resolveModuleId, 'function');
@@ -484,11 +485,21 @@ test('gets user space json module', t => {
   define.reset();
 
   define('text!foo.json', '{"a":1}');
+  t.notOk(requirejs.specified('json!foo.json'));
+  t.ok(requirejs.specified('text!foo.json'));
+  t.notOk(requirejs.specified('foo.json'));
+  t.notOk(requirejs.defined('json!foo.json'));
+  t.notOk(requirejs.defined('text!foo.json'));
+  t.notOk(requirejs.defined('foo.json'));
 
   requirejs(['json!foo.json'],
     result => {
       t.deepEqual(result, {a: 1});
+      t.ok(requirejs.specified('json!foo.json'));
+      t.ok(requirejs.specified('text!foo.json'));
+      t.ok(requirejs.specified('foo.json'));
       t.ok(requirejs.defined('json!foo.json'));
+      t.ok(requirejs.defined('text!foo.json'));
       t.ok(requirejs.defined('foo.json'));
 
       requirejs(['foo.json'],
@@ -721,6 +732,11 @@ test('requirejs.undef remove a user space module, demote all module depends on i
 
   define('foo', ['a'], a => a + 1);
   define('a', 1);
+
+  t.ok(requirejs.specified('foo'));
+  t.ok(requirejs.specified('a'));
+  t.notOk(requirejs.defined('foo'));
+  t.notOk(requirejs.defined('a'));
 
   requirejs(['foo'],
     result => {

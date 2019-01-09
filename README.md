@@ -155,4 +155,6 @@ Return all defined module values `{"id": val, "id2": val2}`, excluding registere
 
 Check whether a module id is defined, excluding registered but not evaluated. This is to match existing behaviour of `requirejs`.
 
+### `requirejs.specified(id: string)`
 
+Check whether a module id is defined or registered but not evaluated. This is to match existing behaviour of `requirejs`.
