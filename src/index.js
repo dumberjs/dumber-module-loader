@@ -124,6 +124,8 @@ const userSpaceTesseract = {
       // we could try to remotely load a user space module.
 
       if (err && err.__unkown === mId) {
+        // This second tryPlugin will actually do runtimeReq at the end,
+        // because it cannot be found in any additional bundle.
         const tried = tryPlugin(mId, userSpace);
         // tried is a promise or undefined
         if (tried) return tried;

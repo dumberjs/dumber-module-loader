@@ -1373,3 +1373,121 @@ test('gets module with unknown plugin prefix from additional bundle', t => {
     }
   );
 });
+
+test('gets module with unknown plugin prefix at runtime', t => {
+  define.reset();
+
+  define('el',[], () => ({
+    load(id, req, loaded) {
+      req(['text!' + id], text => {
+        loaded('el:'+text);
+      });
+    }
+  }));
+
+  mockFetchApi({
+    'foo.html': '<p>a</p>'
+  });
+
+  requirejs(['el!foo.html'],
+    result => {
+      t.equal(result, 'el:<p>a</p>');
+      restoreFetchApi();
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      restoreFetchApi();
+      t.end();
+    }
+  );
+});
+
+test('gets module with unknown plugin prefix at runtime case2', t => {
+  define.reset();
+
+  define('el',[], () => ({
+    load(id, req, loaded) {
+      req(['text!' + id], text => {
+        loaded('el:'+text);
+      });
+    }
+  }));
+
+  mockFetchApi({
+    'foo.html': '<p>a</p>',
+    'el.js': `
+      define([], () => ({
+        load(id, req, loaded) {
+          req(['text!' + id], text => {
+            loaded('el:'+text);
+          });
+        }
+      }));
+    `
+  });
+
+  requirejs(['el!foo.html'],
+    result => {
+      t.equal(result, 'el:<p>a</p>');
+      restoreFetchApi();
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      restoreFetchApi();
+      t.end();
+    }
+  );
+});
+
+test('gets module with unknown plugin prefix at runtime case3', t => {
+  define.reset();
+
+  define('el',[], () => ({
+    load(id, req, loaded) {
+      req(['text!' + id], text => {
+        loaded('el:'+text);
+      });
+    }
+  }));
+
+  requirejs.config({
+    paths: {
+      el: 'bar/el'
+    },
+    bundles: {
+      'vendor': {
+        package: ['bar/el']
+      }
+    }
+  });
+
+  mockFetchApi({
+    'foo.html': '<p>a</p>',
+    'vendor.js': `
+      define.switchToPackageSpace();
+      define('bar/el',[], () => ({
+        load(id, req, loaded) {
+          req(['text!' + id], text => {
+            loaded('bar/el:'+text);
+          });
+        }
+      }));
+      define.switchToUserSpace();
+    `
+  });
+
+  requirejs(['el!foo.html'],
+    result => {
+      t.equal(result, 'bar/el:<p>a</p>');
+      restoreFetchApi();
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      restoreFetchApi();
+      t.end();
+    }
+  );
+});
