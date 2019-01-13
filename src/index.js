@@ -5,8 +5,7 @@ import _global from './_global';
 import serialResults from './serial-results';
 
 // Try prefix plugin (like text!mId) or extension plugin like "ext:css".
-// This is for user space only.
-function tryPlugin(mId) {
+function tryPlugin(mId, space) {
   const parsed = parse(mId);
   const pluginId = parsed.prefix.slice(0, -1);
   // text,json,raw plugins are built-in
@@ -31,8 +30,8 @@ function tryPlugin(mId) {
             // Call requirejs plugin api load(name, require, load, options)
             // Options set to {} just to make existing requirejs plugins happy.
             plugin.load(parsed.bareId, req, loaded => {
-              userSpace.define(mId, [], () => loaded);
-              resolve(userSpace.req(mId));
+              space.define(mId, [], () => loaded);
+              resolve(space.req(mId));
             }, {});
           });
         } catch (err) {
@@ -40,16 +39,8 @@ function tryPlugin(mId) {
         }
       });
     }
-  } else {
-    return tryExtPlugin(mId, userSpace);
-  }
-}
-
-// Try extension plugin like "ext:css".
-// This is for both user and package space.
-function tryExtPlugin(mId, space) {
-  const parsed = parse(mId);
-  if (!parsed.prefix && parsed.ext && parsed.ext !== '.js') {
+  } else if (parsed.ext && parsed.ext !== '.js') {
+    // Try extension plugin like "ext:css".
     const extPluginName = 'ext:' + parsed.ext.slice(1);
     if (userSpace.has(extPluginName) || packageSpace.has(extPluginName)) {
       return new Promise((resolve, reject) => {
@@ -80,13 +71,14 @@ function tryExtPlugin(mId, space) {
         }
       });
     }
-    // else by default use text!
+    // else by default use text! for any unknown extname
     return new Promise(resolve => {
-      userSpace.define(parsed.cleanId,['text!' + parsed.cleanId], m => m);
-      resolve(userSpace.req(mId));
+      space.define(parsed.cleanId,['text!' + parsed.cleanId], m => m);
+      resolve(space.req(mId));
     });
   }
 }
+
 // dumber-module-loader has two fixed module spaces:
 // 1. user space (default), for user source code
 // 2. package space, for all npm package and local packages
@@ -114,7 +106,7 @@ const userSpaceTesseract = {
     if (p) {
       return p.catch(err => {
         if (err && err.__missing === mId) {
-          const tried = tryExtPlugin(mId, userSpace);
+          const tried = tryPlugin(mId, userSpace);
           // tried is a promise or undefined
           if (tried) return tried;
         }
@@ -130,8 +122,9 @@ const userSpaceTesseract = {
       // Only do runtimeReq if mId fail immediately (not dep fail)
       // This means mId is not a known package space module, so
       // we could try to remotely load a user space module.
+
       if (err && err.__unkown === mId) {
-        const tried = tryPlugin(mId);
+        const tried = tryPlugin(mId, userSpace);
         // tried is a promise or undefined
         if (tried) return tried;
         return runtimeReq(mId);
@@ -164,7 +157,7 @@ const packageSpaceTesseract = {
     if (p) {
       return p.catch(err => {
         if (err && err.__missing === mId) {
-          const tried = tryExtPlugin(mId, packageSpace);
+          const tried = tryPlugin(mId, packageSpace);
           // tried is a promise or undefined
           if (tried) return tried;
         }
@@ -337,7 +330,13 @@ function userReqFromBundle(mId) {
           d = parsed.prefix + parsed.bareId.slice(nameSpace.length + 1);
         }
       }
-      return user.hasOwnProperty(d);
+
+      if (user.hasOwnProperty(d)) return true;
+      const p = parse(d);
+      // For module with unknown plugin prefix, try bareId.
+      // This relies on dumber bundler's default behaviour, it write in bundle config
+      // both 'foo.html' and 'text!foo.html'.
+      if (p.prefix) return user.hasOwnProperty(p.bareId);
     });
   });
 
@@ -358,7 +357,15 @@ function userReqFromBundle(mId) {
 function packageReqFromBundle(mId) {
   const possibleIds = nodejsIds(mId);
   const bundleName = Object.keys(_bundles).find(bn =>
-    possibleIds.some(d => _bundles[bn].package.hasOwnProperty(d))
+    possibleIds.some(d => {
+      const pack = _bundles[bn].package;
+      if (pack.hasOwnProperty(d)) return true;
+      const p = parse(d);
+      // For module with unknown plugin prefix, try bareId.
+      // This relies on dumber bundler's default behaviour, it write in bundle config
+      // both 'foo.html' and 'text!foo.html'.
+      if (p.prefix) return pack.hasOwnProperty(p.bareId);
+    })
   );
 
   if (bundleName) {

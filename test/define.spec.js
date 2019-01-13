@@ -1211,7 +1211,11 @@ test('gets additional package space non-js module from bundle', t => {
   });
 
   mockFetchApi({
-    'a-bundle.js': "define('text!bar/a.html', '<p>1</p>');"
+    'a-bundle.js': `
+      define.switchToPackageSpace();
+      define('text!bar/a.html', '<p>1</p>');
+      define.switchToUserSpace();
+    `
   });
 
   requirejs(['foo'],
@@ -1303,6 +1307,62 @@ test('gets name spaced modules from bundle when bundle name and name space name 
       t.deepEqual(Object.keys(requirejs.definedValues()).sort(), [
         'b', 'lorem!ns/c', 'ns/a'
       ]);
+      restoreFetchApi();
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      restoreFetchApi();
+      t.end();
+    }
+  );
+});
+
+test('gets module with unknown plugin prefix from additional bundle', t => {
+  define.reset();
+
+  requirejs.config({
+    paths: {
+      el: 'bar/el'
+    },
+    bundles: {
+      'app': {
+        user: ['a.html', 'text!a.html']
+      },
+      'entry': {
+        user: ['foo']
+      },
+      'vendor': {
+        package: ['bar/el']
+      }
+    }
+  });
+
+  mockFetchApi({
+    'app.js': `
+      define.switchToUserSpace();
+      define('text!a.html', [], () => '<p>a</p>');
+    `,
+    'vendor.js': `
+      define.switchToPackageSpace();
+      define('bar/el',[], () => ({
+        load(id, req, loaded) {
+          req(['text!' + id], text => {
+            loaded('bar/el:'+text);
+          });
+        }
+      }));
+      define.switchToUserSpace();
+    `,
+    'entry.js': `
+      define.switchToUserSpace();
+      define('foo', ['el!a.html'], m => m);
+    `
+  });
+
+  requirejs(['foo'],
+    result => {
+      t.equal(result, 'bar/el:<p>a</p>');
       restoreFetchApi();
       t.end();
     },
