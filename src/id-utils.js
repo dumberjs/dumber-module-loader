@@ -1,9 +1,13 @@
 const KNOWN_EXTS = [
   '.css',
+  '.sass',
+  '.scss',
+  '.less',
   '.htm',
   '.html',
   '.js',
   '.json',
+  '.json5',
   '.markdown',
   '.md',
   '.svg',
