@@ -293,6 +293,7 @@ test('mapId returns mapped id', t => {
     'b-bundle': 'bundles/b.js',
     'foo': 'common/foo',
     'foo/b': '/other/b',
+    'el': '@some/name-space/el',
     '../src': ''
   };
 
@@ -313,5 +314,6 @@ test('mapId returns mapped id', t => {
   t.equal(mapId('b-bundle', paths), 'bundles/b.js');
   t.equal(mapId('../src/app', paths), 'app');
   t.equal(mapId('text!../src/foo/bar.html', paths), 'text!foo/bar.html');
+  t.equal(mapId('el!../src/foo/bar.html', paths), '@some/name-space/el!foo/bar.html');
   t.end();
 });

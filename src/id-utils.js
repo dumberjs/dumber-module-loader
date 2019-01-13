@@ -184,5 +184,8 @@ export function mapId(id, paths = {}) {
       break;
     }
   }
-  return parsed.prefix + idPath;
+  if (parsed.prefix) {
+    return mapId(parsed.prefix.slice(0, -1), paths) + '!' + idPath;
+  }
+  return idPath;
 }
