@@ -1,3 +1,12 @@
+## [0.15.14](https://github.com/dumberjs/dumber-module-loader/compare/v0.15.13...v0.15.14) (2019-01-13)
+
+
+### Features
+
+* support unknown plugin prefix at runtime ([85a9463](https://github.com/dumberjs/dumber-module-loader/commit/85a9463))
+
+
+
 ## [0.15.13](https://github.com/dumberjs/dumber-module-loader/compare/v0.15.12...v0.15.13) (2019-01-13)
 
 
