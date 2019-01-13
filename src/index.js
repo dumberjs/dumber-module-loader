@@ -231,18 +231,19 @@ let _bundles = {};
 
 // translators for runtime loaded content
 const _translators = [
-  // prefix json!
-  (parsedId, response) => {
-    if (parsedId.prefix !== 'json!') return;
+  // prefix json! is stripped away by id-utils parse()
 
-    return response.json()
-    .then(json => {
-      userSpace.define(parsedId.cleanId, [], json);
-      if (parsedId.ext === '.json') {
-        userSpace.define(parsedId.bareId, [], json);
-      }
-    });
-  },
+  // (parsedId, response) => {
+  //   if (parsedId.prefix !== 'json!') return;
+
+  //   return response.json()
+  //   .then(json => {
+  //     userSpace.define(parsedId.cleanId, [], json);
+  //     if (parsedId.ext === '.json') {
+  //       userSpace.define(parsedId.bareId, [], json);
+  //     }
+  //   });
+  // },
 
   // prefix text!
   (parsedId, response) => {
