@@ -1,3 +1,13 @@
+## [0.15.15](https://github.com/dumberjs/dumber-module-loader/compare/v0.15.14...v0.15.15) (2019-01-13)
+
+
+### Features
+
+* add support of few more file extnames ([cd1c1e9](https://github.com/dumberjs/dumber-module-loader/commit/cd1c1e9))
+* support onload.error callback in requirejs plugin ([8196883](https://github.com/dumberjs/dumber-module-loader/commit/8196883))
+
+
+
 ## [0.15.14](https://github.com/dumberjs/dumber-module-loader/compare/v0.15.13...v0.15.14) (2019-01-13)
 
 
