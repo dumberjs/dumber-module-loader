@@ -1,3 +1,12 @@
+## [0.15.13](https://github.com/dumberjs/dumber-module-loader/compare/v0.15.12...v0.15.13) (2019-01-13)
+
+
+### Bug Fixes
+
+* normalize plugin module path ([38d0de9](https://github.com/dumberjs/dumber-module-loader/commit/38d0de9))
+
+
+
 ## [0.15.12](https://github.com/dumberjs/dumber-module-loader/compare/v0.15.11...v0.15.12) (2019-01-09)
 
 
