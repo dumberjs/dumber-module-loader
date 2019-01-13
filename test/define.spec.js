@@ -1380,9 +1380,9 @@ test('gets module with unknown plugin prefix from additional bundle', t => {
     'vendor.js': `
       define.switchToPackageSpace();
       define('bar/el',[], () => ({
-        load(id, req, loaded) {
+        load(id, req, load) {
           req(['text!' + id], text => {
-            loaded('bar/el:'+text);
+            load('bar/el:'+text);
           });
         }
       }));
@@ -1412,9 +1412,9 @@ test('gets module with unknown plugin prefix at runtime', t => {
   define.reset();
 
   define('el',[], () => ({
-    load(id, req, loaded) {
+    load(id, req, load) {
       req(['text!' + id], text => {
-        loaded('el:'+text);
+        load('el:'+text);
       });
     }
   }));
@@ -1441,9 +1441,9 @@ test('gets module with unknown plugin prefix at runtime case2', t => {
   define.reset();
 
   define('el',[], () => ({
-    load(id, req, loaded) {
+    load(id, req, load) {
       req(['text!' + id], text => {
-        loaded('el:'+text);
+        load('el:'+text);
       });
     }
   }));
@@ -1452,9 +1452,9 @@ test('gets module with unknown plugin prefix at runtime case2', t => {
     'foo.html': '<p>a</p>',
     'el.js': `
       define([], () => ({
-        load(id, req, loaded) {
+        load(id, req, load) {
           req(['text!' + id], text => {
-            loaded('el:'+text);
+            load('el:'+text);
           });
         }
       }));
@@ -1479,9 +1479,9 @@ test('gets module with unknown plugin prefix at runtime case3', t => {
   define.reset();
 
   define('el',[], () => ({
-    load(id, req, loaded) {
+    load(id, req, load) {
       req(['text!' + id], text => {
-        loaded('el:'+text);
+        load('el:'+text);
       });
     }
   }));
@@ -1502,9 +1502,9 @@ test('gets module with unknown plugin prefix at runtime case3', t => {
     'vendor.js': `
       define.switchToPackageSpace();
       define('bar/el',[], () => ({
-        load(id, req, loaded) {
+        load(id, req, load) {
           req(['text!' + id], text => {
-            loaded('bar/el:'+text);
+            load('bar/el:'+text);
           });
         }
       }));
@@ -1525,4 +1525,77 @@ test('gets module with unknown plugin prefix at runtime case3', t => {
     }
   );
 });
+
+test('gets module with unknown plugin prefix at runtime case4', t => {
+  define.reset();
+
+  mockFetchApi({
+    'foo.json5': '{"a": 1}'
+  });
+
+  define('json5',[], () => ({
+    load(id, req, load) {
+      req(['text!' + id], text => {
+        try {
+          const obj = JSON.parse(text);
+          obj.__json5 = true;
+          load(obj);
+        } catch (err) {
+          load.error(err);
+        }
+      });
+    }
+  }));
+
+  requirejs(['json5!foo.json5'],
+    result => {
+      t.deepEqual(result, {a: 1, __json5: true});
+      t.ok(requirejs.defined('json5!foo.json5'));
+
+      restoreFetchApi();
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      restoreFetchApi();
+      t.end();
+    }
+  );
+});
+
+test('supports plugin onload.error', t => {
+  define.reset();
+
+  mockFetchApi({
+    'foo.json5': 'lorem'
+  });
+
+  define('json5',[], () => ({
+    load(id, req, load) {
+      req(['text!' + id], text => {
+        try {
+          const obj = JSON.parse(text);
+          obj.__json5 = true;
+          load(obj);
+        } catch (err) {
+          load.error(err);
+        }
+      });
+    }
+  }));
+
+  requirejs(['json5!foo.json5'],
+    () => {
+      t.fail('should not pass');
+      restoreFetchApi();
+      t.end();
+    },
+    err => {
+      t.pass(err.message);
+      restoreFetchApi();
+      t.end();
+    }
+  );
+});
+
 

@@ -26,13 +26,16 @@ function tryPlugin(mId, space) {
           return requirejs(deps, callback, errback2);
         };
         try {
+          const onload = loaded => {
+            space.define(mId, [], () => loaded);
+            resolve(space.req(mId));
+          };
+          onload.error = err => reject(err);
+
           requirejs([pluginId], plugin => {
             // Call requirejs plugin api load(name, require, load, options)
             // Options set to {} just to make existing requirejs plugins happy.
-            plugin.load(parsed.bareId, req, loaded => {
-              space.define(mId, [], () => loaded);
-              resolve(space.req(mId));
-            }, {});
+            plugin.load(parsed.bareId, req, onload, {});
           });
         } catch (err) {
           reject(err);
@@ -58,13 +61,16 @@ function tryPlugin(mId, space) {
           return requirejs(deps, callback, errback2);
         };
         try {
+          const onload = loaded => {
+            space.define(mId, [], () => loaded);
+            resolve(space.req(mId));
+          };
+          onload.error = err => reject(err);
+
           requirejs([extPluginName], plugin => {
             // Call requirejs plugin api load(name, require, load, options)
             // Options set to {} just to make existing requirejs plugins happy.
-            plugin.load(parsed.cleanId, req, loaded => {
-              space.define(mId, [], () => loaded);
-              resolve(space.req(mId));
-            }, {});
+            plugin.load(parsed.cleanId, req, onload, {});
           });
         } catch (err) {
           reject(err);
