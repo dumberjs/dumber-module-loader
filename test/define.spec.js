@@ -625,6 +625,38 @@ test('gets runtime json file user space module', t => {
   );
 });
 
+test('gets json file with unknown file extname', t => {
+  define.reset();
+
+  define('text!foo.json5', '{"a": 1}');
+
+  requirejs(['json!foo.json5'],
+    result => {
+      t.deepEqual(result, {a: 1});
+      t.ok(requirejs.defined('json!foo.json5'));
+
+      requirejs(['json!foo.json5'],
+        r2 => {
+          t.deepEqual(r2, {a: 1}, 'supports usage with prefix');
+          t.ok(requirejs.defined('json!foo.json5'));
+          restoreFetchApi();
+          t.end();
+        },
+        err => {
+          t.fail(err.message);
+          restoreFetchApi();
+          t.end();
+        }
+      );
+    },
+    err => {
+      t.fail(err.message);
+      restoreFetchApi();
+      t.end();
+    }
+  );
+});
+
 test('gets runtime json file with unknown file extname', t => {
   define.reset();
 
@@ -1585,6 +1617,27 @@ test('supports plugin onload.error', t => {
   }));
 
   requirejs(['json5!foo.json5'],
+    () => {
+      t.fail('should not pass');
+      restoreFetchApi();
+      t.end();
+    },
+    err => {
+      t.pass(err.message);
+      restoreFetchApi();
+      t.end();
+    }
+  );
+});
+
+test('reject json error', t => {
+  define.reset();
+
+  mockFetchApi({
+    'foo.json5': 'lorem'
+  });
+
+  requirejs(['json!foo.json5'],
     () => {
       t.fail('should not pass');
       restoreFetchApi();

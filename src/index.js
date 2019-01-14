@@ -10,7 +10,7 @@ function tryPlugin(mId, space) {
   const pluginId = parsed.prefix.slice(0, -1);
   // text,json,raw plugins are built-in
   if (pluginId) {
-    if (pluginId !== 'text' && pluginId !== 'json' && pluginId !== 'raw') {
+    if (pluginId !== 'text' && pluginId !== 'raw') {
       return new Promise((resolve, reject) => {
         const req = (deps, callback, errback) => {
           const errback2 = e => {
@@ -564,9 +564,25 @@ function loadWasm(name, req, load) {
     response.arrayBuffer().then(buffer =>
       WebAssembly.instantiate(buffer, /*importObject*/)
     )
-    .then(obj => {
-      load(obj.instance.exports);
-    });
+    .then(
+      obj => {
+        load(obj.instance.exports);
+      },
+      load.error
+    );
+  });
+}
+
+function loadJson(name, req, load) {
+  req(['text!' + name], text => {
+    let obj;
+    try {
+      obj = JSON.parse(text);
+    } catch (err) {
+      load.error(err);
+      return;
+    }
+    load(obj);
   });
 }
 
@@ -578,13 +594,11 @@ function reset() {
 
   userSpace.purge();
   packageSpace.purge();
-  switchToUserSpace();
+  // load all built-in plugins in
+  switchToPackageSpace();
 
-  define('ext:json', {
-    load(name, req, load) {
-      req(['text!' + name], text => load(JSON.parse(text)));
-    }
-  });
+  define('json', {load: loadJson});
+  define('ext:json', {load: loadJson});
 
   // now it's default to load them with text plugin
 
@@ -602,6 +616,7 @@ function reset() {
   // define('ext:css', {load: implement_inject_style})
 
   define('ext:wasm', {load: loadWasm});
+  switchToUserSpace();
 }
 
 // https://github.com/tc39/proposal-dynamic-import
