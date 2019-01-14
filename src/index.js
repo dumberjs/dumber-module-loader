@@ -109,16 +109,7 @@ const userSpaceTesseract = {
   req: mId => {
     const p = userReqFromBundle(mId);
     // p is a promise loading additional bundle
-    if (p) {
-      return p.catch(err => {
-        if (err && err.__missing === mId) {
-          const tried = tryPlugin(mId, userSpace);
-          // tried is a promise or undefined
-          if (tried) return tried;
-        }
-        throw err;
-      });
-    }
+    if (p) return p;
 
     let packageReq;
     try {
@@ -130,7 +121,7 @@ const userSpaceTesseract = {
       // we could try to remotely load a user space module.
 
       if (err && err.__unkown === mId) {
-        // This second tryPlugin will actually do runtimeReq at the end,
+        // This tryPlugin will actually do runtimeReq at the end,
         // because it cannot be found in any additional bundle.
         const tried = tryPlugin(mId, userSpace);
         // tried is a promise or undefined
@@ -159,20 +150,7 @@ const packageSpaceTesseract = {
   mappedId,
   toUrl,
   // incoming id is already mapped
-  req: mId => {
-    const p = packageReqFromBundle(mId);
-    // p is a promise loading additional bundle
-    if (p) {
-      return p.catch(err => {
-        if (err && err.__missing === mId) {
-          const tried = tryPlugin(mId, packageSpace);
-          // tried is a promise or undefined
-          if (tried) return tried;
-        }
-        throw err;
-      });
-    }
-  }
+  req: packageReqFromBundle
 };
 
 const packageSpace = makeSpace(packageSpaceTesseract);
@@ -352,9 +330,11 @@ function userReqFromBundle(mId) {
     return loadBundle(bundleName)
     .then(() => {
       if (userSpace.has(mId)) return userSpace.req(mId);
-      const err = new Error(`module "${mId}" is missing from bundle "${bundleName}"`);
-      err.__missing = mId;
-      throw err;
+      // mId is not directly defined in the bundle, it could be
+      // behind a customised plugin or ext plugin.
+      const tried = tryPlugin(mId, userSpace);
+      if (tried) return tried;
+      throw new Error(`module "${mId}" is missing from bundle "${bundleName}"`);
     });
   }
 }
@@ -380,9 +360,9 @@ function packageReqFromBundle(mId) {
     return loadBundle(bundleName)
     .then(() => {
       if (packageSpace.has(mId)) return packageSpace.req(mId);
-      const err = new Error(`module "${mId}" is missing from bundle "${bundleName}"`);
-      err.__missing = mId;
-      throw err;
+      const tried = tryPlugin(mId, packageSpace);
+      if (tried) return tried;
+      throw new Error(`module "${mId}" is missing from bundle "${bundleName}"`);
     });
   }
 
