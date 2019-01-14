@@ -1,3 +1,12 @@
+## [0.15.16](https://github.com/dumberjs/dumber-module-loader/compare/v0.15.15...v0.15.16) (2019-01-14)
+
+
+### Features
+
+* support json! prefix on module with extname not '.json' ([0083fd8](https://github.com/dumberjs/dumber-module-loader/commit/0083fd8))
+
+
+
 ## [0.15.15](https://github.com/dumberjs/dumber-module-loader/compare/v0.15.14...v0.15.15) (2019-01-13)
 
 
