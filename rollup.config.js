@@ -4,7 +4,6 @@ import json from 'rollup-plugin-json';
 
 const banner = `
 if (typeof define !== 'undefined') throw new Error('Global var "define" is occupied!');
-if (typeof Promise === 'undefined') throw new Error('Need a polyfill for Promise API');
 `;
 
 const footer = `
