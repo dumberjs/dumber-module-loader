@@ -27,6 +27,22 @@ export default [
     ]
   },
   {
+    input: 'src/index.js',
+    output: {
+      format: 'iife',
+      name: 'dumberModuleLoader',
+      file: 'dist/index.debug.js',
+      sourcemap: 'inline',
+      banner,
+      footer
+    },
+    plugins: [
+      json(),
+      babel(),
+      terser()
+    ]
+  },
+  {
     input: 'src/id-utils.js',
     output: {
       format: 'cjs',
