@@ -10,32 +10,21 @@ const footer = `
 if (typeof require === 'undefined') require = requirejs;
 `;
 
+const indexOutput = {
+  format: 'iife',
+  name: 'dumberModuleLoader',
+  file: 'dist/index.js',
+  banner,
+  footer
+};
+
 export default [
   {
     input: 'src/index.js',
-    output: {
-      format: 'iife',
-      name: 'dumberModuleLoader',
-      file: 'dist/index.js',
-      banner,
-      footer
-    },
-    plugins: [
-      json(),
-      babel(),
-      terser()
-    ]
-  },
-  {
-    input: 'src/index.js',
-    output: {
-      format: 'iife',
-      name: 'dumberModuleLoader',
-      file: 'dist/index.debug.js',
-      sourcemap: 'inline',
-      banner,
-      footer
-    },
+    output: [
+      indexOutput,
+      {...indexOutput, sourcemap: 'inline', file: 'dist/index.debug.js'}
+    ],
     plugins: [
       json(),
       babel(),
