@@ -34,7 +34,7 @@ export default function(tesseract) {
   let _defined = {};
 
   // modules promoting from _registry to _defined.
-  // shape: {id: {id, exports, filename}}
+  // shape: {id: {id, exports, uri}}
   let _promoting = {};
 
   function ids() {
@@ -189,7 +189,7 @@ export default function(tesseract) {
       exports: {},
       id,
       // used by __filename/__dirname wrapper in dumber
-      filename: '/' + id + (extname ? '' : '.js')
+      uri: id + (extname ? '' : '.js')
     };
     let useCjsModule = false;
     _promoting[id] = cjsModule;

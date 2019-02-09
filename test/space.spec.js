@@ -514,8 +514,8 @@ test('space.req fails tesseract.req with commonjs wrapper asynchronously', t => 
 
 test('space.req supports commonjs wrapper', t => {
   const space = makeSpace(tesseract);
-  space.define('foo', ['require', 'exports', 'module', 'a'], new Function('require', 'exports', 'module', `
-    var __filename = module.filename || '', __dirname = __filename.slice(0, __filename.lastIndexOf('/') + 1);
+  space.define('foo/bar', ['require', 'exports', 'module', 'a'], new Function('require', 'exports', 'module', `
+    var __filename = module.uri || '', __dirname = __filename.slice(0, __filename.lastIndexOf('/') + 1);
     const a = require('a');
     exports.foo = a + 3;
     exports.filename = __filename;
@@ -528,23 +528,23 @@ test('space.req supports commonjs wrapper', t => {
   t.notOk(space.has('require'));
   t.notOk(space.has('exports'));
   t.notOk(space.has('module'));
-  t.ok(space.registered('foo'));
+  t.ok(space.registered('foo/bar'));
   t.ok(space.registered('a'));
-  t.notOk(space.defined('foo'));
+  t.notOk(space.defined('foo/bar'));
   t.notOk(space.defined('a'));
 
-  t.deepEqual(space.ids(), ['a', 'foo']);
+  t.deepEqual(space.ids(), ['a', 'foo/bar']);
 
-  const value = space.req('foo');
-  t.deepEqual(value, {foo: 5, filename: '/foo.js', dirname: '/'});
+  const value = space.req('foo/bar');
+  t.deepEqual(value, {foo: 5, filename: 'foo/bar.js', dirname: 'foo/'});
   t.notOk(space.has('require'));
   t.notOk(space.has('exports'));
   t.notOk(space.has('module'));
-  t.notOk(space.registered('foo'));
+  t.notOk(space.registered('foo/bar'));
   t.notOk(space.registered('a'));
-  t.ok(space.defined('foo'));
+  t.ok(space.defined('foo/bar'));
   t.ok(space.defined('a'));
-  t.deepEqual(space.ids(), ['a', 'foo']);
+  t.deepEqual(space.ids(), ['a', 'foo/bar']);
   t.end();
 });
 
