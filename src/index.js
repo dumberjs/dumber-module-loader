@@ -299,6 +299,10 @@ function runtimeReq(mId) {
   .then(() => {
     if (userSpace.has(parsed.cleanId)) return userSpace.req(parsed.cleanId);
     throw new Error(`module "${parsed.cleanId}" is missing from url "${toUrl(mId)}"`);
+  })
+  .catch(err => {
+    console.error(`could not load module "${parsed.cleanId}" from remote`); // eslint-disable-line no-console
+    throw err;
   });
 }
 
