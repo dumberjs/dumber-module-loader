@@ -43,7 +43,6 @@
     "browserify": "^16.2.3",
     "cross-env": "^5.2.0",
     "eslint": "^5.16.0",
-    "express": "^4.17.1",
     "nyc": "^14.1.1",
     "rollup": "^1.14.2",
     "rollup-plugin-babel": "^4.3.2",
@@ -54,10 +53,8 @@
     "tape": "^4.10.2",
     "tape-run": "^6.0.0"
   },
-  "types": "index.d.ts",
   "files": [
-    "dist",
-    "index.d.ts"
+    "dist"
   ],
   "dependencies": {}
 }
