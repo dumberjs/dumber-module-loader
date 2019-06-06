@@ -12,7 +12,7 @@
     "postversion": "git push && git push --tags && npm publish",
     "pretest": "npm run lint",
     "nodejs-test": "cross-env BABEL_ENV=test tape -r @babel/register \"test/**/*.spec.js\" | tap-dot",
-    "browser-test": "cross-env BABEL_ENV=test browserify -t babelify test/all-spec.js | tape-run --static . | tap-dot",
+    "browser-test": "cross-env BABEL_ENV=test browserify -t babelify test/all-spec.js | tape-run | tap-dot",
     "amdjs-test": "npm run build && node amdjs-run",
     "amdjs-browser": "npm run build && browser-run --input html --mock amdjs-tests/mock.js --browser chrome < amdjs-tests/index.html",
     "coverage": "cross-env BABEL_ENV=test nyc --reporter=lcov tape -r @babel/register \"test/**/*.spec.js\" | tap-dot",
