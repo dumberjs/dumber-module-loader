@@ -1,14 +1,14 @@
 const fs = require('fs');
-const browserRun = require('browser-run');
+const browserDo = require('browser-do');
 const { Writable } = require('stream');
 
 let result = null;
 let timeoutSeconds = 20;
 
-const opts = {input: 'html', mock: 'amdjs-tests/mock.js'};
+const opts = {mock: 'amdjs-tests/mock.js'};
 const browser = process.argv[2];
 if (browser) opts.browser = browser;
-const server = browserRun(opts);
+const server = browserDo(opts);
 
 const detectFinish = new Writable({
   write(chunk, encoding, callback) {
