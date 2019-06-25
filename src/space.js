@@ -132,8 +132,7 @@ export default function(tesseract) {
     }
   }
 
-  function isCircular(mId) {
-    let targetId;
+  function isCircular(mId, targetId) {
     const checked = Object.create(null);
 
     const _isCircular = _id => {
@@ -143,10 +142,7 @@ export default function(tesseract) {
       if (targetId) {
         checked[_id] = true;
         if (targetId === id) return true;
-      } else {
-        targetId = id;
       }
-
 
       for (let i = 0, len = deps.length; i < len; i++) {
         const d = deps[i];
@@ -280,7 +276,7 @@ export default function(tesseract) {
           // 2. Nodejs circular dependency only happens within one npm package, as long as
           // user didn't split circular depended modules to multiple bundles, we are fine.
           // 3. follow commonjs require() semantic, to be resolved at code running time.
-          if (isCircular(mId)) return;
+          if (isCircular(mId, moduleId)) return;
           return req(mId);
         }
       });

@@ -737,6 +737,34 @@ test('space deals with yallist like circular dependencies', t => {
   t.end();
 });
 
+test('space deals with des.js like circular dependencies', t => {
+  const space = makeSpace(tesseract);
+
+  space.define('des.js/des', ['require', 'exports', 'module', './lib/cipher', './lib/des'], new Function('require', 'exports', 'module', `
+    exports.Cipher = require('./lib/cipher');
+    exports.DES = require('./lib/des');
+  `));
+
+  space.define('des.js/lib/cipher', ['require', 'exports', 'module'], new Function('require', 'exports', 'module', `
+    module.exports = function(msg) { return 'Cipher:' + msg; };
+  `));
+
+  space.define('des.js/lib/des', ['require', 'exports', 'module', '../des'], new Function('require', 'exports', 'module', `
+    var Cipher = require('../des').Cipher;
+    module.exports = function(msg) { return 'DES:' + Cipher(msg); };
+  `));
+
+  space.define('des.js', ['des.js/des'], m => m);
+
+  // Note the entry is des.js, the first dep 'des.js/des' is in a circular dep loop, but should still be loaded.
+  // circular dep is only skipped when 'des.js/des' tries to load 'des.js/lib/des'.
+  const des = space.req('des.js');
+  t.equal((typeof des.DES), 'function');
+  t.equal((typeof des.Cipher), 'function');
+  t.equal(des.DES('lorem'), 'DES:Cipher:lorem');
+  t.end();
+});
+
 test('space reports definedValues', t => {
   const space = makeSpace(tesseract);
   space.define('foo', ['a'], a => a + 1);
