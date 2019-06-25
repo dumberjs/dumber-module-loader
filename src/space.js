@@ -91,7 +91,9 @@ export default function(tesseract) {
 
     // Be compatible with requirejs, skip existing module.
     // Note SystemJS behaves differently, it overwrites.
-    if (id && has(id)) return;
+    if (id && (_registry.hasOwnProperty(id) || _defined.hasOwnProperty(id))) {
+      return;
+    }
 
     // fill-up CommonJS dependencies.
     if (!deps) {
