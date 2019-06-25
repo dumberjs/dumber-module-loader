@@ -1,3 +1,13 @@
+## [0.16.4](https://github.com/dumberjs/dumber-module-loader/compare/v0.16.3...v0.16.4) (2019-06-25)
+
+
+### Bug Fixes
+
+* avoid module 'foo.json' overshadow module 'foo' ([4937c11](https://github.com/dumberjs/dumber-module-loader/commit/4937c11))
+* fix circular deps loading when an outside module loads a circular group (which is always the case in reality) ([5691056](https://github.com/dumberjs/dumber-module-loader/commit/5691056))
+
+
+
 ## [0.16.3](https://github.com/dumberjs/dumber-module-loader/compare/v0.16.2...v0.16.3) (2019-06-25)
 
 
