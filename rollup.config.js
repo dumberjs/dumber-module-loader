@@ -21,23 +21,14 @@ const indexOutput = {
 export default [
   {
     input: 'src/index.js',
-    output: indexOutput,
+    output: [
+      indexOutput,
+      {...indexOutput, sourcemap: 'inline', file: 'dist/index.debug.js'}
+    ],
     plugins: [
       json(),
       babel(),
       terser()
-    ]
-  },
-  {
-    input: 'src/index.js',
-    output: {
-      ...indexOutput,
-      sourcemap: 'inline',
-      file: 'dist/index.debug.js'
-    },
-    plugins: [
-      json(),
-      babel()
     ]
   },
   {
