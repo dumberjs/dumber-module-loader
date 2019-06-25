@@ -557,6 +557,44 @@ test('gets package space json module', t => {
   );
 });
 
+test('gets package space dep json module', t => {
+  define.reset();
+  mockFetchApi();
+
+  define.switchToPackageSpace();
+  // have to use explicit module 'foo.json' for npm package
+  define('foo.json', () => ({"a":1}));
+  define('foo', ['./foo.json'], r => r.a + 1);
+
+  requirejs(['foo'],
+    result => {
+      t.equal(result, 2);
+      t.ok(requirejs.defined('foo.json'));
+      restoreFetchApi();
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      restoreFetchApi();
+      t.end();
+    }
+  );
+});
+
+//TODO
+test('does not support package space dep css module, yet', t => {
+  define.reset();
+  mockFetchApi();
+
+  define.switchToPackageSpace();
+  // have to use explicit module 'foo.json' for npm package
+  define('text!foo.css', () => '.a { color: red; }');
+  define('foo', ['./foo.css'], r => r);
+
+  t.throws(() => requirejs(['foo']));
+  t.end();
+});
+
 test('gets runtime json! user space module', t => {
   define.reset();
 
