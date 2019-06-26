@@ -1,3 +1,12 @@
+# [0.17.0](https://github.com/dumberjs/dumber-module-loader/compare/v0.16.4...v0.17.0) (2019-06-26)
+
+
+### Features
+
+* add define.alias(fromId, toId) to better handle commonjs semantic ([6304268](https://github.com/dumberjs/dumber-module-loader/commit/6304268))
+
+
+
 ## [0.16.4](https://github.com/dumberjs/dumber-module-loader/compare/v0.16.3...v0.16.4) (2019-06-25)
 
 
