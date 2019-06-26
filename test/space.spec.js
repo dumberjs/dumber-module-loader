@@ -757,7 +757,7 @@ test('space deals with des.js like circular dependencies', t => {
     module.exports = function(msg) { return 'DES:' + Cipher(msg); };
   `));
 
-  space.alias('des.js', 'des.js/des');
+  space.alias('des', 'des.js/des');
 
   // Note the entry is des.js, the first dep 'des.js/des' is in a circular dep loop, but should still be loaded.
   // circular dep is only skipped when 'des.js/des' tries to load 'des.js/lib/des'.

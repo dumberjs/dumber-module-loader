@@ -59,22 +59,22 @@ export default function(tesseract) {
 
   // incoming id is a mapped id
   function registered(id) {
-    id = deAlias(id);
     const ids = nodejsIds(id);
     for (let i = 0, len = ids.length; i < len; i++) {
-      if (_registry.hasOwnProperty(ids[i])) {
-        return _registry[ids[i]];
+      let _id = deAlias(ids[i]);
+      if (_registry.hasOwnProperty(_id)) {
+        return _registry[_id];
       }
     }
   }
 
   // incoming id is a mapped id
   function defined(id) {
-    id = deAlias(id);
     const ids = nodejsIds(id);
     for (let i = 0, len = ids.length; i < len; i++) {
-      if (_defined.hasOwnProperty(ids[i])) {
-        return _defined[ids[i]];
+      let _id = deAlias(ids[i]);
+      if (_defined.hasOwnProperty(_id)) {
+        return _defined[_id];
       }
     }
   }
