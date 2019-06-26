@@ -1,3 +1,12 @@
+## [0.17.1](https://github.com/dumberjs/dumber-module-loader/compare/v0.17.0...v0.17.1) (2019-06-26)
+
+
+### Bug Fixes
+
+* fix missing deAlias for possible nodejsIds ([a31f8ad](https://github.com/dumberjs/dumber-module-loader/commit/a31f8ad))
+
+
+
 # [0.17.0](https://github.com/dumberjs/dumber-module-loader/compare/v0.16.4...v0.17.0) (2019-06-26)
 
 
