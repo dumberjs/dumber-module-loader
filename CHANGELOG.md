@@ -1,3 +1,12 @@
+## [0.17.2](https://github.com/dumberjs/dumber-module-loader/compare/v0.17.1...v0.17.2) (2019-06-26)
+
+
+### Bug Fixes
+
+* fix circular checker when alias is in the path ([2ed0006](https://github.com/dumberjs/dumber-module-loader/commit/2ed0006))
+
+
+
 ## [0.17.1](https://github.com/dumberjs/dumber-module-loader/compare/v0.17.0...v0.17.1) (2019-06-26)
 
 
