@@ -5,6 +5,7 @@ import {mockFetchApi, restoreFetchApi} from './mock-fetch';
 
 test('define exports', t => {
   t.equal(typeof define, 'function');
+  t.equal(typeof define.alias, 'function');
   t.equal(typeof define.switchToUserSpace, 'function');
   t.equal(typeof define.switchToPackageSpace, 'function');
   t.equal(typeof define.currentSpace, 'function');
@@ -27,6 +28,27 @@ test('define amd modules', t => {
   define('foo/bar', ['a', './b'], (a, b) => a + b + 3);
   define('a', 1);
   define('foo/b.js', () => 2);
+
+  requirejs(['foo/bar'],
+    result => {
+      t.equal(result, 6);
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      t.end();
+    }
+  );
+});
+
+test('define alias', t => {
+  define.reset();
+
+  define('foo/bar', ['a', './b'], (a, b) => a + b + 3);
+  define('c', 1);
+  define('foo/_b.js', () => 2);
+  define.alias('a', 'c');
+  define.alias('foo/b', 'foo/_b');
 
   requirejs(['foo/bar'],
     result => {

@@ -79,7 +79,7 @@ function tryPlugin(mId, space) {
     }
     // else by default use text! for any unknown extname
     return new Promise(resolve => {
-      space.define(parsed.cleanId,['text!' + parsed.cleanId], m => m);
+      space.alias(parsed.cleanId, 'text!' + parsed.cleanId);
       resolve(space.req(mId));
     });
   }
@@ -474,6 +474,12 @@ function define(id, deps, callback) {
 
   currentSpace.define(id, deps, callback);
 }
+
+// define.alias func to do an alias without define(fromId, [toId], m => m)
+// this is very important for commonjs semantic (circular deps resolution).
+define.alias = function(fromId, toId) {
+  currentSpace.alias(fromId, toId);
+};
 
 // Special named spaced define
 // Designed to load runtime extensions

@@ -635,17 +635,20 @@ test('space.purge cleanup everything', t => {
   space.define('bar', ['foo'], f => f + 3);
   space.define('foo', ['a'], a => a + 3);
   space.define('a', 2);
+  space.alias('b', 'a');
 
   t.ok(space.has('bar'));
   t.ok(space.has('foo'));
   t.ok(space.has('a'));
+  t.ok(space.has('b'));
 
-  t.deepEqual(space.ids(), ['a', 'bar', 'foo']);
+  t.deepEqual(space.ids(), ['a', 'b', 'bar', 'foo']);
 
   space.purge();
   t.notOk(space.has('bar'));
   t.notOk(space.has('foo'));
   t.notOk(space.has('a'));
+  t.notOk(space.has('b'));
   t.equal(space.ids().length, 0);
   t.end();
 });
@@ -754,7 +757,7 @@ test('space deals with des.js like circular dependencies', t => {
     module.exports = function(msg) { return 'DES:' + Cipher(msg); };
   `));
 
-  space.define('des.js', ['des.js/des'], m => m);
+  space.alias('des.js', 'des.js/des');
 
   // Note the entry is des.js, the first dep 'des.js/des' is in a circular dep loop, but should still be loaded.
   // circular dep is only skipped when 'des.js/des' tries to load 'des.js/lib/des'.
@@ -762,6 +765,28 @@ test('space deals with des.js like circular dependencies', t => {
   t.equal((typeof des.DES), 'function');
   t.equal((typeof des.Cipher), 'function');
   t.equal(des.DES('lorem'), 'DES:Cipher:lorem');
+  t.end();
+});
+
+test('space deals with alias + cirular deps', t => {
+  const space = makeSpace(tesseract);
+
+  space.alias('foo', 'foo/index');
+
+  space.define('foo/index', ['require', 'exports', 'module', '../bar'], new Function('require', 'exports', 'module', `
+    var bar = require('../bar');
+    exports.foo = function(msg) { return 'foo:' + bar(msg); };
+    exports.inner = function(msg) { return 'inner:' + msg; };
+  `));
+
+  space.define('bar', ['require', 'exports', 'module', './foo'], new Function('require', 'exports', 'module', `
+    var foo = require('./foo');
+    module.exports = function(msg) { return 'bar:' + foo.inner(msg); };
+  `));
+
+  const foo = space.req('foo');
+  t.equal((typeof foo.foo), 'function');
+  t.equal(foo.foo('lorem'), 'foo:bar:inner:lorem');
   t.end();
 });
 

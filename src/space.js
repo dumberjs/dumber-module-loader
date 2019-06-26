@@ -37,8 +37,18 @@ export default function(tesseract) {
   // shape: {id: {id, exports, uri}}
   let _promoting = {};
 
+  // all aliases
+  // for npm main for example
+  // foo -> foo/index
+  // bar -> bar/browser
+  let _aliases = Object.create(null);
+
   function ids() {
-    const ids = [...Object.keys(_registry), ...Object.keys(_defined)];
+    const ids = [
+      ...Object.keys(_registry),
+      ...Object.keys(_defined),
+      ...Object.keys(_aliases)
+    ];
     return ids.sort();
   }
 
@@ -49,6 +59,7 @@ export default function(tesseract) {
 
   // incoming id is a mapped id
   function registered(id) {
+    id = deAlias(id);
     const ids = nodejsIds(id);
     for (let i = 0, len = ids.length; i < len; i++) {
       if (_registry.hasOwnProperty(ids[i])) {
@@ -59,6 +70,7 @@ export default function(tesseract) {
 
   // incoming id is a mapped id
   function defined(id) {
+    id = deAlias(id);
     const ids = nodejsIds(id);
     for (let i = 0, len = ids.length; i < len; i++) {
       if (_defined.hasOwnProperty(ids[i])) {
@@ -73,6 +85,14 @@ export default function(tesseract) {
       v[id] = _defined[id].val;
     });
     return v;
+  }
+
+  function alias(fromId, toId) {
+    _aliases[fromId] = toId;
+  }
+
+  function deAlias(id) {
+    return _aliases[id] || id;
   }
 
   // AMD define
@@ -168,6 +188,8 @@ export default function(tesseract) {
     if (moduleId === cjs_require || moduleId === cjs_exports || moduleId === cjs_module) {
       throw new Error(`cannot require reserved keyword "${moduleId}"`);
     }
+
+    moduleId = deAlias(moduleId);
 
     const def = defined(moduleId);
     if (def) return def.val;
@@ -268,7 +290,7 @@ export default function(tesseract) {
           return cjsModule.exports;
         } else {
           const absoluteId = resolveModuleId(id, d);
-          const mId = tesseract.mappedId(absoluteId);
+          const mId = deAlias(tesseract.mappedId(absoluteId));
           const def = defined(mId);
           if (def) return def.val;
 
@@ -278,7 +300,7 @@ export default function(tesseract) {
           // 2. Nodejs circular dependency only happens within one npm package, as long as
           // user didn't split circular depended modules to multiple bundles, we are fine.
           // 3. follow commonjs require() semantic, to be resolved at code running time.
-          if (isCircular(mId, moduleId)) return;
+          if (isCircular(mId, id)) return;
           return req(mId);
         }
       });
@@ -338,6 +360,7 @@ export default function(tesseract) {
     _registry = {};
     _anonymous = null;
     _defined = {};
+    _aliases = Object.create(null);
   }
 
   return {
@@ -347,6 +370,7 @@ export default function(tesseract) {
     defined,
     definedValues,
     define,
+    alias,
     nameAnonymous,
     req,
     undef,
