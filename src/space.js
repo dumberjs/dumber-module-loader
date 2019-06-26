@@ -170,7 +170,7 @@ export default function(tesseract) {
         const d = deps[i];
         if (d === cjs_require || d === cjs_exports || d === cjs_module) continue;
         const absoluteId = resolveModuleId(id, d);
-        const _mId = tesseract.mappedId(absoluteId);
+        const _mId = deAlias(tesseract.mappedId(absoluteId));
         if (checked[_mId]) continue;
         if (_isCircular(_mId)) return true;
       }
@@ -216,7 +216,7 @@ export default function(tesseract) {
 
     const requireFunc = dep => {
       const absoluteId = resolveModuleId(id, dep);
-      const mId = tesseract.mappedId(absoluteId);
+      const mId = deAlias(tesseract.mappedId(absoluteId));
       const depDefined = defined(mId);
       if (depDefined) return depDefined.val;
 
@@ -330,7 +330,7 @@ export default function(tesseract) {
       const {id, deps} = _defined[_id];
       const isConsumer = deps.some(d => {
         const absoluteId = resolveModuleId(id, d);
-        const mId = tesseract.mappedId(absoluteId);
+        const mId = deAlias(tesseract.mappedId(absoluteId));
         return mId === did;
       });
       if (isConsumer) depended.push(_id);
