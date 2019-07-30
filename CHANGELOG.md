@@ -1,3 +1,12 @@
+# [0.18.0](https://github.com/dumberjs/dumber-module-loader/compare/v0.17.2...v0.18.0) (2019-07-30)
+
+
+### Features
+
+* accept load foo.css module fro foo.less/.sass/.scss/.styl  ([5d0aaff](https://github.com/dumberjs/dumber-module-loader/commit/5d0aaff))
+
+
+
 ## [0.17.2](https://github.com/dumberjs/dumber-module-loader/compare/v0.17.1...v0.17.2) (2019-06-26)
 
 
