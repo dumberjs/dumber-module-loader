@@ -1,4 +1,3 @@
-/* global global, self, */
 // copied from https://github.com/aurelia/pal/blob/master/src/index.js
 const _global = (function() {
   // Workers don’t have `window`, only `self`
