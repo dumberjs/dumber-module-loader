@@ -272,6 +272,7 @@ test('relativeModuleId can work on base with ..', t => {
 test('nodejsIds returns possible nodejs ids', t => {
   t.deepEqual(nodejsIds('foo'), ['foo', 'foo.js', 'foo.json', 'foo/index', 'foo/index.js', 'foo/index.json']);
   t.deepEqual(nodejsIds('foo.js'), ['foo.js', 'foo', 'foo.js/index', 'foo.js/index.js', 'foo.js/index.json']);
+  t.deepEqual(nodejsIds('foo.less'), ['foo.less', 'foo.css', 'foo.less/index', 'foo.less/index.js', 'foo.less/index.json']);
   t.deepEqual(nodejsIds('foo.json'), ['foo.json', 'foo.json/index', 'foo.json/index.js', 'foo.json/index.json']);
   t.deepEqual(nodejsIds('foo.min'), ['foo.min', 'foo.min.js', 'foo.min.json', 'foo.min/index', 'foo.min/index.js', 'foo.min/index.json']);
   t.deepEqual(nodejsIds('foo.min.js'), ['foo.min.js', 'foo.min', 'foo.min.js/index', 'foo.min.js/index.js', 'foo.min.js/index.json']);

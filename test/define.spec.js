@@ -1711,4 +1711,70 @@ test('reject json error', t => {
   );
 });
 
+test('define gets css module form less name', t => {
+  define.reset();
 
+  define('foo.css', () => '.a{}');
+
+  requirejs(['foo.less'],
+    result => {
+      t.equal(result, '.a{}');
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      t.end();
+    }
+  );
+});
+
+test('define gets css module form scss name', t => {
+  define.reset();
+
+  define('foo.css', () => '.a{}');
+
+  requirejs(['foo.scss'],
+    result => {
+      t.equal(result, '.a{}');
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      t.end();
+    }
+  );
+});
+
+test('define gets css module form sass name', t => {
+  define.reset();
+
+  define('foo.css', () => '.a{}');
+
+  requirejs(['foo.sass'],
+    result => {
+      t.equal(result, '.a{}');
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      t.end();
+    }
+  );
+});
+
+test('define gets css module form styl name', t => {
+  define.reset();
+
+  define('foo.css', () => '.a{}');
+
+  requirejs(['foo.styl'],
+    result => {
+      t.equal(result, '.a{}');
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      t.end();
+    }
+  );
+});

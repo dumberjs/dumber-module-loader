@@ -3,6 +3,7 @@ const KNOWN_EXTS = [
   '.sass',
   '.scss',
   '.less',
+  '.styl',
   '.htm',
   '.html',
   '.js',
@@ -157,11 +158,18 @@ export function relativeModuleId(baseId, absoluteId) {
 export function nodejsIds(id) {
   const parsed = parse(id);
   const ids = [parsed.cleanId];
+  const {ext} = parsed;
 
-  if (parsed.ext === '.js') {
+  if (ext === '.js') {
     const trimed = parsed.cleanId.slice(0, -3);
     ids.push(trimed);
-  } else if (!parsed.ext) {
+  } if (ext === '.sass' ||
+        ext === '.scss' ||
+        ext === '.less' ||
+        ext === '.styl') {
+    // be nice to users from webpack, allow import 'a.scss'; to work.
+    ids.push(parsed.cleanId.slice(0, -ext.length) + '.css');
+  } else if (!ext) {
     ids.push(parsed.cleanId + '.js');
     ids.push(parsed.cleanId + '.json');
   }
