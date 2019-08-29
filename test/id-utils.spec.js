@@ -272,11 +272,13 @@ test('relativeModuleId can work on base with ..', t => {
 test('nodejsIds returns possible nodejs ids', t => {
   t.deepEqual(nodejsIds('foo'), ['foo', 'foo.js', 'foo.json', 'foo/index', 'foo/index.js', 'foo/index.json']);
   t.deepEqual(nodejsIds('foo.js'), ['foo.js', 'foo', 'foo.js/index', 'foo.js/index.js', 'foo.js/index.json']);
+  t.deepEqual(nodejsIds('foo.ts'), ['foo.ts', 'foo', 'foo.ts/index', 'foo.ts/index.js', 'foo.ts/index.json']);
   t.deepEqual(nodejsIds('foo.less'), ['foo.less', 'foo.css', 'foo.less/index', 'foo.less/index.js', 'foo.less/index.json']);
   t.deepEqual(nodejsIds('foo.json'), ['foo.json', 'foo.json/index', 'foo.json/index.js', 'foo.json/index.json']);
   t.deepEqual(nodejsIds('foo.min'), ['foo.min', 'foo.min.js', 'foo.min.json', 'foo.min/index', 'foo.min/index.js', 'foo.min/index.json']);
   t.deepEqual(nodejsIds('foo.min.js'), ['foo.min.js', 'foo.min', 'foo.min.js/index', 'foo.min.js/index.js', 'foo.min.js/index.json']);
   t.deepEqual(nodejsIds('foo.html'), ['foo.html', 'foo.html/index', 'foo.html/index.js', 'foo.html/index.json']);
+  t.deepEqual(nodejsIds('foo.haml'), ['foo.haml', 'foo.html', 'foo.haml/index', 'foo.haml/index.js', 'foo.haml/index.json']);
 
   t.deepEqual(nodejsIds('text!foo/bar'), ['text!foo/bar', 'text!foo/bar.js', 'text!foo/bar.json', 'text!foo/bar/index', 'text!foo/bar/index.js', 'text!foo/bar/index.json']);
   t.deepEqual(nodejsIds('text!foo/bar.js'), ['text!foo/bar.js', 'text!foo/bar', 'text!foo/bar.js/index', 'text!foo/bar.js/index.js', 'text!foo/bar.js/index.json']);

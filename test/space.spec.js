@@ -256,7 +256,7 @@ test('space understand Nodejs module name convention on .js extension', t => {
 
   t.ok(space.registered('foo'));
   t.ok(space.registered('foo.js'), 'normalise .js extension');
-  t.notOk(space.registered('foo.ts'), 'does not normalise unknown extension');
+  t.ok(space.registered('foo.ts'), 'normalise .ts extension');
   t.notOk(space.registered('text!foo'), 'does not normalise plugin prefix');
   t.end();
 });
@@ -280,7 +280,7 @@ test('space understand Nodejs module name convention on implicit /index', t => {
 
   t.ok(space.registered('foo/index'));
   t.ok(space.registered('foo/index.js'), 'normalise .js extension');
-  t.notOk(space.registered('foo/index.ts'), 'does not normalise unknown extension');
+  t.ok(space.registered('foo/index.ts'), 'normalise .ts extension');
   t.notOk(space.registered('text!foo/index'), 'does not normalise plugin prefix');
   t.notOk(space.registered('text!foo/index.js'), 'does not normalise plugin prefix');
 

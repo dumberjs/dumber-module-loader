@@ -1,16 +1,28 @@
-const KNOWN_EXTS = [
-  '.css',
+const ALTERNATIVE_CSS_EXTS = [
   '.sass',
   '.scss',
   '.less',
-  '.styl',
-  '.htm',
+  '.styl'
+];
+
+const ALTERNATIVE_TEMPLATE_EXTS = [
+  '.md',
+  '.pug',
+  '.haml',
+  '.jade',
+  '.slim',
+  '.slm'
+];
+
+const KNOWN_EXTS = [
+  '.css',
+  ...ALTERNATIVE_CSS_EXTS,
   '.html',
+  ...ALTERNATIVE_TEMPLATE_EXTS,
   '.js',
+  '.ts',
   '.json',
   '.json5',
-  '.markdown',
-  '.md',
   '.svg',
   '.txt',
   '.wasm',
@@ -160,15 +172,15 @@ export function nodejsIds(id) {
   const ids = [parsed.cleanId];
   const {ext} = parsed;
 
-  if (ext === '.js') {
+  if (ext === '.js' || ext === '.ts') {
     const trimed = parsed.cleanId.slice(0, -3);
     ids.push(trimed);
-  } if (ext === '.sass' ||
-        ext === '.scss' ||
-        ext === '.less' ||
-        ext === '.styl') {
+  } if (ALTERNATIVE_CSS_EXTS.indexOf(ext) !== -1) {
     // be nice to users from webpack, allow import 'a.scss'; to work.
     ids.push(parsed.cleanId.slice(0, -ext.length) + '.css');
+  } if (ALTERNATIVE_TEMPLATE_EXTS.indexOf(ext) !== -1) {
+    // be nice to users from webpack, allow import 'a.md'; to work.
+    ids.push(parsed.cleanId.slice(0, -ext.length) + '.html');
   } else if (!ext) {
     ids.push(parsed.cleanId + '.js');
     ids.push(parsed.cleanId + '.json');
