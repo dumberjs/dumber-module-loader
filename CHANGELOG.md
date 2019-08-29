@@ -1,3 +1,12 @@
+# [1.0.0](https://github.com/dumberjs/dumber-module-loader/compare/v0.18.0...v1.0.0) (2019-08-29)
+
+
+### Features
+
+* be more friendly to alternative html template syntax ([00ab2ff](https://github.com/dumberjs/dumber-module-loader/commit/00ab2ff))
+
+
+
 # [0.18.0](https://github.com/dumberjs/dumber-module-loader/compare/v0.17.2...v0.18.0) (2019-07-30)
 
 
