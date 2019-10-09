@@ -9,7 +9,7 @@ For users of dumber bundler, you only need to know that the internal module load
 ## Our violation on AMD spec:
 
 * AMD spec doesn't allow defining relative module name `define('../package.json', ...)`. We allow it. This is to support dependency `'../package.json'` that could be required by `src/app.js`. We say module id `'../package.json'` is above surface.
-* Only supports plugin's `load()` function, doesn't support `normalize()` function, doesn't support `load.fromText()` function (not in spec, but some requirejs plugins use it). Note we support traditional `text!` and `json!` plugins out of the box.
+* Only supports plugin's `load()` function, doesn't support `normalize()` function, doesn't support `load.fromText()` function (not in spec, but some requirejs plugins use it). Note there is built-in support of traditional `text!` and `json!` plugins out of the box.
 * Special RegExp support for mass require, mainly for test runner.
 ```js
 requirejs([/\.spec$/], function() {
@@ -39,7 +39,7 @@ requirejs([/\.spec$/], function() {
     req(['text!' + name], text => load(text));
   }});
   ```
-  - note, our default css support is just returning the text content, same as our html support. By default, it doesn't inject style sheet to html head. dumber bundler has an option to override default `'ext:css'` plugin to support style sheet injection.
+  - note, our default css support is just returning the text content, same as our html support. By default, it doesn't inject style sheet to html head. However dumber bundler by default overrides the default `'ext:css'` plugin to support style sheet injection.
 
 ## Difference from requirejs:
 * No multi-contexts.
@@ -132,7 +132,7 @@ When `nameSpace` is in use, all modules in user module space will be prefixed wi
 
 ```js
 bundles: {
-  app-bundle: {
+  'app-bundle': {
     nameSpace: 'optional-name-space',
     user: ['app', 'app.html', 'util', 'common/index'],
     package: ['lodash', 'lodash/map', 'util']
@@ -143,7 +143,7 @@ bundles: {
 for bundles only contain user space modules, a simplified config can be used.
 ```js
 bundles: {
-  app-bundle: ['app', 'app.html', 'util', 'common/index']
+  'app-bundle': ['app', 'app.html', 'util', 'common/index']
 }
 ```
 
