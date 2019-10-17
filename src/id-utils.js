@@ -208,6 +208,8 @@ export function mapId(id, paths = {}) {
       break;
     }
   }
+  // "../src" should be mapped to "", reset it to "index".
+  if (idPath === '') idPath = 'index';
   if (parsed.prefix) {
     return mapId(parsed.prefix.slice(0, -1), paths) + '!' + idPath;
   }

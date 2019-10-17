@@ -316,6 +316,7 @@ test('mapId returns mapped id', t => {
   t.equal(mapId('foo/b2', paths), 'common/foo/b2');
   t.equal(mapId('b-bundle', paths), 'bundles/b.js');
   t.equal(mapId('../src/app', paths), 'app');
+  t.equal(mapId('../src', paths), 'index');
   t.equal(mapId('text!../src/foo/bar.html', paths), 'text!foo/bar.html');
   t.equal(mapId('el!../src/foo/bar.html', paths), '@some/name-space/el!foo/bar.html');
   t.end();
