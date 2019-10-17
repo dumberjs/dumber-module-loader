@@ -1,3 +1,12 @@
+## [1.0.1](https://github.com/dumberjs/dumber-module-loader/compare/v1.0.0...v1.0.1) (2019-10-17)
+
+
+### Bug Fixes
+
+* handle relative module to index module from above surface ([ff80778](https://github.com/dumberjs/dumber-module-loader/commit/ff80778))
+
+
+
 # [1.0.0](https://github.com/dumberjs/dumber-module-loader/compare/v0.18.0...v1.0.0) (2019-08-29)
 
 
