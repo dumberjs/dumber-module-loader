@@ -34,23 +34,23 @@
   },
   "homepage": "https://github.com/dumberjs/dumber-module-loader#readme",
   "devDependencies": {
-    "@babel/core": "^7.5.5",
-    "@babel/preset-env": "^7.5.5",
-    "@babel/register": "^7.5.5",
+    "@babel/core": "^7.7.4",
+    "@babel/preset-env": "^7.7.4",
+    "@babel/register": "^7.7.4",
     "babel-eslint": "^10.0.3",
     "babelify": "^10.0.0",
     "browserify": "^16.5.0",
-    "cross-env": "^5.2.0",
-    "eslint": "^6.2.2",
+    "cross-env": "^6.0.3",
+    "eslint": "^6.7.2",
     "nyc": "^14.1.1",
-    "rollup": "^1.20.3",
+    "rollup": "^1.27.8",
     "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-json": "^4.0.0",
-    "rollup-plugin-terser": "^5.1.1",
-    "standard-changelog": "^2.0.13",
+    "rollup-plugin-terser": "^5.1.2",
+    "standard-changelog": "^2.0.18",
     "tap-dot": "^2.0.0",
     "tape": "^4.11.0",
-    "browser-do": "^0.3.2"
+    "browser-do": "^0.3.3"
   },
   "files": [
     "dist"
