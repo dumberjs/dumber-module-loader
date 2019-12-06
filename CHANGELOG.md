@@ -1,3 +1,12 @@
+# [1.1.0](https://github.com/dumberjs/dumber-module-loader/compare/v1.0.1...v1.1.0) (2019-12-06)
+
+
+### Features
+
+* add support of .mjs and .cjs file extensions ([ce85c2e](https://github.com/dumberjs/dumber-module-loader/commit/ce85c2e130167eb222d64828d87be937918a876e)), closes [dumberjs/dumber#14](https://github.com/dumberjs/dumber/issues/14)
+
+
+
 ## [1.0.1](https://github.com/dumberjs/dumber-module-loader/compare/v1.0.0...v1.0.1) (2019-10-17)
 
 
