@@ -29,6 +29,8 @@ test('parse parses id', t => {
   t.throws(() => parse(''));
   t.deepEqual(parse('a/b'), {prefix: '', bareId: 'a/b', parts: ['a', 'b'], ext: '', cleanId: 'a/b'});
   t.deepEqual(parse('a.js'), {prefix: '', bareId: 'a.js', parts: ['a.js'], ext: '.js', cleanId: 'a.js'});
+  t.deepEqual(parse('a.mjs'), {prefix: '', bareId: 'a.mjs', parts: ['a.mjs'], ext: '.mjs', cleanId: 'a.mjs'});
+  t.deepEqual(parse('a.cjs'), {prefix: '', bareId: 'a.cjs', parts: ['a.cjs'], ext: '.cjs', cleanId: 'a.cjs'});
   t.deepEqual(parse('/a//./b.js'), {prefix: '', bareId: '/a/b.js', parts: ['', 'a', 'b.js'], ext: '.js', cleanId: '/a/b.js'});
   t.deepEqual(parse('a/../..//foo/a/b.min.js'), {prefix: '', bareId: '../foo/a/b.min.js', parts: ['..', 'foo', 'a', 'b.min.js'], ext: '.js', cleanId: '../foo/a/b.min.js'});
   t.deepEqual(parse('a/../a/b.min.js'), {prefix: '', bareId: 'a/b.min.js', parts: ['a', 'b.min.js'], ext: '.js', cleanId: 'a/b.min.js'});
