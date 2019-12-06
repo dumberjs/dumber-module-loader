@@ -21,11 +21,14 @@ const KNOWN_EXTS = [
   ...ALTERNATIVE_TEMPLATE_EXTS,
   '.js',
   '.ts',
+  '.mjs',
+  '.cjs',
   '.json',
   '.json5',
   '.svg',
   '.txt',
   '.wasm',
+  '.wasi',
   '.xml',
   '.yml',
   '.yaml'
@@ -172,9 +175,8 @@ export function nodejsIds(id) {
   const ids = [parsed.cleanId];
   const {ext} = parsed;
 
-  if (ext === '.js' || ext === '.ts') {
-    const trimed = parsed.cleanId.slice(0, -3);
-    ids.push(trimed);
+  if (ext === '.js' || ext === '.ts' || ext === '.mjs' || ext === '.cjs') {
+    ids.push(parsed.cleanId.slice(0, -ext.length));
   } if (ALTERNATIVE_CSS_EXTS.indexOf(ext) !== -1) {
     // be nice to users from webpack, allow import 'a.scss'; to work.
     ids.push(parsed.cleanId.slice(0, -ext.length) + '.css');
@@ -184,11 +186,15 @@ export function nodejsIds(id) {
   } else if (!ext) {
     ids.push(parsed.cleanId + '.js');
     ids.push(parsed.cleanId + '.json');
+    ids.push(parsed.cleanId + '.mjs');
+    ids.push(parsed.cleanId + '.cjs');
   }
 
   ids.push(parsed.cleanId + '/index');
   ids.push(parsed.cleanId + '/index.js');
   ids.push(parsed.cleanId + '/index.json');
+  ids.push(parsed.cleanId + '/index.mjs');
+  ids.push(parsed.cleanId + '/index.cjs');
 
   return ids;
 }
