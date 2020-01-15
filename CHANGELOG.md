@@ -1,3 +1,12 @@
+## [1.1.1](https://github.com/dumberjs/dumber-module-loader/compare/v1.1.0...v1.1.1) (2020-01-15)
+
+
+### Bug Fixes
+
+* properly re-throw error ([0cc8f00](https://github.com/dumberjs/dumber-module-loader/commit/0cc8f00078b21b6187e58e8b29a68397fe00014d))
+
+
+
 # [1.1.0](https://github.com/dumberjs/dumber-module-loader/compare/v1.0.1...v1.1.0) (2019-12-06)
 
 
