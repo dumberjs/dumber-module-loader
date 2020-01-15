@@ -508,6 +508,16 @@ function requirejs(deps, callback, errback) {
   if (callback && typeof callback !== 'function') throw new Error('callback is not a function');
   if (errback && typeof errback !== 'function') throw new Error('errback is not a function');
 
+  const finalize = results => {
+    if (callback) return callback.apply(_global, results);
+    else return results;
+  };
+
+  const errHandler = err => {
+    if (errback) return errback(err);
+    else console.error(err); // eslint-disable-line no-console
+  };
+
   // return AMD require function or commonjs require function
   function requireFunc() {
     if (typeof arguments[0] === 'string') {
@@ -522,24 +532,24 @@ function requirejs(deps, callback, errback) {
 
   requireFunc.toUrl = toUrl;
 
-  const depValues = serialResults(deps, d => {
-    if (d === 'require') return requireFunc;
-    if (d instanceof RegExp) {
-      const expanded = [...userSpace.ids(), ...packageSpace.ids()].filter(id => id.match(d));
-      return serialResults(expanded, e => userSpace.req(e));
+  let depValues;
+
+  try {
+    depValues = serialResults(deps, d => {
+      if (d === 'require') return requireFunc;
+      if (d instanceof RegExp) {
+        const expanded = [...userSpace.ids(), ...packageSpace.ids()].filter(id => id.match(d));
+        return serialResults(expanded, e => userSpace.req(e));
+      }
+      return userSpace.req(mappedId(d));
+    });
+  } catch (err) {
+    if (errback) {
+      return errback(err);
+    } else {
+      return Promise.reject(err);
     }
-    return userSpace.req(mappedId(d));
-  });
-
-  const finalize = results => {
-    if (callback) return callback.apply(_global, results);
-    else return results;
-  };
-
-  const errHandler = err => {
-    if (errback) return errback(err);
-    else console.error(err); // eslint-disable-line no-console
-  };
+  }
 
   if (depValues && typeof depValues.then === 'function') {
     // asynchronous callback

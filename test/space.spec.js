@@ -845,3 +845,19 @@ test('space does not do endless circular deps check', t => {
   t.equal(Yallist.iterator, 'got');
   t.end();
 });
+
+test('space rethrows error', t => {
+  const space = makeSpace(tesseract);
+  space.define('test', [], function() { throw new Error('hello'); });
+  t.throws(() => space.req('test'), /hello/);
+  t.end();
+});
+
+test('space rethrows deep error', t => {
+  const space = makeSpace(tesseract);
+  space.define('test1', [], function() { throw new Error('hello'); });
+  space.define('test', ['test1'], function() {});
+  t.throws(() => space.req('test'), /hello/);
+  t.end();
+});
+

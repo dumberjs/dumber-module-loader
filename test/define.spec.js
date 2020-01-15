@@ -82,6 +82,26 @@ test('requirejs can return promise', t => {
   );
 });
 
+test('requirejs can return promise with rejection', t => {
+  define.reset();
+
+  define('foo/bar', ['a', './b'], (a, b) => a + b + 3);
+  define('a', 1);
+  define('foo/b.js', () => { throw new Error('hello'); });
+
+  requirejs(['foo/bar'])
+  .then(
+    () => {
+      t.fail('should not pass');
+      t.end();
+    },
+    err => {
+      t.pass(err.message);
+      t.end();
+    }
+  );
+});
+
 test('require can be required to behave like normal AMD require', t => {
   define.reset();
 
@@ -180,9 +200,18 @@ test('package space module can not access user space module', t => {
   define.switchToPackageSpace();
   define('a', ['foo/b'], b => b - 1);
 
-  t.throws(() => requirejs(['foo/bar']));
-  restoreFetchApi();
-  t.end();
+  requirejs(['foo/bar'],
+    () => {
+      t.fail('should not pass');
+      restoreFetchApi();
+      t.end();
+    },
+    err => {
+      t.pass(err.message);
+      restoreFetchApi();
+      t.end();
+    }
+  );
 });
 
 test('same module id can be defined in user and package spaces', t => {
@@ -613,8 +642,18 @@ test('does not support package space dep css module, yet', t => {
   define('text!foo.css', () => '.a { color: red; }');
   define('foo', ['./foo.css'], r => r);
 
-  t.throws(() => requirejs(['foo']));
-  t.end();
+  requirejs(['foo'],
+    () => {
+      t.fail('should not pass');
+      restoreFetchApi();
+      t.end();
+    },
+    err => {
+      t.pass(err.message);
+      restoreFetchApi();
+      t.end();
+    }
+  );
 });
 
 test('gets runtime json! user space module', t => {
