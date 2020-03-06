@@ -1,3 +1,12 @@
+## [1.1.2](https://github.com/dumberjs/dumber-module-loader/compare/v1.1.1...v1.1.2) (2020-03-06)
+
+
+### Bug Fixes
+
+* fix circular deps check for module id with .js ext ([6cf0b30](https://github.com/dumberjs/dumber-module-loader/commit/6cf0b30f63650f8ea91483b95a6748e5450fc6a6))
+
+
+
 ## [1.1.1](https://github.com/dumberjs/dumber-module-loader/compare/v1.1.0...v1.1.1) (2020-01-15)
 
 
