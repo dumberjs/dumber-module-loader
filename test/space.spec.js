@@ -759,7 +759,7 @@ test('space deals with des.js like circular dependencies', t => {
     module.exports = function(msg) { return 'DES:' + Cipher(msg); };
   `));
 
-  space.alias('des', 'des.js/des');
+  space.alias('des.js', 'des.js/des');
 
   // Note the entry is des.js, the first dep 'des.js/des' is in a circular dep loop, but should still be loaded.
   // circular dep is only skipped when 'des.js/des' tries to load 'des.js/lib/des'.
@@ -769,6 +769,35 @@ test('space deals with des.js like circular dependencies', t => {
   t.equal(des.DES('lorem'), 'DES:Cipher:lorem');
   t.end();
 });
+
+test('space deals with des.js like circular dependencies with .js in module id', t => {
+  const space = makeSpace(tesseract);
+
+  space.define('des.js/des.js', ['require', 'exports', 'module', './lib/cipher', './lib/des'], new Function('require', 'exports', 'module', `
+    exports.Cipher = require('./lib/cipher');
+    exports.DES = require('./lib/des');
+  `));
+
+  space.define('des.js/lib/cipher.js', ['require', 'exports', 'module'], new Function('require', 'exports', 'module', `
+    module.exports = function(msg) { return 'Cipher:' + msg; };
+  `));
+
+  space.define('des.js/lib/des.js', ['require', 'exports', 'module', '../des'], new Function('require', 'exports', 'module', `
+    var Cipher = require('../des').Cipher;
+    module.exports = function(msg) { return 'DES:' + Cipher(msg); };
+  `));
+
+  space.alias('des.js', 'des.js/des.js');
+
+  // Note the entry is des.js, the first dep 'des.js/des' is in a circular dep loop, but should still be loaded.
+  // circular dep is only skipped when 'des.js/des' tries to load 'des.js/lib/des'.
+  const des = space.req('des.js');
+  t.equal((typeof des.DES), 'function');
+  t.equal((typeof des.Cipher), 'function');
+  t.equal(des.DES('lorem'), 'DES:Cipher:lorem');
+  t.end();
+});
+
 
 test('space deals with alias + cirular deps', t => {
   const space = makeSpace(tesseract);

@@ -158,7 +158,7 @@ export default function(tesseract) {
     const checked = Object.create(null);
 
     const _isCircular = _id => {
-      const candidate = _registry[_id];
+      const candidate = registered(_id);
       if (!candidate) return;
       const {id, deps} = candidate;
       if (targetId) {
