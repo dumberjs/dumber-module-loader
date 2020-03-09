@@ -1,3 +1,12 @@
+## [1.1.3](https://github.com/dumberjs/dumber-module-loader/compare/v1.1.2...v1.1.3) (2020-03-09)
+
+
+### Bug Fixes
+
+* the regexp glob should tolerant .js .cjs and .mjs ([3cc6349](https://github.com/dumberjs/dumber-module-loader/commit/3cc634971ebf821705440da7deb55535ac95ee20))
+
+
+
 ## [1.1.2](https://github.com/dumberjs/dumber-module-loader/compare/v1.1.1...v1.1.2) (2020-03-06)
 
 
