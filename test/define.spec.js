@@ -1222,7 +1222,9 @@ test('requirejs supports regexp glob', t => {
 
   define('foo.spec', [], () => touched.push('foo.spec'));
   define('foo-bar', [], () => touched.push('foo-bar'));
-  define('xyz.spec', [], () => touched.push('xyz.spec'));
+  // The regex will match "xyz.spec" which is an alternative
+  // form of "xyz.spec.cjs"
+  define('xyz.spec.cjs', [], () => touched.push('xyz.spec.cjs'));
   define.switchToPackageSpace();
   define('bar.spec', [], () => touched.push('bar.spec'));
   define('loo', [], () => touched.push('loo'));
@@ -1230,7 +1232,7 @@ test('requirejs supports regexp glob', t => {
   requirejs([/\.spec$/],
     () => {
       t.deepEqual(touched.sort(), [
-        'bar.spec', 'foo.spec', 'xyz.spec'
+        'bar.spec', 'foo.spec', 'xyz.spec.cjs'
       ]);
       t.end();
     },
