@@ -1,3 +1,12 @@
+## [1.1.4](https://github.com/dumberjs/dumber-module-loader/compare/v1.1.3...v1.1.4) (2020-03-13)
+
+
+### Bug Fixes
+
+* a.html should route to a.html.js too ([2a5b7ef](https://github.com/dumberjs/dumber-module-loader/commit/2a5b7ef580bd60ea49e92bfb127beef1f6d3e1db))
+
+
+
 ## [1.1.3](https://github.com/dumberjs/dumber-module-loader/compare/v1.1.2...v1.1.3) (2020-03-09)
 
 
