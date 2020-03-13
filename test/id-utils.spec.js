@@ -273,21 +273,21 @@ test('relativeModuleId can work on base with ..', t => {
 
 test('nodejsIds returns possible nodejs ids', t => {
   t.deepEqual(nodejsIds('foo'), ['foo', 'foo.js', 'foo.json', 'foo.mjs', 'foo.cjs', 'foo/index', 'foo/index.js', 'foo/index.json', 'foo/index.mjs', 'foo/index.cjs']);
-  t.deepEqual(nodejsIds('foo.js'), ['foo.js', 'foo', 'foo.js/index', 'foo.js/index.js', 'foo.js/index.json', 'foo.js/index.mjs', 'foo.js/index.cjs']);
-  t.deepEqual(nodejsIds('foo.ts'), ['foo.ts', 'foo', 'foo.ts/index', 'foo.ts/index.js', 'foo.ts/index.json', 'foo.ts/index.mjs', 'foo.ts/index.cjs']);
-  t.deepEqual(nodejsIds('foo.less'), ['foo.less', 'foo.css', 'foo.less/index', 'foo.less/index.js', 'foo.less/index.json', 'foo.less/index.mjs', 'foo.less/index.cjs']);
-  t.deepEqual(nodejsIds('foo.json'), ['foo.json', 'foo.json/index', 'foo.json/index.js', 'foo.json/index.json', 'foo.json/index.mjs', 'foo.json/index.cjs']);
+  t.deepEqual(nodejsIds('foo.js'), ['foo.js', 'foo', 'foo.js.js', 'foo.js.json', 'foo.js.mjs', 'foo.js.cjs', 'foo.js/index', 'foo.js/index.js', 'foo.js/index.json', 'foo.js/index.mjs', 'foo.js/index.cjs']);
+  t.deepEqual(nodejsIds('foo.ts'), ['foo.ts', 'foo', 'foo.ts.js', 'foo.ts.json', 'foo.ts.mjs', 'foo.ts.cjs', 'foo.ts/index', 'foo.ts/index.js', 'foo.ts/index.json', 'foo.ts/index.mjs', 'foo.ts/index.cjs']);
+  t.deepEqual(nodejsIds('foo.less'), ['foo.less', 'foo.css', 'foo.less.js', 'foo.less.json', 'foo.less.mjs', 'foo.less.cjs', 'foo.less/index', 'foo.less/index.js', 'foo.less/index.json', 'foo.less/index.mjs', 'foo.less/index.cjs']);
+  t.deepEqual(nodejsIds('foo.json'), ['foo.json', 'foo.json.js', 'foo.json.json', 'foo.json.mjs', 'foo.json.cjs', 'foo.json/index', 'foo.json/index.js', 'foo.json/index.json', 'foo.json/index.mjs', 'foo.json/index.cjs']);
   t.deepEqual(nodejsIds('foo.min'), ['foo.min', 'foo.min.js', 'foo.min.json', 'foo.min.mjs', 'foo.min.cjs', 'foo.min/index', 'foo.min/index.js', 'foo.min/index.json', 'foo.min/index.mjs', 'foo.min/index.cjs']);
-  t.deepEqual(nodejsIds('foo.min.js'), ['foo.min.js', 'foo.min', 'foo.min.js/index', 'foo.min.js/index.js', 'foo.min.js/index.json', 'foo.min.js/index.mjs', 'foo.min.js/index.cjs']);
-  t.deepEqual(nodejsIds('foo.html'), ['foo.html', 'foo.html/index', 'foo.html/index.js', 'foo.html/index.json', 'foo.html/index.mjs', 'foo.html/index.cjs']);
-  t.deepEqual(nodejsIds('foo.haml'), ['foo.haml', 'foo.html', 'foo.haml/index', 'foo.haml/index.js', 'foo.haml/index.json', 'foo.haml/index.mjs', 'foo.haml/index.cjs']);
+  t.deepEqual(nodejsIds('foo.min.js'), ['foo.min.js', 'foo.min', 'foo.min.js.js', 'foo.min.js.json', 'foo.min.js.mjs', 'foo.min.js.cjs', 'foo.min.js/index', 'foo.min.js/index.js', 'foo.min.js/index.json', 'foo.min.js/index.mjs', 'foo.min.js/index.cjs']);
+  t.deepEqual(nodejsIds('foo.html'), ['foo.html', 'foo.html.js', 'foo.html.json', 'foo.html.mjs', 'foo.html.cjs',  'foo.html/index', 'foo.html/index.js', 'foo.html/index.json', 'foo.html/index.mjs', 'foo.html/index.cjs']);
+  t.deepEqual(nodejsIds('foo.haml'), ['foo.haml', 'foo.html', 'foo.haml.js', 'foo.haml.json', 'foo.haml.mjs', 'foo.haml.cjs',  'foo.haml/index', 'foo.haml/index.js', 'foo.haml/index.json', 'foo.haml/index.mjs', 'foo.haml/index.cjs']);
 
   t.deepEqual(nodejsIds('text!foo/bar'), ['text!foo/bar', 'text!foo/bar.js', 'text!foo/bar.json', 'text!foo/bar.mjs', 'text!foo/bar.cjs', 'text!foo/bar/index', 'text!foo/bar/index.js', 'text!foo/bar/index.json', 'text!foo/bar/index.mjs', 'text!foo/bar/index.cjs']);
-  t.deepEqual(nodejsIds('text!foo/bar.js'), ['text!foo/bar.js', 'text!foo/bar', 'text!foo/bar.js/index', 'text!foo/bar.js/index.js', 'text!foo/bar.js/index.json', 'text!foo/bar.js/index.mjs', 'text!foo/bar.js/index.cjs']);
-  t.deepEqual(nodejsIds('text!foo/bar.json'), ['text!foo/bar.json', 'text!foo/bar.json/index', 'text!foo/bar.json/index.js', 'text!foo/bar.json/index.json', 'text!foo/bar.json/index.mjs', 'text!foo/bar.json/index.cjs']);
+  t.deepEqual(nodejsIds('text!foo/bar.js'), ['text!foo/bar.js', 'text!foo/bar', 'text!foo/bar.js.js', 'text!foo/bar.js.json', 'text!foo/bar.js.mjs', 'text!foo/bar.js.cjs', 'text!foo/bar.js/index', 'text!foo/bar.js/index.js', 'text!foo/bar.js/index.json', 'text!foo/bar.js/index.mjs', 'text!foo/bar.js/index.cjs']);
+  t.deepEqual(nodejsIds('text!foo/bar.json'), ['text!foo/bar.json', 'text!foo/bar.json.js', 'text!foo/bar.json.json', 'text!foo/bar.json.mjs', 'text!foo/bar.json.cjs', 'text!foo/bar.json/index', 'text!foo/bar.json/index.js', 'text!foo/bar.json/index.json', 'text!foo/bar.json/index.mjs', 'text!foo/bar.json/index.cjs']);
   t.deepEqual(nodejsIds('text!foo/bar.min'), ['text!foo/bar.min', 'text!foo/bar.min.js', 'text!foo/bar.min.json', 'text!foo/bar.min.mjs', 'text!foo/bar.min.cjs', 'text!foo/bar.min/index', 'text!foo/bar.min/index.js', 'text!foo/bar.min/index.json', 'text!foo/bar.min/index.mjs', 'text!foo/bar.min/index.cjs']);
-  t.deepEqual(nodejsIds('text!foo/bar.min.js'), ['text!foo/bar.min.js', 'text!foo/bar.min', 'text!foo/bar.min.js/index', 'text!foo/bar.min.js/index.js', 'text!foo/bar.min.js/index.json', 'text!foo/bar.min.js/index.mjs', 'text!foo/bar.min.js/index.cjs']);
-  t.deepEqual(nodejsIds('text!foo/bar.html'), ['text!foo/bar.html', 'text!foo/bar.html/index', 'text!foo/bar.html/index.js', 'text!foo/bar.html/index.json', 'text!foo/bar.html/index.mjs', 'text!foo/bar.html/index.cjs']);
+  t.deepEqual(nodejsIds('text!foo/bar.min.js'), ['text!foo/bar.min.js', 'text!foo/bar.min', 'text!foo/bar.min.js.js', 'text!foo/bar.min.js.json', 'text!foo/bar.min.js.mjs', 'text!foo/bar.min.js.cjs', 'text!foo/bar.min.js/index', 'text!foo/bar.min.js/index.js', 'text!foo/bar.min.js/index.json', 'text!foo/bar.min.js/index.mjs', 'text!foo/bar.min.js/index.cjs']);
+  t.deepEqual(nodejsIds('text!foo/bar.html'), ['text!foo/bar.html', 'text!foo/bar.html.js', 'text!foo/bar.html.json', 'text!foo/bar.html.mjs', 'text!foo/bar.html.cjs', 'text!foo/bar.html/index', 'text!foo/bar.html/index.js', 'text!foo/bar.html/index.json', 'text!foo/bar.html/index.mjs', 'text!foo/bar.html/index.cjs']);
   t.end();
 });
 

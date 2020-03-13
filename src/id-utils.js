@@ -183,12 +183,12 @@ export function nodejsIds(id) {
   } if (ALTERNATIVE_TEMPLATE_EXTS.indexOf(ext) !== -1) {
     // be nice to users from webpack, allow import 'a.md'; to work.
     ids.push(parsed.cleanId.slice(0, -ext.length) + '.html');
-  } else if (!ext) {
-    ids.push(parsed.cleanId + '.js');
-    ids.push(parsed.cleanId + '.json');
-    ids.push(parsed.cleanId + '.mjs');
-    ids.push(parsed.cleanId + '.cjs');
   }
+
+  ids.push(parsed.cleanId + '.js');
+  ids.push(parsed.cleanId + '.json');
+  ids.push(parsed.cleanId + '.mjs');
+  ids.push(parsed.cleanId + '.cjs');
 
   ids.push(parsed.cleanId + '/index');
   ids.push(parsed.cleanId + '/index.js');
