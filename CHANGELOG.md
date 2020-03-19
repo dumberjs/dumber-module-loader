@@ -1,3 +1,12 @@
+## [1.1.5](https://github.com/dumberjs/dumber-module-loader/compare/v1.1.4...v1.1.5) (2020-03-19)
+
+
+### Bug Fixes
+
+* allow css import from package space ([c8ba2a3](https://github.com/dumberjs/dumber-module-loader/commit/c8ba2a31601594adb875588c16a1e287b445fba4))
+
+
+
 ## [1.1.4](https://github.com/dumberjs/dumber-module-loader/compare/v1.1.3...v1.1.4) (2020-03-13)
 
 
