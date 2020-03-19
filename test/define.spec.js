@@ -1752,7 +1752,7 @@ test('reject json error', t => {
   );
 });
 
-test('define gets css module form less name', t => {
+test('define gets css module from less name', t => {
   define.reset();
 
   define('foo.css', () => '.a{}');
@@ -1769,7 +1769,7 @@ test('define gets css module form less name', t => {
   );
 });
 
-test('define gets css module form scss name', t => {
+test('define gets css module from scss name', t => {
   define.reset();
 
   define('foo.css', () => '.a{}');
@@ -1786,7 +1786,7 @@ test('define gets css module form scss name', t => {
   );
 });
 
-test('define gets css module form sass name', t => {
+test('define gets css module from sass name', t => {
   define.reset();
 
   define('foo.css', () => '.a{}');
@@ -1803,7 +1803,7 @@ test('define gets css module form sass name', t => {
   );
 });
 
-test('define gets css module form styl name', t => {
+test('define gets css module from styl name', t => {
   define.reset();
 
   define('foo.css', () => '.a{}');
