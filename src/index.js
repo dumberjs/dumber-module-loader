@@ -78,10 +78,12 @@ function tryPlugin(mId, space) {
       });
     }
     // else by default use text! for any unknown extname
-    return new Promise(resolve => {
-      space.alias(parsed.cleanId, 'text!' + parsed.cleanId);
-      resolve(space.req(mId));
-    });
+    if (space === userSpace || space.has('text!' + parsed.cleanId)) {
+      return new Promise(resolve => {
+        space.alias(parsed.cleanId, 'text!' + parsed.cleanId);
+        resolve(space.req(mId));
+      });
+    }
   }
 }
 
@@ -111,9 +113,15 @@ const userSpaceTesseract = {
     // p is a promise loading additional bundle
     if (p) return p;
 
-    let packageReq;
     try {
-      packageReq = packageSpace.req(mId);
+      // packageReq could be successful require in sync mode, or a
+      // promise in async mode.
+      // The only way we can get into async mode is that mId is
+      // loaded by a remote bundle, it means at least the first
+      // level mId is a package module.
+      // So in async mode, any failure is considered final, no more
+      // fall back to runtimeReq for a remote user space module
+      return packageSpace.req(mId);
     } catch (err) {
       // Failure in sync mode.
       // Only do runtimeReq if mId fail immediately (not dep fail)
@@ -131,15 +139,6 @@ const userSpaceTesseract = {
 
       throw err;
     }
-
-    // packageReq could be successful require in sync mode, or a
-    // promise in async mode.
-    // The only way we can get into async mode is that mId is
-    // loaded by a remote bundle, it means at least the first
-    // level mId is a package module.
-    // So in async mode, any failure is considered final, no more
-    // fall back to runtimeReq for a remote user space module
-    return packageReq;
   }
 };
 
@@ -150,7 +149,22 @@ const packageSpaceTesseract = {
   mappedId,
   toUrl,
   // incoming id is already mapped
-  req: packageReqFromBundle
+  // 1. try additional package module in bundles,
+  // 2. try plugin in currently loaded package space
+  req: mId => {
+    try {
+      return packageReqFromBundle(mId);
+    } catch (err) {
+      // Failure in sync mode.
+      if (err && err.__unkown === mId) {
+        const tried = tryPlugin(mId, packageSpace);
+        // tried is a promise or undefined
+        if (tried) return tried;
+      }
+
+      throw err;
+    }
+  }
 };
 
 const packageSpace = makeSpace(packageSpaceTesseract);

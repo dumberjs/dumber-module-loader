@@ -632,30 +632,6 @@ test('gets package space dep json module', t => {
   );
 });
 
-//TODO
-test('does not support package space dep css module, yet', t => {
-  define.reset();
-  mockFetchApi();
-
-  define.switchToPackageSpace();
-  // have to use explicit module 'foo.json' for npm package
-  define('text!foo.css', () => '.a { color: red; }');
-  define('foo', ['./foo.css'], r => r);
-
-  requirejs(['foo'],
-    () => {
-      t.fail('should not pass');
-      restoreFetchApi();
-      t.end();
-    },
-    err => {
-      t.pass(err.message);
-      restoreFetchApi();
-      t.end();
-    }
-  );
-});
-
 test('gets runtime json! user space module', t => {
   define.reset();
 
@@ -1811,6 +1787,207 @@ test('define gets css module from styl name', t => {
   requirejs(['foo.styl'],
     result => {
       t.equal(result, '.a{}');
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      t.end();
+    }
+  );
+});
+
+test('define gets css module from default ext plugin', t => {
+  define.reset();
+
+  define('text!foo.css', () => '.a{}');
+
+  requirejs(['foo.sass'],
+    result => {
+      t.equal(result, '.a{}');
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      t.end();
+    }
+  );
+});
+
+test('define gets aliased css module from default ext plugin', t => {
+  define.reset();
+
+  define('text!foo/dist/index.css', () => '.a{}');
+  define.alias('text!foo/index.css', 'text!foo/dist/index.css');
+  define.alias('foo/index.css', 'foo/dist/index.css');
+
+  requirejs(['foo/index.sass'],
+    result => {
+      t.equal(result, '.a{}');
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      t.end();
+    }
+  );
+});
+
+test('define gets aliased css module from default ext plugin, case 2', t => {
+  define.reset();
+
+  define('text!foo/dist/index.css', () => '.a{}');
+  define.alias('text!foo/index.css', 'text!foo/dist/index.css');
+  define.alias('foo/index.css', 'foo/dist/index.css');
+
+  requirejs(['foo/dist/index.css'],
+    result => {
+      t.equal(result, '.a{}');
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      t.end();
+    }
+  );
+});
+
+
+test('define gets css module from default ext plugin, in package space', t => {
+  define.reset();
+  define.switchToPackageSpace();
+
+  define('text!foo.css', () => '.a{}');
+
+  requirejs(['foo.sass'],
+    result => {
+      t.equal(result, '.a{}');
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      t.end();
+    }
+  );
+});
+
+test('define gets aliased css module from default ext plugin, in package space', t => {
+  define.reset();
+  define.switchToPackageSpace();
+
+  define('text!foo/dist/bar.css', () => '.a{}');
+  define.alias('text!foo/bar.css', 'text!foo/dist/bar.css');
+  define.alias('foo/bar.css', 'foo/dist/bar.css');
+
+  define('foo/dist/index', ['./bar.css'], f => f);
+  define.alias('foo', 'foo/dist/index');
+  define.alias('foo/index', 'foo/dist/index');
+
+  requirejs(['foo/index'],
+    result => {
+      t.equal(result, '.a{}');
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      t.end();
+    }
+  );
+});
+
+test('define gets aliased css module from default ext plugin, case 2, in package space', t => {
+  define.reset();
+  define.switchToPackageSpace();
+
+  define('text!foo/dist/bar.css', () => '.a{}');
+  define.alias('text!foo/bar.css', 'text!foo/dist/bar.css');
+  define.alias('foo/bar.css', 'foo/dist/bar.css');
+
+  define('foo/dist/index', ['./bar.css'], f => f);
+  define.alias('foo', 'foo/dist/index');
+
+  requirejs(['foo'],
+    result => {
+      t.equal(result, '.a{}');
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      t.end();
+    }
+  );
+});
+
+test('define gets aliased css module from default ext plugin, in package space, with ext:css plugin', t => {
+  define.reset();
+  define.switchToPackageSpace();
+
+  define('text!foo/dist/bar.css', () => '.a{}');
+  define.alias('text!foo/bar.css', 'text!foo/dist/bar.css');
+  define.alias('foo/bar.css', 'foo/dist/bar.css');
+
+  define('foo/dist/index', ['./bar.css'], f => f);
+  define.alias('foo', 'foo/dist/index');
+  define.alias('foo/index', 'foo/dist/index');
+
+  const injected = [];
+  function injectCss(v) {
+    injected.push(v);
+  }
+
+  requirejs.undef('ext:css'); // unset default css plugin
+  define('ext:css', {
+    load: (name, req, load) => {
+      req(['text!' + name], v => {
+        injectCss(v);
+        load(v);
+      });
+    }
+  });
+
+  requirejs(['foo/index'],
+    result => {
+      t.equal(result, '.a{}');
+      t.deepEqual(injected, ['.a{}']);
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      t.end();
+    }
+  );
+});
+
+
+test('define gets aliased css module from default ext plugin, case 2, in package space, with ext:css plugin', t => {
+  define.reset();
+  define.switchToPackageSpace();
+
+  define('text!foo/dist/bar.css', () => '.a{}');
+  define.alias('text!foo/bar.css', 'text!foo/dist/bar.css');
+  define.alias('foo/bar.css', 'foo/dist/bar.css');
+
+  define('foo/dist/index', ['./bar.css'], f => f);
+  define.alias('foo', 'foo/dist/index');
+
+  const injected = [];
+  function injectCss(v) {
+    injected.push(v);
+  }
+
+  requirejs.undef('ext:css'); // unset default css plugin
+  define('ext:css', {
+    load: (name, req, load) => {
+      req(['text!' + name], v => {
+        injectCss(v);
+        load(v);
+      });
+    }
+  });
+
+  requirejs(['foo'],
+    result => {
+      t.equal(result, '.a{}');
+      t.deepEqual(injected, ['.a{}']);
       t.end();
     },
     err => {
