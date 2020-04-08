@@ -1,3 +1,12 @@
+## [1.1.7](https://github.com/dumberjs/dumber-module-loader/compare/v1.1.6...v1.1.7) (2020-04-08)
+
+
+### Bug Fixes
+
+* use cors mode for foreign remote ([ee70847](https://github.com/dumberjs/dumber-module-loader/commit/ee70847e8da9ff01f677fa89069eec51d0ad0978))
+
+
+
 ## [1.1.6](https://github.com/dumberjs/dumber-module-loader/compare/v1.1.5...v1.1.6) (2020-04-08)
 
 
