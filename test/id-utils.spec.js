@@ -61,6 +61,13 @@ test('parse parses id with scope', t => {
   t.end();
 });
 
+test('parse parses id with http path', t => {
+  t.deepEqual(parse('https://example.com/a/b.js'), {prefix: '', bareId: 'https://example.com/a/b.js', parts: ['https:/', 'example.com', 'a', 'b.js'], ext: '.js', cleanId: 'https://example.com/a/b.js'});
+  t.deepEqual(parse('http://example.com/a/b.js'), {prefix: '', bareId: 'http://example.com/a/b.js', parts: ['http:/', 'example.com', 'a', 'b.js'], ext: '.js', cleanId: 'http://example.com/a/b.js'});
+  t.deepEqual(parse('//example.com/a/b.js'), {prefix: '', bareId: '//example.com/a/b.js', parts: ['/', 'example.com', 'a', 'b.js'], ext: '.js', cleanId: '//example.com/a/b.js'});
+  t.end();
+});
+
 // resolveModuleId
 
 test('resolveModuleId returns non-relative id', t => {
@@ -299,7 +306,8 @@ test('mapId returns mapped id', t => {
     'foo': 'common/foo',
     'foo/b': '/other/b',
     'el': '@some/name-space/el',
-    '../src': ''
+    '../src': '',
+    'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.20.0/min/vs'
   };
 
   t.equal(mapId('lorem', paths), 'lorem');
@@ -321,5 +329,6 @@ test('mapId returns mapped id', t => {
   t.equal(mapId('../src', paths), 'index');
   t.equal(mapId('text!../src/foo/bar.html', paths), 'text!foo/bar.html');
   t.equal(mapId('el!../src/foo/bar.html', paths), '@some/name-space/el!foo/bar.html');
+  t.equal(mapId('vs/editor/editor.main.js', paths), 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.20.0/min/vs/editor/editor.main.js');
   t.end();
 });

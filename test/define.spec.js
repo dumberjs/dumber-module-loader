@@ -1996,3 +1996,32 @@ test('define gets aliased css module from default ext plugin, case 2, in package
     }
   );
 });
+
+test('gets runtime js with paths mapped https request, ', t => {
+  define.reset();
+
+  requirejs.config({
+    baseUrl: 'dist/runtime',
+    paths: {
+      'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.20.0/min/vs'
+    }
+  });
+
+  mockFetchApi({
+    'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.20.0/min/vs/editor/editor.main.js': "define([], () => 2);",
+  });
+
+  requirejs(['vs/editor/editor.main'],
+    result => {
+      t.equal(result, 2);
+      restoreFetchApi();
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      restoreFetchApi();
+      t.end();
+    }
+  );
+});
+

@@ -75,6 +75,8 @@ export function parse(id = '') {
   if (parts.length > 1 && parts[0].length && parts[0][0] === '@') {
     let scope = parts.shift();
     parts[0] = scope + '/' + parts[0];
+  } else if (bareId.match(/^(?:https?:)?\/\//)) {
+    parts[0] += '/'; // make first part "https:/"
   }
 
   const partsWithoutInnerDot = [];
