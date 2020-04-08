@@ -282,7 +282,8 @@ const _fetchUrl = url => {
   if (typeof _global.fetch === 'undefined') {
     return Promise.reject(new Error(`fetch API is not available, cannot fetch "${url}"`));
   }
-  return _global.fetch(url, {credentials: 'include'})
+  const options = url.match(/^(?:https?:)?\/\//) ? {mode: 'cors'} : {credentials: 'include'};
+  return _global.fetch(url, options)
   .then(response => {
     if (response.ok) return response;
     throw new Error(`${response.status} ${response.statusText}`);
