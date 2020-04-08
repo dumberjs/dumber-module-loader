@@ -202,6 +202,17 @@ function mappedId(id) {
 function toUrl(mId) {
   const parsed = parse(mId);
   let url = parsed.bareId;
+
+  const pathKeys = Object.keys(_paths).sort((a, b) => b.length - a.length);
+  for (let i = 0, len = pathKeys.length; i < len; i++) {
+    const k = pathKeys[i];
+    // Do not map to https://
+    if (url.startsWith(k) && _paths[k].match(/^(?:https?:)?\/\//)) {
+      url = _paths[k] + url.slice(k.length);
+      break;
+    }
+  }
+
   if (url[0] !== '/' && !url.match(/^https?:\/\//)) url = _baseUrl + url;
   if (!parsed.ext) {
     // no known ext, add .js

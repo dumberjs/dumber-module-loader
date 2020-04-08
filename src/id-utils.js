@@ -75,8 +75,6 @@ export function parse(id = '') {
   if (parts.length > 1 && parts[0].length && parts[0][0] === '@') {
     let scope = parts.shift();
     parts[0] = scope + '/' + parts[0];
-  } else if (bareId.match(/^(?:https?:)?\/\//)) {
-    parts[0] += '/'; // make first part "https:/"
   }
 
   const partsWithoutInnerDot = [];
@@ -207,6 +205,9 @@ export function mapId(id, paths = {}) {
   const pathKeys = Object.keys(paths).sort((a, b) => b.length - a.length);
   for (let i = 0, len = pathKeys.length; i < len; i++) {
     const k = pathKeys[i];
+    // Do not map to https://
+    if (paths[k].match(/^(?:https?:)?\/\//)) continue;
+
     const parsedKey = parse(k);
     if (parsed.parts.length >= parsedKey.parts.length &&
         parsed.parts.slice(0, parsedKey.parts.length).join('/') === k) {
