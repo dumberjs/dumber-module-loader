@@ -1,3 +1,12 @@
+## [1.1.8](https://github.com/dumberjs/dumber-module-loader/compare/v1.1.7...v1.1.8) (2020-04-08)
+
+
+### Bug Fixes
+
+* module with paths mapped https:// should use original module id ([c77b996](https://github.com/dumberjs/dumber-module-loader/commit/c77b9967fc8c862a1b82bb50d38cdc49166ee5c6))
+
+
+
 ## [1.1.7](https://github.com/dumberjs/dumber-module-loader/compare/v1.1.6...v1.1.7) (2020-04-08)
 
 
