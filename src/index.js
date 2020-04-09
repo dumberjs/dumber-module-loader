@@ -1,5 +1,5 @@
 import {version} from '../package.json';
-import {cleanPath, parse, nodejsIds, mapId, resolveModuleId} from './id-utils';
+import {cleanPath, ext, parse, nodejsIds, mapId, resolveModuleId} from './id-utils';
 import makeSpace from './space';
 import _global from './_global';
 import serialResults from './serial-results';
@@ -185,39 +185,27 @@ function switchToPackageSpace() {
 // but "" and "./" behave same for remote fetch,
 let _baseUrl = '';
 let _paths = {};
+let _idPaths = {};
+let _urlPaths = {};
 
 function mappedId(id) {
-  const paths = {};
-  Object.keys(_paths).forEach(k => {
-    // Skip path for bundle, they are not for id mapping.
-    // This fixes an id mapping bug when a named space bundle uses
-    // same name for name space and bundle name.
-    if (_bundles.hasOwnProperty(k)) return;
-    paths[k] = _paths[k];
-  });
-  return mapId(id, paths);
+  return mapId(id, _idPaths);
 }
 
 // incoming id is already mapped
 function toUrl(mId) {
   const parsed = parse(mId);
-  let url = parsed.bareId;
+  let url = mapId(parsed.bareId, _urlPaths);
 
-  const pathKeys = Object.keys(_paths).sort((a, b) => b.length - a.length);
-  for (let i = 0, len = pathKeys.length; i < len; i++) {
-    const k = pathKeys[i];
-    // Do not map to https://
-    if (url.startsWith(k) && _paths[k].match(/^(?:https?:)?\/\//)) {
-      url = _paths[k] + url.slice(k.length);
-      break;
-    }
+  if (url[0] !== '/' && !url.match(/^https?:\/\//)) {
+    url = parse(_baseUrl + url).cleanId;
   }
 
-  if (url[0] !== '/' && !url.match(/^https?:\/\//)) url = _baseUrl + url;
-  if (!parsed.ext) {
+  if (!ext(url)) {
     // no known ext, add .js
     url += '.js';
   }
+
   return url;
 }
 
@@ -297,7 +285,7 @@ const _fetchUrl = url => {
   return _global.fetch(url, options)
   .then(response => {
     if (response.ok) return response;
-    throw new Error(`${response.status} ${response.statusText}`);
+    throw new Error(`URL: ${url}\nResponse: ${response.status} ${response.statusText}`);
   });
 };
 
@@ -405,8 +393,7 @@ let _bundleLoad = {};
 // return a promise
 function loadBundle(bundleName) {
   if (!_bundleLoad[bundleName]) {
-    const mappedBundleName = _paths[bundleName] || bundleName;
-    const url = toUrl(mappedBundleName);
+    const url = toUrl(bundleName);
     const {nameSpace} = _bundles[bundleName] || {};
     let job;
 
@@ -445,7 +432,7 @@ function loadBundle(bundleName) {
     if (!job) {
       // in nodejs or web worker
       // or need name space in browser doesn't support document.currentScipt
-      job = _fetch(mappedBundleName)
+      job = _fetchUrl(url)
       .then(response => response.text())
       .then(text => {
         // ensure default user space
@@ -636,6 +623,8 @@ function loadJson(name, req, load) {
 function reset() {
   _baseUrl = '';
   _paths = {};
+  _idPaths = {};
+  _urlPaths = {};
   _bundles = {};
   _bundleLoad = {};
 
@@ -703,6 +692,24 @@ function config(opts) {
       }
     });
   }
+
+  // Update idPaths and urlPaths.
+  const idPaths = {};
+  const urlPaths = {};
+  Object.keys(_paths).forEach(k => {
+    // Skip path for bundle, they are not for id mapping.
+    // This fixes an id mapping bug when a named space bundle uses
+    // same name for name space and bundle name.
+    if (_bundles.hasOwnProperty(k) || _paths[k].match(/^(?:https?:)?\//)) {
+      // For bundle path, https://, or /root/path
+      urlPaths[k] = _paths[k];
+    } else {
+      idPaths[k] = _paths[k];
+    }
+  });
+
+  _idPaths = idPaths;
+  _urlPaths = urlPaths;
 }
 
 function arrayToHash(arr) {

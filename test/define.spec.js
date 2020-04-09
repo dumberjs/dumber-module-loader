@@ -479,7 +479,7 @@ test('gets runtime js user space module, with paths', t => {
     paths: {
       'b-bundle': 'bundles/b.js',
       'foo': 'common/foo',
-      'foo/b': '/other/b'
+      'bar/b': '/other/b'
     },
     bundles: {
       'a-bundle': {
@@ -494,7 +494,7 @@ test('gets runtime js user space module, with paths', t => {
   mockFetchApi({
     '/other/b.js': "define([], () => 2);",
     'dist/runtime/a-bundle.js': "define.switchToPackageSpace(); define('a', 1);",
-    'dist/runtime/bundles/b.js': "define('common/foo/bar', ['a', 'foo/b'], (a, b) => a + b + 3);"
+    'dist/runtime/bundles/b.js': "define('common/foo/bar', ['a', 'bar/b'], (a, b) => a + b + 3);"
   });
 
   requirejs(['foo/bar'],
@@ -922,12 +922,18 @@ test('requirejs.toUrl returns url in requirejs fashion', t => {
   t.equal(requirejs.toUrl('text!foo/bar.html'), 'foo/bar.html');
   t.equal(requirejs.toUrl('foo/bar.min'), 'foo/bar.min.js');
 
-  requirejs.config({baseUrl: '/hello/world', paths: {foo: 'common/foo', '../src': ''}});
+  requirejs.config({
+    baseUrl: '/hello/world',
+    paths: {
+      foo: 'common/foo',
+      '../src/': ''
+    }});
   t.equal(requirejs.toUrl('a'), '/hello/world/a.js');
   t.equal(requirejs.toUrl('a.js'), '/hello/world/a.js');
   t.equal(requirejs.toUrl('text!foo/bar.html'), '/hello/world/common/foo/bar.html');
   t.equal(requirejs.toUrl('foo/bar.min'), '/hello/world/common/foo/bar.min.js');
   t.equal(requirejs.toUrl('../src/a'), '/hello/world/a.js');
+  t.equal(requirejs.toUrl('../test/a'), '/hello/test/a.js');
   t.equal(requirejs.toUrl('text!../src/foo/bar.html'), '/hello/world/foo/bar.html');
   t.end();
 });

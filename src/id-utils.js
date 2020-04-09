@@ -205,9 +205,6 @@ export function mapId(id, paths = {}) {
   const pathKeys = Object.keys(paths).sort((a, b) => b.length - a.length);
   for (let i = 0, len = pathKeys.length; i < len; i++) {
     const k = pathKeys[i];
-    // Do not map to https://
-    if (paths[k].match(/^(?:https?:)?\/\//)) continue;
-
     const parsedKey = parse(k);
     if (parsed.parts.length >= parsedKey.parts.length &&
         parsed.parts.slice(0, parsedKey.parts.length).join('/') === k) {
