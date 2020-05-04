@@ -35,6 +35,7 @@ const KNOWN_EXTS = [
 ];
 
 const idMatcher = /^(\S+?!)?(\S+?)\/?$/;
+const remoteMatcher = /^((?:https?:)?\/\/)(.+)/;
 
 export function cleanPath(path = '') {
   let clean = path.trim();
@@ -62,6 +63,12 @@ export function parse(id = '') {
   if (!m) throw new Error(`not a vaid module id: "${id}"`);
   let prefix = m[1] || '';
   let bareId = m[2];
+  let remote = bareId.match(remoteMatcher);
+  let remotePart;
+  if (remote) {
+    remotePart = remote[1].slice(0, -1);
+    bareId = remote[2];
+  }
 
   let extname = ext(bareId);
 
@@ -72,7 +79,9 @@ export function parse(id = '') {
 
   // preserve leading '/'
   let parts = bareId.split('/').filter((p, i) => p || i === 0);
-  if (parts.length > 1 && parts[0].length && parts[0][0] === '@') {
+  if (remotePart) {
+    parts.unshift(remotePart);
+  } else if (parts.length > 1 && parts[0].length && parts[0][0] === '@') {
     let scope = parts.shift();
     parts[0] = scope + '/' + parts[0];
   }

@@ -61,6 +61,12 @@ test('parse parses id with scope', t => {
   t.end();
 });
 
+test('parse parses id with scope', t => {
+  t.deepEqual(parse('https://cdnjs.com/a/b'), {prefix: '', bareId: 'https://cdnjs.com/a/b', parts: ['https:/', 'cdnjs.com', 'a', 'b'], ext: '', cleanId: 'https://cdnjs.com/a/b'});
+  t.deepEqual(parse('//cdnjs.com/a/b'), {prefix: '', bareId: '//cdnjs.com/a/b', parts: ['/', 'cdnjs.com', 'a', 'b'], ext: '', cleanId: '//cdnjs.com/a/b'});
+  t.end();
+});
+
 // resolveModuleId
 
 test('resolveModuleId returns non-relative id', t => {
