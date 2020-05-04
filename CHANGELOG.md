@@ -1,3 +1,12 @@
+## [1.1.10](https://github.com/dumberjs/dumber-module-loader/compare/v1.1.9...v1.1.10) (2020-05-04)
+
+
+### Bug Fixes
+
+* should reconstruct remote module path ([77974d4](https://github.com/dumberjs/dumber-module-loader/commit/77974d4d0fc0dc574bd99e8ae1dc3d6d1f0f2830)), closes [dumberjs/dumber#19](https://github.com/dumberjs/dumber/issues/19)
+
+
+
 ## [1.1.9](https://github.com/dumberjs/dumber-module-loader/compare/v1.1.8...v1.1.9) (2020-04-09)
 
 
