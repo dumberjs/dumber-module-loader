@@ -1,6 +1,6 @@
-import babel from 'rollup-plugin-babel';
+import json from '@rollup/plugin-json';
+import babel from '@rollup/plugin-babel';
 import {terser} from 'rollup-plugin-terser';
-import json from 'rollup-plugin-json';
 
 const banner = `
 if (typeof define !== 'undefined') throw new Error('Global var "define" is occupied!');
@@ -12,7 +12,6 @@ if (typeof require === 'undefined') require = requirejs;
 
 const indexOutput = {
   format: 'iife',
-  name: 'dumberModuleLoader',
   file: 'dist/index.js',
   banner,
   footer
@@ -27,7 +26,7 @@ export default [
     ],
     plugins: [
       json(),
-      babel(),
+      babel({babelHelpers: 'bundled'}),
       terser()
     ]
   },
@@ -39,7 +38,7 @@ export default [
     },
     plugins: [
       json(),
-      babel(),
+      babel({babelHelpers: 'bundled'}),
       terser()
     ]
   }
