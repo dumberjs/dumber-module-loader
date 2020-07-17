@@ -722,6 +722,20 @@ test('space supports above surface module id, case2', t => {
   t.end();
 });
 
+test('space supports above surface module id, case 3', t => {
+  const space = makeSpace(tesseract);
+  space.define('app', ['../package.json'], meta => meta.version);
+  space.define('../package.json', ['text!./package.json'], function(m) {
+    return JSON.parse(m);
+  });
+  space.define('text!../package.json', function() {
+    return '{"version": "1.0.0"}';
+  });
+
+  t.equal(space.req('app'), '1.0.0');
+  t.end();
+});
+
 test('space deals with yallist like circular dependencies', t => {
   const space = makeSpace(tesseract);
 
