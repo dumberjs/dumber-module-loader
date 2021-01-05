@@ -1,6 +1,5 @@
 import {ext, parse, resolveModuleId, nodejsIds} from './id-utils';
-import serialResults from './serial-results';
-
+import {markPromise, isMarkedPromise, serialResults} from './promise-utils';
 const commentRegExp = /\/\*[\s\S]*?\*\/|([^:"'=]|^)\/\/.*$/mg;
 const cjsRequireRegExp = /[^.]\s*require\s*\(\s*["']([^'"\s]+)["']\s*\)/g;
 //Could match something like ')//comment', do not lose the prefix to comment.
@@ -241,7 +240,7 @@ export default function(tesseract) {
         syncLoad = tesseract.req(mId);
       }
 
-      if (syncLoad && typeof syncLoad.then === 'function') {
+      if (isMarkedPromise(syncLoad)) {
         // silent any possible error
         syncLoad.then(() => {}, () => {});
         throw new Error(`module "${mId}" cannot be resolved synchronously.`);
@@ -311,13 +310,13 @@ export default function(tesseract) {
     }
 
     // asynchronous return
-    if (depValues && typeof depValues.then === 'function') {
-      return depValues.then(finalize,
+    if (isMarkedPromise(depValues)) {
+      return markPromise(depValues.then(finalize,
         err => {
           delete _promoting[id];
           throw err;
         }
-      );
+      ));
     }
 
     // synchronous return

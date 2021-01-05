@@ -2,7 +2,7 @@ import {version} from '../package.json';
 import {cleanPath, ext, parse, nodejsIds, mapId, resolveModuleId} from './id-utils';
 import makeSpace from './space';
 import _global from './_global';
-import serialResults from './serial-results';
+import {markPromise, isMarkedPromise, serialResults} from './promise-utils';
 
 // Try prefix plugin (like text!mId) or extension plugin like "ext:css".
 function tryPlugin(mId, space) {
@@ -11,7 +11,7 @@ function tryPlugin(mId, space) {
   // text,json,raw plugins are built-in
   if (pluginId) {
     if (pluginId !== 'text' && pluginId !== 'raw') {
-      return new Promise((resolve, reject) => {
+      return markPromise(new Promise((resolve, reject) => {
         const req = (deps, callback, errback) => {
           const errback2 = e => {
             if (errback) {
@@ -40,13 +40,13 @@ function tryPlugin(mId, space) {
         } catch (err) {
           reject(err);
         }
-      });
+      }));
     }
   } else if (parsed.ext && parsed.ext !== '.js') {
     // Try extension plugin like "ext:css".
     const extPluginName = 'ext:' + parsed.ext.slice(1);
     if (userSpace.has(extPluginName) || packageSpace.has(extPluginName)) {
-      return new Promise((resolve, reject) => {
+      return markPromise(new Promise((resolve, reject) => {
         const req = (deps, callback, errback) => {
           const errback2 = e => {
             if (errback) {
@@ -75,14 +75,14 @@ function tryPlugin(mId, space) {
         } catch (err) {
           reject(err);
         }
-      });
+      }));
     }
     // else by default use text! for any unknown extname
     if (space === userSpace || space.has('text!' + parsed.cleanId)) {
-      return new Promise(resolve => {
+      return markPromise(new Promise(resolve => {
         space.alias(parsed.cleanId, 'text!' + parsed.cleanId);
         resolve(space.req(mId));
-      });
+      }));
     }
   }
 }
@@ -299,14 +299,14 @@ const _fetch = mId => {
 // return a promise
 function runtimeReq(mId) {
   const parsed = parse(mId);
-  return _fetch(parsed.cleanId)
+  return markPromise(_fetch(parsed.cleanId)
   .then(response => {
     // ensure default user space
     define.switchToUserSpace();
 
     for (let i = 0, len = _translators.length; i < len; i++) {
-      const result = _translators[i](parsed, response);
-      if (result && typeof result.then === 'function') return result;
+      const result = markPromise(_translators[i](parsed, response));
+      if (isMarkedPromise(result)) return result;
     }
     throw new Error(`no runtime translator to handle ${parsed.cleanId}`);
   })
@@ -317,7 +317,7 @@ function runtimeReq(mId) {
   .catch(err => {
     console.error(`could not load module "${parsed.cleanId}" from remote`); // eslint-disable-line no-console
     throw err;
-  });
+  }));
 }
 
 // incoming id is already mapped
@@ -345,7 +345,7 @@ function userReqFromBundle(mId) {
   });
 
   if (bundleName) {
-    return loadBundle(bundleName)
+    return markPromise(loadBundle(bundleName)
     .then(() => {
       if (userSpace.has(mId)) return userSpace.req(mId);
       // mId is not directly defined in the bundle, it could be
@@ -353,7 +353,7 @@ function userReqFromBundle(mId) {
       const tried = tryPlugin(mId, userSpace);
       if (tried) return tried;
       throw new Error(`module "${mId}" is missing from bundle "${bundleName}"`);
-    });
+    }));
   }
 }
 
@@ -375,13 +375,13 @@ function packageReqFromBundle(mId) {
   );
 
   if (bundleName) {
-    return loadBundle(bundleName)
+    return markPromise(loadBundle(bundleName)
     .then(() => {
       if (packageSpace.has(mId)) return packageSpace.req(mId);
       const tried = tryPlugin(mId, packageSpace);
       if (tried) return tried;
       throw new Error(`module "${mId}" is missing from bundle "${bundleName}"`);
-    });
+    }));
   }
 
   const err = new Error(`no bundle for module "${mId}"`);
@@ -565,7 +565,7 @@ function requirejs(deps, callback, errback) {
     }
   }
 
-  if (depValues && typeof depValues.then === 'function') {
+  if (isMarkedPromise(depValues)) {
     // asynchronous callback
     return depValues.then(finalize, errHandler);
   }

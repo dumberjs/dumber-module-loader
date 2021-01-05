@@ -1,13 +1,14 @@
 import test from 'tape';
 import makeSpace from '../src/space';
 import {parse} from '../src/id-utils';
+import {markPromise} from '../src/promise-utils';
 
 const tesseract = {
   global: {},
   mappedId: id => id,
   toUrl: id => 'path/to/' + id,
   req(moduleId) {
-    return Promise.reject(new Error('cannot find module ' + moduleId));
+    return markPromise(Promise.reject(new Error('cannot find module ' + moduleId)));
   }
 };
 
@@ -435,7 +436,7 @@ test('space.req accesses tesseract global and req, sychronously', t => {
   const _global = {};
   const req = function (id) {
     if (id === 'a') return 2;
-    return Promise.reject(new Error('cannot find module ' + id));
+    return markPromise(Promise.reject(new Error('cannot find module ' + id)));
   };
 
   const space = makeSpace({global: _global, req, mappedId: id => id});
@@ -455,10 +456,34 @@ test('space.req accesses tesseract global and req, sychronously', t => {
   t.end();
 });
 
+test('space.req accesses tesseract global and req, sychronously, not confused about the module exports looks like a promise', t => {
+  const _global = {};
+  const req = function (id) {
+    if (id === 'a') return {val: 2, then: () => {}};
+    return markPromise(Promise.reject(new Error('cannot find module ' + id)));
+  };
+
+  const space = makeSpace({global: _global, req, mappedId: id => id});
+  space.define('foo', ['a'], function (a) {
+    this.foo = a.val + 3;
+    return this.foo;
+  });
+
+  t.deepEqual(space.ids(), ['foo']);
+
+  const value = space.req('foo');
+  t.equal(value, 5);
+  t.notOk(space.has('a'));
+  t.ok(space.defined('foo'));
+  t.equal(_global.foo, 5, 'mutate global');
+  t.deepEqual(space.ids(), ['foo']);
+  t.end();
+});
+
 test('space.req accesses tesseract global and req, asynchronously', t => {
   const _global = {};
   const req = function (id) {
-    if (id === 'a') return Promise.resolve(2);
+    if (id === 'a') return markPromise(Promise.resolve(2));
     return Promise.reject(new Error('cannot find module ' + id));
   };
 
@@ -558,6 +583,22 @@ test('space.req loads missing commonjs dep sychronously, as long as it is define
   `));
   space.define('a', ['module'], function (module) {
     module.exports = 2;
+  });
+
+  t.deepEqual(space.ids(), ['a', 'foo']);
+  t.equal(space.req('foo').foo, 5);
+  t.end();
+});
+
+test('space.req loads missing commonjs dep sychronously, not confused about the module exports looks like a promise', t => {
+  const space = makeSpace(tesseract);
+  space.define('foo', ['require', 'exports', 'module'], new Function('require', 'exports', 'module', `
+    const a = require('a').val;
+    exports.foo = a + 3;
+  `));
+  space.define('a', ['module'], function (module) {
+    module.exports.val = 2;
+    module.exports.then = function() {};
   });
 
   t.deepEqual(space.ids(), ['a', 'foo']);
