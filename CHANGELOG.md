@@ -1,3 +1,12 @@
+## [1.1.11](https://github.com/dumberjs/dumber-module-loader/compare/v1.1.10...v1.1.11) (2021-01-05)
+
+
+### Bug Fixes
+
+* not confused about module returning promise object ([1c97c88](https://github.com/dumberjs/dumber-module-loader/commit/1c97c88ac451d0c0a1d9905fcd4da86aaea1913d)), closes [#2](https://github.com/dumberjs/dumber-module-loader/issues/2)
+
+
+
 ## [1.1.10](https://github.com/dumberjs/dumber-module-loader/compare/v1.1.9...v1.1.10) (2020-05-04)
 
 
