@@ -97,6 +97,11 @@ Switch to package module space, `define()` call after this will define module in
 
 Returns `"user"` if current space is user space, or `"package"` if current space is packaeg space. Current space only affects `define()` call, it doesn't affect `requirejs()` call.
 
+### `define.nameAnonymous(id)`
+
+Provide a module id for the last anonymous module defined like `define([deps], function() {})`. The new module id is defined on current space (either user space or package space).
+When there is no anonymous module defined, this method will do nothing.
+
 ### `define.reset()`
 
 Reset all config, remove all registered and defined modules, switch to default user space.
