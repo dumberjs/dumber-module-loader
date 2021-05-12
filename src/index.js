@@ -723,6 +723,10 @@ const isBrowser = !!(typeof _global.navigator !== 'undefined' && typeof _global.
 define.switchToUserSpace = switchToUserSpace;
 define.switchToPackageSpace = switchToPackageSpace;
 define.currentSpace = () => currentSpace === userSpace ? 'user' : 'package';
+define.nameAnonymous = (id) => {
+  const parsed = parse(id);
+  currentSpace.nameAnonymous(parsed.cleanId);
+};
 define.reset = reset;
 // define.import = _import;
 requirejs.config = config;

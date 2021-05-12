@@ -2030,3 +2030,49 @@ test('gets runtime js with paths mapped https request, ', t => {
     }
   );
 });
+
+test('names anonymous module in user space', t => {
+  define.reset();
+
+  t.equal(define.currentSpace(), 'user');
+  define(['a', './b'], (a, b) => a + b + 3);
+  define.nameAnonymous('foo/bar');
+  define('foo/b.js', () => 2);
+  t.equal(define.currentSpace(), 'user');
+  define.switchToPackageSpace();
+  t.equal(define.currentSpace(), 'package');
+  define('a', 1);
+
+  requirejs(['foo/bar'],
+    result => {
+      t.equal(result, 6);
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      t.end();
+    }
+  );
+});
+
+test('names anonymous module in package space', t => {
+  define.reset();
+
+  define.switchToPackageSpace();
+  t.equal(define.currentSpace(), 'package');
+  define(['a', './b'], (a, b) => a + b + 3);
+  define.nameAnonymous('foo/bar');
+  define('foo/b.js', () => 2);
+  define('a', 1);
+
+  requirejs(['foo/bar'],
+    result => {
+      t.equal(result, 6);
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      t.end();
+    }
+  );
+});
