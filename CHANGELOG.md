@@ -1,3 +1,12 @@
+# [1.2.0](https://github.com/dumberjs/dumber-module-loader/compare/v1.1.11...v1.2.0) (2021-05-12)
+
+
+### Features
+
+* expose define.nameAnonymous to capture anonymous module ([9f6396d](https://github.com/dumberjs/dumber-module-loader/commit/9f6396d4c933d69e2c869da31821dc3fc634b43a))
+
+
+
 ## [1.1.11](https://github.com/dumberjs/dumber-module-loader/compare/v1.1.10...v1.1.11) (2021-01-05)
 
 
