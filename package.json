@@ -6,7 +6,7 @@
   "scripts": {
     "build": "cross-env BABEL_ENV=development rollup -c",
     "lint": "eslint src test",
-    "prepare": "npm run build",
+    "prepublishOnly": "npm run build",
     "preversion": "npm test",
     "version": "standard-changelog && git add CHANGELOG.md",
     "postversion": "git push && git push --tags && npm publish",
