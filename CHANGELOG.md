@@ -1,3 +1,12 @@
+## [1.2.1](https://github.com/dumberjs/dumber-module-loader/compare/v1.2.0...v1.2.1) (2022-01-26)
+
+
+### Bug Fixes
+
+* requirejs treats "./foo" as "foo" ([d9d88e3](https://github.com/dumberjs/dumber-module-loader/commit/d9d88e3867e4c767462a78dc05562892eadd5dfc))
+
+
+
 # [1.2.0](https://github.com/dumberjs/dumber-module-loader/compare/v1.1.11...v1.2.0) (2021-05-12)
 
 
