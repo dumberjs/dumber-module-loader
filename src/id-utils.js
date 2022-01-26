@@ -209,6 +209,7 @@ export function nodejsIds(id) {
 }
 
 export function mapId(id, paths = {}) {
+  if (id.startsWith('./')) id = id.slice(2);
   const parsed = parse(id);
   let idPath = parsed.bareId;
   const pathKeys = Object.keys(paths).sort((a, b) => b.length - a.length);

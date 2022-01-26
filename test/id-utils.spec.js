@@ -310,12 +310,14 @@ test('mapId returns mapped id', t => {
   };
 
   t.equal(mapId('lorem', paths), 'lorem');
+  t.equal(mapId('./lorem', paths), 'lorem');
   t.equal(mapId('text!lorem', paths), 'text!lorem');
   t.equal(mapId('lorem/foo', paths), 'lorem/foo');
   t.equal(mapId('text!lorem/foo', paths), 'text!lorem/foo');
   t.equal(mapId('lorem/foo/bar', paths), 'lorem/foo/bar');
   t.equal(mapId('lorem/foo/b', paths), 'lorem/foo/b');
   t.equal(mapId('foo', paths), 'common/foo');
+  t.equal(mapId('./foo', paths), 'common/foo');
   t.equal(mapId('foo/bar', paths), 'common/foo/bar');
   t.equal(mapId('text!foo/bar.html', paths), 'text!common/foo/bar.html');
   t.equal(mapId('foo2', paths), 'foo2');
