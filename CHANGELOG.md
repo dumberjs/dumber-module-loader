@@ -1,3 +1,12 @@
+## [1.2.3](https://github.com/dumberjs/dumber-module-loader/compare/v1.2.2...v1.2.3) (2022-04-21)
+
+
+### Bug Fixes
+
+* do not append .js for remote module id ([eab4a7d](https://github.com/dumberjs/dumber-module-loader/commit/eab4a7d48807cd30572c014bc19405ff14a1c9d6))
+
+
+
 ## [1.2.2](https://github.com/dumberjs/dumber-module-loader/compare/v1.2.1...v1.2.2) (2022-04-21)
 
 
