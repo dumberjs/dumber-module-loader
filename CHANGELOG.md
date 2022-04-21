@@ -1,3 +1,12 @@
+## [1.2.2](https://github.com/dumberjs/dumber-module-loader/compare/v1.2.1...v1.2.2) (2022-04-21)
+
+
+### Bug Fixes
+
+* fix parsing remote id ([0dfb602](https://github.com/dumberjs/dumber-module-loader/commit/0dfb60299464065706b012f8924e7d1c98b7f223))
+
+
+
 ## [1.2.1](https://github.com/dumberjs/dumber-module-loader/compare/v1.2.0...v1.2.1) (2022-01-26)
 
 
