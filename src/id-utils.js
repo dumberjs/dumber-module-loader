@@ -35,7 +35,7 @@ const KNOWN_EXTS = [
 ];
 
 const idMatcher = /^(\S+?!)?(\S+?)\/?$/;
-const remoteMatcher = /^((?:https?:)?\/\/|\/)([^/].*)/;
+export const remoteMatcher = /^((?:https?:)?\/\/|\/)([^/].*)/;
 
 export function cleanPath(path = '') {
   let clean = path.trim();

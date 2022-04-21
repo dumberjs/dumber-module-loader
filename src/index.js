@@ -1,5 +1,5 @@
 import {version} from '../package.json';
-import {cleanPath, ext, parse, nodejsIds, mapId, resolveModuleId} from './id-utils';
+import {cleanPath, ext, parse, nodejsIds, mapId, resolveModuleId, remoteMatcher} from './id-utils';
 import makeSpace from './space';
 import _global from './_global';
 import {markPromise, isMarkedPromise, serialResults} from './promise-utils';
@@ -197,7 +197,12 @@ function toUrl(mId) {
   const parsed = parse(mId);
   let url = mapId(parsed.bareId, _urlPaths);
 
-  if (url[0] !== '/' && !url.match(/^https?:\/\//)) {
+  if (url === parsed.bareId && remoteMatcher.exec(url)) {
+    return url;
+  }
+
+  if (!remoteMatcher.exec(url)) {
+    // Add baseUrl
     url = parse(_baseUrl + url).cleanId;
   }
 

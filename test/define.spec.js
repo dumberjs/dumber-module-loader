@@ -2076,3 +2076,103 @@ test('names anonymous module in package space', t => {
     }
   );
 });
+
+test('gets runtime module', t => {
+  define.reset();
+
+  requirejs.config({
+    baseUrl: 'dist/',
+  });
+
+  mockFetchApi({
+    '/foo/bar': "define([], () => 2);",
+  });
+
+  requirejs(['/foo/bar'],
+    result => {
+      t.equal(result, 2);
+      restoreFetchApi();
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      restoreFetchApi();
+      t.end();
+    }
+  );
+});
+
+test('gets runtime module with ext', t => {
+  define.reset();
+
+  requirejs.config({
+    baseUrl: 'dist/',
+  });
+
+  mockFetchApi({
+    '/foo/bar.js': "define([], () => 2);",
+  });
+
+  requirejs(['/foo/bar.js'],
+    result => {
+      t.equal(result, 2);
+      restoreFetchApi();
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      restoreFetchApi();
+      t.end();
+    }
+  );
+});
+
+test('gets cors runtime module', t => {
+  define.reset();
+
+  requirejs.config({
+    baseUrl: 'dist/',
+  });
+
+  mockFetchApi({
+    'https://some.host/foo/bar': "define([], () => 2);",
+  });
+
+  requirejs(['https://some.host/foo/bar'],
+    result => {
+      t.equal(result, 2);
+      restoreFetchApi();
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      restoreFetchApi();
+      t.end();
+    }
+  );
+});
+
+test('gets cors runtime module with ext', t => {
+  define.reset();
+
+  requirejs.config({
+    baseUrl: 'dist/',
+  });
+
+  mockFetchApi({
+    'https://some.host/foo/bar.unknown': "define([], () => 2);",
+  });
+
+  requirejs(['https://some.host/foo/bar.unknown'],
+    result => {
+      t.equal(result, 2);
+      restoreFetchApi();
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      restoreFetchApi();
+      t.end();
+    }
+  );
+});
