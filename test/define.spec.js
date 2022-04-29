@@ -1,5 +1,6 @@
 /* global define, requirejs */
 import test from 'tape';
+import _global from '../src/_global';
 import '../src/index';
 import {mockFetchApi, restoreFetchApi} from './mock-fetch';
 
@@ -2175,4 +2176,37 @@ test('gets cors runtime module with ext', t => {
       t.end();
     }
   );
+});
+
+test('only fires one request for same runtime module', t => {
+  define.reset();
+
+  requirejs.config({
+    baseUrl: 'dist/',
+  });
+
+  mockFetchApi({
+    'dist/foo/bar.js': "define([], () => 2);",
+  });
+
+  function fire() {
+    requirejs(['foo/bar'],
+      result => {
+        t.equal(result, 2);
+      },
+      err => {
+        t.fail(err.message);
+      }
+    );
+  }
+
+  fire();
+  fire();
+  fire();
+
+  setTimeout(() => {
+    t.equal(_global.__fetch_hit['dist/foo/bar.js'], 1);
+    restoreFetchApi();
+    t.end();
+  }, 100);
 });

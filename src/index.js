@@ -282,16 +282,24 @@ const _translators = [
   }
 ];
 
+const _fetchingUrls = Object.create(null);
+
 const _fetchUrl = url => {
   if (typeof _global.fetch === 'undefined') {
     return Promise.reject(new Error(`fetch API is not available, cannot fetch "${url}"`));
   }
-  const options = url.match(/^(?:https?:)?\/\//) ? {mode: 'cors'} : {credentials: 'include'};
-  return _global.fetch(url, options)
-  .then(response => {
-    if (response.ok) return response;
-    throw new Error(`URL: ${url}\nResponse: ${response.status} ${response.statusText}`);
-  });
+  if (!_fetchingUrls[url]) {
+    const options = url.match(/^(?:https?:)?\/\//) ? {mode: 'cors'} : {credentials: 'include'};
+    _fetchingUrls[url] = _global.fetch(url, options)
+    .then(response => {
+      delete _fetchingUrls[url];
+      if (response.ok) return response;
+      throw new Error(`URL: ${url}\nResponse: ${response.status} ${response.statusText}`);
+    });
+  }
+  // response body can only be accessed once.
+  // clone is needed when there are multiple requests.
+  return _fetchingUrls[url].then(response => response.clone());
 };
 
 // incoming id is already mapped
