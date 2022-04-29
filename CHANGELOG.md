@@ -1,3 +1,12 @@
+## [1.2.4](https://github.com/dumberjs/dumber-module-loader/compare/v1.2.3...v1.2.4) (2022-04-29)
+
+
+### Bug Fixes
+
+* avoid duplicated remote requests to same module id ([7d9e417](https://github.com/dumberjs/dumber-module-loader/commit/7d9e4177b74f8678d2b170ba5c73c20715812cf8))
+
+
+
 ## [1.2.3](https://github.com/dumberjs/dumber-module-loader/compare/v1.2.2...v1.2.3) (2022-04-21)
 
 
