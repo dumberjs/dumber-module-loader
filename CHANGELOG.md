@@ -1,3 +1,12 @@
+## [1.2.5](https://github.com/dumberjs/dumber-module-loader/compare/v1.2.4...v1.2.5) (2022-05-18)
+
+
+### Bug Fixes
+
+* should normalise .ts extension ([42748ff](https://github.com/dumberjs/dumber-module-loader/commit/42748ff7b5b9dc5d4b2e208d414f5dd1fdb1cefd))
+
+
+
 ## [1.2.4](https://github.com/dumberjs/dumber-module-loader/compare/v1.2.3...v1.2.4) (2022-04-29)
 
 
