@@ -2210,3 +2210,37 @@ test('only fires one request for same runtime module', t => {
     t.end();
   }, 100);
 });
+
+test('define gets js module from ts name', t => {
+  define.reset();
+
+  define('foo.js', () => 'a');
+
+  requirejs(['foo.ts'],
+    result => {
+      t.equal(result, 'a');
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      t.end();
+    }
+  );
+});
+
+test('define gets plain module from tsx name', t => {
+  define.reset();
+
+  define('foo', () => 'a');
+
+  requirejs(['foo.tsx'],
+    result => {
+      t.equal(result, 'a');
+      t.end();
+    },
+    err => {
+      t.fail(err.message);
+      t.end();
+    }
+  );
+});

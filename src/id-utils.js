@@ -11,7 +11,17 @@ const ALTERNATIVE_TEMPLATE_EXTS = [
   '.haml',
   '.jade',
   '.slim',
-  '.slm'
+  '.slm',
+  '.htm'
+];
+
+const ALTERNATIVE_JS_EXTS = [
+  '.jsx',
+  '.ts',
+  '.tsx',
+  '.mjs',
+  '.cjs',
+  '.coffee'
 ];
 
 const KNOWN_EXTS = [
@@ -20,9 +30,7 @@ const KNOWN_EXTS = [
   '.html',
   ...ALTERNATIVE_TEMPLATE_EXTS,
   '.js',
-  '.ts',
-  '.mjs',
-  '.cjs',
+  ...ALTERNATIVE_JS_EXTS,
   '.json',
   '.json5',
   '.svg',
@@ -184,14 +192,18 @@ export function nodejsIds(id) {
   const ids = [parsed.cleanId];
   const {ext} = parsed;
 
-  if (ext === '.js' || ext === '.ts' || ext === '.mjs' || ext === '.cjs') {
-    ids.push(parsed.cleanId.slice(0, -ext.length));
-  } if (ALTERNATIVE_CSS_EXTS.indexOf(ext) !== -1) {
+  const cleanId = parsed.cleanId.slice(0, -ext.length);
+  if (ext === '.js') {
+    ids.push(cleanId);
+  } else if (ALTERNATIVE_JS_EXTS.indexOf(ext) !== -1) {
+    ids.push(cleanId);
+    ids.push(cleanId + '.js');
+  } else if (ALTERNATIVE_CSS_EXTS.indexOf(ext) !== -1) {
     // be nice to users from webpack, allow import 'a.scss'; to work.
-    ids.push(parsed.cleanId.slice(0, -ext.length) + '.css');
-  } if (ALTERNATIVE_TEMPLATE_EXTS.indexOf(ext) !== -1) {
+    ids.push(cleanId + '.css');
+  } else if (ALTERNATIVE_TEMPLATE_EXTS.indexOf(ext) !== -1) {
     // be nice to users from webpack, allow import 'a.md'; to work.
-    ids.push(parsed.cleanId.slice(0, -ext.length) + '.html');
+    ids.push(cleanId + '.html');
   }
 
   ids.push(parsed.cleanId + '.js');
