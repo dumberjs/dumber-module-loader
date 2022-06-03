@@ -334,5 +334,6 @@ test('mapId returns mapped id', t => {
   t.equal(mapId('text!../src/foo/bar.html', paths), 'text!foo/bar.html');
   t.equal(mapId('el!../src/foo/bar.html', paths), '@some/name-space/el!foo/bar.html');
   t.equal(mapId('vs/editor/editor.main.js', paths), 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.20.0/min/vs/editor/editor.main.js');
+  t.equal(mapId('vs', paths), 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.20.0/min/vs');
   t.end();
 });
