@@ -1,7 +1,6 @@
 import {version} from '../package.json';
 import {cleanPath, ext, parse, nodejsIds, mapId, resolveModuleId, remoteMatcher} from './id-utils';
 import makeSpace from './space';
-import _global from './_global';
 import {markPromise, isMarkedPromise, serialResults} from './promise-utils';
 
 // Try prefix plugin (like text!mId) or extension plugin like "ext:css".
@@ -99,7 +98,7 @@ function tryPlugin(mId, space) {
 // the local `util` module. But any npm package code will use npm package `util`.
 
 const userSpaceTesseract = {
-  global: _global,
+  global: globalThis,
   mappedId,
   toUrl,
   // incoming id is already mapped
@@ -145,7 +144,7 @@ const userSpaceTesseract = {
 const userSpace = makeSpace(userSpaceTesseract);
 
 const packageSpaceTesseract = {
-  global: _global,
+  global: globalThis,
   mappedId,
   toUrl,
   // incoming id is already mapped
@@ -275,7 +274,7 @@ const _translators = [
     .then(text => {
       // runtime req only supports module in user space
       switchToUserSpace();
-      (new Function(text)).call(_global);
+      (new Function(text)).call(globalThis);
       // could be anonymous
       userSpace.nameAnonymous(parsedId.cleanId);
     });
@@ -285,12 +284,12 @@ const _translators = [
 const _fetchingUrls = Object.create(null);
 
 const _fetchUrl = url => {
-  if (typeof _global.fetch === 'undefined') {
+  if (typeof globalThis.fetch === 'undefined') {
     return Promise.reject(new Error(`fetch API is not available, cannot fetch "${url}"`));
   }
   if (!_fetchingUrls[url]) {
     const options = url.match(/^(?:https?:)?\/\//) ? {mode: 'cors'} : {credentials: 'include'};
-    _fetchingUrls[url] = _global.fetch(url, options)
+    _fetchingUrls[url] = globalThis.fetch(url, options)
     .then(response => {
       delete _fetchingUrls[url];
       if (response.ok) return response;
@@ -416,7 +415,7 @@ function loadBundle(bundleName) {
     if (!define.__skip_script_load_test &&
         isBrowser &&
         // no name space or browser has support of document.currentScript
-        (!nameSpace || 'currentScript' in _global.document)) {
+        (!nameSpace || 'currentScript' in globalThis.document)) {
       job = new Promise((resolve, reject) => {
         const script = document.createElement('script');
         if (nameSpace) {
@@ -452,7 +451,7 @@ function loadBundle(bundleName) {
         // the bundle itself may switch to package space in middle of the file
         switchToUserSpace();
         if (!nameSpace) {
-          (new Function(text)).call(_global);
+          (new Function(text)).call(globalThis);
         } else {
           const wrapped = function(id, deps, cb) {
             nameSpacedDefine(nameSpace, id, deps, cb);
@@ -461,7 +460,7 @@ function loadBundle(bundleName) {
           wrapped.switchToUserSpace = switchToUserSpace;
           wrapped.switchToPackageSpace = switchToPackageSpace;
           const f = new Function('define', text);
-          f.call(_global, wrapped);
+          f.call(globalThis, wrapped);
         }
       });
     }
@@ -491,8 +490,8 @@ function definedValues() {
 
 // AMD define
 function define(id, deps, callback) {
-  if (isBrowser && _global.document.currentScript) {
-    const nameSpace = _global.document.currentScript.getAttribute('data-namespace');
+  if (isBrowser && globalThis.document.currentScript) {
+    const nameSpace = globalThis.document.currentScript.getAttribute('data-namespace');
     if (nameSpace) {
       return nameSpacedDefine(nameSpace, id, deps, callback);
     }
@@ -535,7 +534,7 @@ function requirejs(deps, callback, errback) {
   if (errback && typeof errback !== 'function') throw new Error('errback is not a function');
 
   const finalize = results => {
-    if (callback) return callback.apply(_global, results);
+    if (callback) return callback.apply(globalThis, results);
     else return results;
   };
 
@@ -731,7 +730,7 @@ function arrayToHash(arr) {
   return hash;
 }
 
-const isBrowser = !!(typeof _global.navigator !== 'undefined' && typeof _global.document !== 'undefined');
+const isBrowser = !!(typeof globalThis.navigator !== 'undefined' && typeof globalThis.document !== 'undefined');
 
 define.switchToUserSpace = switchToUserSpace;
 define.switchToPackageSpace = switchToPackageSpace;
@@ -759,7 +758,7 @@ requirejs.resolveModuleId = resolveModuleId;
 // different from requirejs, the data-main string is treated simply as the main module id.
 // we don't set baseUrl based on data-main's dirname.
 if (isBrowser) {
-  const scripts = _global.document.getElementsByTagName('script');
+  const scripts = globalThis.document.getElementsByTagName('script');
   const len = scripts.length;
 
   for (let i = len - 1; i >= 0; i--) {
@@ -775,7 +774,7 @@ if (isBrowser) {
 }
 
 reset();
-_global.define = define;
-_global.requirejs = requirejs;
+globalThis.define = define;
+globalThis.requirejs = requirejs;
 
 export default define;

@@ -1,6 +1,5 @@
 /* global define, requirejs */
 import test from 'tape';
-import _global from '../src/_global';
 import '../src/index';
 import {mockFetchApi, restoreFetchApi} from './mock-fetch';
 
@@ -2205,7 +2204,7 @@ test('only fires one request for same runtime module', t => {
   fire();
 
   setTimeout(() => {
-    t.equal(_global.__fetch_hit['dist/foo/bar.js'], 1);
+    t.equal(globalThis.__fetch_hit['dist/foo/bar.js'], 1);
     restoreFetchApi();
     t.end();
   }, 100);

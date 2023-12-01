@@ -1,6 +1,4 @@
-import _global from '../src/_global';
-
-let originalFetchApi = _global.fetch;
+let originalFetchApi = globalThis.fetch;
 
 function makeResponse(obj) {
   return {
@@ -10,10 +8,10 @@ function makeResponse(obj) {
 }
 
 export function mockFetchApi(mock = {}) {
-  _global.define.__skip_script_load_test = true;
-  _global.__fetch_hit = {};
-  _global.fetch = url => {
-    _global.__fetch_hit[url] = 1 + (_global.__fetch_hit[url] || 0);
+  globalThis.define.__skip_script_load_test = true;
+  globalThis.__fetch_hit = {};
+  globalThis.fetch = url => {
+    globalThis.__fetch_hit[url] = 1 + (globalThis.__fetch_hit[url] || 0);
 
     const text = mock[url];
     if (!text) {
@@ -56,6 +54,6 @@ export function mockFetchApi(mock = {}) {
 }
 
 export function restoreFetchApi() {
-  _global.fetch = originalFetchApi;
-  _global.define.__skip_script_load_test = false;
+  globalThis.fetch = originalFetchApi;
+  globalThis.define.__skip_script_load_test = false;
 }
