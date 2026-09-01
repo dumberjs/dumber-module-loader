@@ -29,9 +29,9 @@ requirejs([/\.spec$/], function() {
 * Besides normal plugin, we support ext plugin which targets ext name.
   - by default, dumber-module-loader ships with ext plugins for json/html/svg/css/wasm (do not yet support wasm importObjects).
   - all ext plugins should resolve the underneath content using one of our three predefined plugins: `text!`, `json!`, and `raw!`.
-  - `text!some.fie` will resolve to the text content of the file, at runtime it uses fetch API `reponse.text()` to get the content.
-  - `json!some.fie` will resolve to the parsed json, at runtime it uses fetch API `reponse.json()` to parse the content.
-  - `raw!some.fie` will resolve to fetch API `reponse`, note the result is a promise, not final value.
+  - `text!some.file` will resolve to the text content of the file, at runtime it uses fetch API `reponse.text()` to get the content.
+  - `json!some.file` will resolve to the parsed json, at runtime it uses fetch API `reponse.json()` to parse the content.
+  - `raw!some.file` will resolve to fetch API `reponse`, note the result is a promise, not final value.
   - for instance, our default html support is implemented as
 
   ```js
